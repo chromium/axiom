@@ -1,10 +1,4 @@
 {
-  "globals": {
-    "wam": true,
-    "lib": false,
-    "chrome": false
-  },
-
   "node" : false,
   "browser" : true,
   "es3": false,
