@@ -74,7 +74,7 @@ module.exports = function(grunt) {
         // Concatenate all of our npm deps into a single file.  (We only
         // have one dep right now.)
         src: ['out/amd/lib/npm/**/*.js'],
-        dest: 'out/concat/lib/axiom_npm_deps.amd.js'
+        dest: 'out/concat/lib/' + pkg.name + '_npm_deps.amd.js'
       },
       lib: {
         // Concatenate the AMD version of the transpiled source into a single
