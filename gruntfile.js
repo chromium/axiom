@@ -1,4 +1,4 @@
-// Copyright (c) 2014 The Chromium OS Authors. All rights reserved.
+// Copyright (c) 2014 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -16,7 +16,7 @@ module.exports = function(grunt) {
     pkg: pkg,
     env: process.env,
 
-    clean: ['out'],
+    clean: ['out', 'dist'],
 
     npm_adapt: {
       // This is a custom task defined in ./build/tasks/ which adapts simple
@@ -25,7 +25,7 @@ module.exports = function(grunt) {
         files: [
           {
             cwd: 'out/amd/lib/npm/',
-            src: 'node_modules/semver/semver.js',
+            src: 'node_modules/semver/semver.min.js',
             dest: 'semver.js'
           }
         ]
@@ -38,8 +38,14 @@ module.exports = function(grunt) {
           { expand: true,
             cwd: 'out/concat',
             src: ['lib/' + pkg.name + '.amd.js',
-                  'lib/' + pkg.name + '.amd.min.js'],
-            dest: 'dist/'
+                  'lib/' + pkg.name + '.amd.min.js',
+                  'lib/' + pkg.name + '_npm_deps.amd.js'],
+            dest: 'dist/amd/'
+          },
+          { expand: true,
+            cwd: 'out/cjs',
+            src: ['lib/**/*.js'],
+            dest: 'dist/cjs'
           }
         ]
       }

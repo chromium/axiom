@@ -1,34 +1,80 @@
-# Axiom loader library.
+# Axiom library.
 
-## Source Setup
+This is repo a work-in-progress.  See [HACK.md](HACK.md) for information on the development set up.
 
-The build requires [npm](https://github.com/npm/npm) and [grunt](http://gruntjs.com/).
+## Axiom Core
 
-Npm is the Node Package Manager.  It's the package manager for node.js, and is part of the standard node.js installation.  Node can be installed for all users (as root) or for a single user.  I recommend the single-user home-directory based node install, which goes like this:
+The Axiom core introduces the concepts of a `Package`, a `Service`, and an `Extension`.
 
-```sh
-$ cd ~/tmp
-$ curl -L https://npmjs.org/install.sh
-$ npm_config_prefix=~/opt/ install.sh
-$ # Make sure `~/opt/bin` stays in your path.
+A `Package` is the basic unit of thing-that-can-be-loaded.  Packages can be compiled in or runtime-loadable via HTML imports (Eventually).  The have identifiers and versions, and can specify dependencies on other packages.  They are tracked by a `PackageManager`.
+
+A `Package` can optionally contribute one or more named services.  A service is an arbitrary object associated with a pre-shared identifier.  For example, a package could contribute a "commands" service, which is where other packages would go to register new commands or to dispatch existing commands.
+
+```js
+import PackageManager from '/axiom/core/package_manager';
+
+// CommandManager is for illustration only, it doesn't exist yet.
+import CommandManager from '/axiom/runtime/command_manager';
+var commandManager = new CommandManager();
+
+var pm = new PackageManager();
+pm.define(
+  { id: 'axiom-services',
+    version: '1.0.0',
+    // The list of services we intend to define.
+    'services': ['commands', ...]
+  }).then(
+  function(package) {
+    package.bindService('commands',
+      { get: function() {
+          return Promise.resolve(commandManager)
+        },
+        extend: function(extension) {
+          // "extension" is an instance of 'axiom/core/extension'.
+          // The CommandManager interprets extension.descriptor as it sees fit
+          // and returns a promise to indicate success or failure.
+          return commandManager.extend(extension);
+        }
+      })
+  });
 ```
 
-You can check that node and npm are properly installed by running `npm --version`.
+Services can be "extended" by other packages.  An extension is an arbitrary configuration object associated with a source package and registered with a target service.  The configuration object can be provided statically, before the source package is actually loaded.  The Axiom library treats the configuration object as opaque data whose interpretation is defined by the target service. 
 
-Next, install grunt with `npm install grunt`, check it with `grunt --version`.
+To continue the previous example, extending the 'commands' service to include a quit command might look like this...
 
-## Build
+```js
 
-Once that's working run `npm install` from within the directory containing this readme file.  That command will fetch the build and runtime dependencies and install them into `./node_modules`.  You'll need to run `npm install` each time an external dependency is added.
+var dispatch = function(e) {
+  if (e.command.name === 'quit')
+    quit();
+};
 
-To build the axiom loader library type `grunt`.  That's it.
+pm.define(
+  { id: 'my-axiom-app',
+    version: '1.0.0',
+    'dependencies': 'axiom-runtime^1.0.0'
+    'extends': {
+      'commands': {
+        'define-commands': {
+          'quit': {}
+        }
+      }
+    }
+  }).then(
+  function(package) {
+    package.bindExtension('commands', {dispatch: dispatch});
+  });
+```
 
-The build generates interim deliverables in `./out/`.  See `./gruntfile.js` for the details.
+Packages can be disabled/enabled, and said state propagates to services and extensions provided by the package.
 
-## Usage
+## Axiom Services
 
-There aren't any tests yet and this is just a library so there's no app to run.
+Rough swing at the default services...
 
-The amd version of the library ends up in `./out/concat/axiom.amd.js`, and any external npm dependcies are in `./out/concat/axiom_npm_deps.js`.  If you're using the axiom loader library in an app that also has npm dependencies you'll probably want to generate your own deps.js file.  That's ok, just make sure to include our dependencies as specified in `./package.json`.
-
-To use this library in node.js or another CommonJS Environment, use the files from `./out/cjs/`.
+* The "commands" service.  Instance of a CommandManager, which is a registry of things that can be done and a dispatch() method to do them.
+* The "preferences" service.  Instance of a Preference Manager, which is a registry of setting {name: (type, default-value, current-value).  Options for cloud synced and machine local storage.  Import/export as flat file.  Each entry is scoped to the Package that defined it.
+* The "views" service.  Instance of a ViewManager, which is a registry of top level and dependent views and methods to show/hide/move them.
+* The "windows" service.  Window Manager, controller of active windows and the views they contain.  Includes create/destroy/save/restore methods.
+* The "filesystem" service.  A virtual filesystem API which can front for a number of persistent filesystem implementations.
