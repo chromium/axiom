@@ -17,8 +17,8 @@ import ModuleManager from '/axiom/core/module_manager';
 import CommandManager from '/axiom/services/command_manager';
 var commandManager = new CommandManager();
 
-var pm = new ModuleManager();
-pm.define(
+var mm = new ModuleManager();
+mm.define(
   { id: 'axiom-services',
     version: '1.0.0',
     // The list of services we intend to define.
@@ -45,12 +45,12 @@ To continue the previous example, extending the 'commands' service to include a 
 
 ```js
 
-var dispatch = function(e) {
-  if (e.command.name === 'quit')
-    quit();
+var callCommand = function(name, arg) {
+  if (name === 'quit')
+    quit(arg);
 };
 
-pm.define(
+mm.defineModule(
   { id: 'my-axiom-app',
     version: '1.0.0',
     'dependencies': 'axiom^1.0.0'
@@ -63,7 +63,7 @@ pm.define(
     }
   }).then(
   function(module) {
-    module.bindExtension('commands', {dispatch: dispatch});
+    module.bindExtension('commands', {'call': callCommand});
   });
 ```
 
