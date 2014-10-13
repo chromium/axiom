@@ -30,7 +30,7 @@ module.exports = function(grunt) {
                    contents + '\n' +
                    '__exports__["default"] = module.exports;\n' +
                    'for (var _k in module.exports)\n' +
-                   '  __exports__[k] = module.exports[_k];\n' +
+                   '  __exports__[_k] = module.exports[_k];\n' +
                    '});\n');
     }
   });

@@ -5,13 +5,15 @@ The build requires [npm](https://github.com/npm/npm) and [grunt](http://gruntjs.
 Npm is the Node Package Manager.  It's the package manager for node.js, and is part of the standard node.js installation.  Node can be installed for all users (as root) or for a single user.  I recommend the single-user home-directory based node install, which goes like this:
 
 ```sh
-$ cd ~/tmp
-$ curl -L https://npmjs.org/install.sh
-$ npm_config_prefix=~/opt/ install.sh
-$ # Make sure `~/opt/bin` stays in your path.
+Visit [http://nodejs.org/download/](http://nodejs.org/download/) and download the latest version of the node.js source.  Untar the source
+
+```sh
+$ cd ~/path/to/nodejs/source/
+$ ./configure --path=~/opt/
+$ make install
 ```
 
-You can check that node and npm are properly installed by running `npm --version`.
+Make sure to modify your PATH to include `~/opt/bin`.  You can check that node and npm are properly installed by running `npm --version`.
 
 Next, install grunt with `npm install grunt`, check it with `grunt --version`.
 
