@@ -27,10 +27,10 @@ var makeManifest = function(version, mode) {
     app: {
       background: {
         scripts: [
-          "js/loader.js",
+          "js/amd_loader.js",
           "js/axiom_npm_deps.amd.js",
           "js/axiom.amd.js",
-          "js/wash.amd.js",
+          "js/axiom_shell.amd.js",
           "js/chrome_app_background.js"
         ]
       }
