@@ -8,13 +8,14 @@ if (typeof define !== 'function' && typeof requireModule !== 'function') {
       registry[name] = { deps: deps, callback: callback };
     };
 
-    requireModule = function(name) {
+    requireModule = function(name, from) {
       if (seen[name]) { return seen[name]; }
 
       var mod = registry[name];
 
       if (!mod) {
-        throw new Error("Module: '" + name + "' not found.");
+        throw new Error("Module: '" + name +
+                        "' not found, referenced from: " + from);
       }
 
       var deps = mod.deps,
@@ -22,11 +23,11 @@ if (typeof define !== 'function' && typeof requireModule !== 'function') {
       reified = [],
       exports;
 
-      for (var i=0, l=deps.length; i<l; i++) {
+      for (var i = 0, l = deps.length; i<l; i++) {
         if (deps[i] === 'exports') {
           reified.push(exports = {});
         } else {
-          reified.push(requireModule(deps[i]));
+          reified.push(requireModule(deps[i], name));
         }
       }
 
