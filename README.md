@@ -33,7 +33,7 @@ The `whenReady` method works for modules that you know are loaded by default.  I
 
 ```js
 var serviceBinding = serviceManager.getServiceBinding('usb-api');
-serviceBinding.whenReady().then(function() {
+serviceBinding.whenLoadedAndReady().then(function() {
   serviceBinding.open(...);
 });
 ```
