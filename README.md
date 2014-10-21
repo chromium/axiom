@@ -7,17 +7,18 @@ This is repo a work-in-progress.  See [HACK.md](HACK.md) for information on the 
 The Axiom core introduces the concepts of a `Module`, a `Service`, and an `Extension`.
 
 A `Module` is the basic unit of thing-that-can-be-loaded.  Modules can be compiled in or runtime-loadable via HTML imports.  The have identifiers and versions, and can specify dependencies on other modules.
+
 A `Service` is an object provided by a Module.  For example, the "commands" service, provided by the base Axiom module, contains a registry of commands that can be dispatched within an application.
 
-An `Extension` is an object applied to another module's Service.  The [axiom_shell](../axiom_shell) module provided an extension to the "commands" service which defines the commands available in the Axiom Shell application.
+An `Extension` is an object applied to another module's Service.  The [axiom_shell](https://github.com/rginda/axiom_shell) module provided an extension to the "commands" service which defines the commands available in the Axiom Shell application.
 
 Each module has an associated module descriptor which specifies the services and extenstion contained within the module.  Service descriptors specify the service's interface (methods and events), a schema for the service's extension descriptor, and an interface for extension implementations.  See the [base descriptor](lib/axiom/descriptor.js) for an example.
 
 ## Bindings
 
-Modules, Services, and Extensions can all be described separate from their implementations.  Because of this, the Module, Service, and Extension objects are a representation of the descriptor and the actions that can be performed using only the descriptor.  You cannot use one of these objects to directly call the implementation behind a Module, Service, or Extension.  For that, the module associated with the object must be loaded, and the module must associate some "real" object with the Axiom Module, Service, or Extension object.
+Modules, Services, and Extensions can all be described separate from their implementations.  Because of this, the [Module](lib/axiom/core/module.js), [Service](lib/axiom/core/service.js), and [Extension](lib/axiom/core/extension.js) objects are a representation of the descriptor and the actions that can be performed using only the descriptor.  You cannot use one of these objects to directly call the implementation behind a Module, Service, or Extension.  For that the module associated with the object must be loaded, and the module must associate some "real" object with the Axiom Module, Service, or Extension object.
 
-This is done with objects called `Bindings`.  Bindings are simple JS objects that represent a connection between two bits of code.  When a binding is defined it can include a number of "unbound methods".  Attaching to a binding is a proces of connecting an implementation to each of these unbound methods and marking the binding as "ready".  (NOTE: Bindings sometimes use events in place of methods, when it's possible that more than one recipient may care about a notification.)
+This is done with objects called `Bindings` (see [lib/axiom/bindings/](./lib/axiom/bindings/)).  Bindings are simple JS objects that represent a connection between two bits of code.  When a binding is defined it can include a number of "unbound methods".  Attaching to a binding is a proces of connecting an implementation to each of these unbound methods and marking the binding as "ready".  (NOTE: Bindings sometimes use events in place of methods, when it's possible that more than one recipient may care about a notification.)
 
 Holders of a Binding object must ensure that the binding is ready before they call any unbound methods or raise any events.  There's a simple `whenReady` method that can be used for this purpose.  `whenReady` returns a `Promise` that resolves when the binding is ready or rejects if the binding fails to become ready.
 
