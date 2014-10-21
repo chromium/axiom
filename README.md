@@ -6,68 +6,46 @@ This is repo a work-in-progress.  See [HACK.md](HACK.md) for information on the 
 
 The Axiom core introduces the concepts of a `Module`, a `Service`, and an `Extension`.
 
-A `Module` is the basic unit of thing-that-can-be-loaded.  Modules can be compiled in or runtime-loadable via HTML imports (Eventually).  The have identifiers and versions, and can specify dependencies on other modules.  They are tracked by a `ModuleManager`.
+A `Module` is the basic unit of thing-that-can-be-loaded.  Modules can be compiled in or runtime-loadable via HTML imports.  The have identifiers and versions, and can specify dependencies on other modules.
+A `Service` is an object provided by a Module.  For example, the "commands" service, provided by the base Axiom module, contains a registry of commands that can be dispatched within an application.
 
-A `Module` can optionally contribute one or more named services.  A service is an arbitrary object associated with a pre-shared identifier.  For example, a module could contribute a "commands" service, which is where other modules would go to register new commands or to dispatch existing commands.
+An `Extension` is an object applied to another module's Service.  The [axiom_shell](../axiom_shell) module provided an extension to the "commands" service which defines the commands available in the Axiom Shell application.
 
-```js
-import ModuleManager from '/axiom/core/module_manager';
+Each module has an associated module descriptor which specifies the services and extenstion contained within the module.  Service descriptors specify the service's interface (methods and events), a schema for the service's extension descriptor, and an interface for extension implementations.  See the [base descriptor](lib/axiom/descriptor.js) for an example.
 
-// CommandManager is for illustration only, it doesn't exist yet.
-import CommandManager from '/axiom/services/command_manager';
-var commandManager = new CommandManager();
+## Bindings
 
-var mm = new ModuleManager();
-mm.define(
-  { id: 'axiom-services',
-    version: '1.0.0',
-    // The list of services we intend to define.
-    'services': ['commands', ...]
-  }).then(
-  function(module) {
-    module.bindService('commands',
-      { get: function() {
-          return Promise.resolve(commandManager)
-        },
-        extend: function(extension) {
-          // "extension" is an instance of 'axiom/core/extension'.
-          // The CommandManager interprets extension.descriptor as it sees fit
-          // and returns a promise to indicate success or failure.
-          return commandManager.extend(extension);
-        }
-      })
-  });
-```
+Modules, Services, and Extensions can all be described separate from their implementations.  Because of this, the Module, Service, and Extension objects are a representation of the descriptor and the actions that can be performed using only the descriptor.  You cannot use one of these objects to directly call the implementation behind a Module, Service, or Extension.  For that, the module associated with the object must be loaded, and the module must associate some "real" object with the Axiom Module, Service, or Extension object.
 
-Services can be "extended" by other modules.  An extension is an arbitrary configuration object associated with a source module and registered with a target service.  The configuration object can be provided statically, before the source module is actually loaded.  The Axiom library treats the configuration object as opaque data whose interpretation is defined by the target service.
+This is done with objects called `Bindings`.  Bindings are simple JS objects that represent a connection between two bits of code.  When a binding is defined it can include a number of "unbound methods".  Attaching to a binding is a proces of connecting an implementation to each of these unbound methods and marking the binding as "ready".  (NOTE: Bindings sometimes use events in place of methods, when it's possible that more than one recipient may care about a notification.)
 
-To continue the previous example, extending the 'commands' service to include a quit command might look like this...
+Holders of a Binding object must ensure that the binding is ready before they call any unbound methods or raise any events.  There's a simple `whenReady` method that can be used for this purpose.  `whenReady` returns a `Promise` that resolves when the binding is ready or rejects if the binding fails to become ready.
 
 ```js
-
-var callCommand = function(name, arg) {
-  if (name === 'quit')
-    quit(arg);
-};
-
-mm.defineModule(
-  { id: 'my-axiom-app',
-    version: '1.0.0',
-    'dependencies': 'axiom^1.0.0'
-    'extends': {
-      'commands': {
-        'define-commands': {
-          'quit': {}
-        }
-      }
-    }
-  }).then(
-  function(module) {
-    module.bindExtension('commands', {'call': callCommand});
-  });
+var serviceBinding = serviceManager.getServiceBinding('commands');
+serviceBinding.whenReady().then(function() {
+  serviceBinding.dispatch('foo', null);
+});
 ```
 
-Modules can be disabled/enabled, and said state propagates to services and extensions provided by the module.
+The `whenReady` method works for modules that you know are loaded by default.  If you expect that the module may not yet be loaded, use `whenLoadedAndReady` instead.
+
+```js
+var serviceBinding = serviceManager.getServiceBinding('usb-api');
+serviceBinding.whenReady().then(function() {
+  serviceBinding.open(...);
+});
+```
+
+## Binding lifetime
+
+Bindings have a lifetime defined by their `readyState` property.  A binding is created in the `'WAIT'` state.  It remains in that state until someone explicitly calls the `ready(value)` method to mark the binding as ready for use.  Some bindings may become invalid, if the underlying implementation is unloaded, or some transient connection to it is lost.  In this case, the binding should be closed with `closeOk(value)` or `closeError(value)`.
+
+The values provided to `ready`, `closeOk` and `closeError` are remembered on the binding, and provided to the binding's onReady and onClose events.  The ok/error disposition of the close is also remembered on the binding.
+
+If an error happens while making the binding ready the `closeError` method should be called, and the binding will transition to the `'ERROR'` state.
+
+It's up to the individual binding and its clients to decide whether or not a binding can successfully transition back to '`READY'` after a `'CLOSE'` or `'ERROR'`.  These "restartable" bindings may need special treatment by client code to cope with the fact that onReady and onClose may fire more than once.
 
 ## Axiom Services
 
