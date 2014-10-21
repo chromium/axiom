@@ -48,6 +48,92 @@ If an error happens while making the binding ready the `closeError` method shoul
 
 It's up to the individual binding and its clients to decide whether or not a binding can successfully transition back to '`READY'` after a `'CLOSE'` or `'ERROR'`.  These "restartable" bindings may need special treatment by client code to cope with the fact that onReady and onClose may fire more than once.
 
+## Module Descriptors
+
+Here's a sample from Axiom's module [descriptor](lib/axiom/descriptor.js).  The `'axiom-services'` module hosts the default services provided by Axiom.  It is typically pre-loaded as part of the Axiom library.
+
+```js
+{
+  // An identifier for this module, so it can be referred to later.
+  'id': 'axiom-services',
+
+  // A semantic version string for the module.
+  'version': '1.0.0',
+
+  // The list of services provided by this module.
+  'provides': {
+
+    // The 'commands' service is a registry of named actions that can be
+    // performed within an application.
+    'commands': {
+      // The 'service-binding' attribute declares the additional methods and/or
+      // events that can be found on the ServiceBinding associated with this
+      // service.
+      'service-binding': {
+        /**
+         * Call this to ask the command service to run a command.
+         */
+        'dispatch': {'type': 'method', 'args': ['name', 'arg']}
+      },
+
+      // The 'extension-descriptor' attribute defines the list of attributes
+      // expected when declaring an extension to this service.
+      'extension-descriptor': {
+        /**
+         * Add to the list of known argument types.
+         */
+        'define-args': {'type': 'array'},
+        /**
+         * Add to the list of known commands.
+         */
+        'define-commands': {'type': 'array'}
+      },
+
+      // The 'extension-binding' attribute defines the additional methods
+      // and/or events that can be found on an ExtensionBinding associated
+      // with an extension to this service.
+      'extension-binding': {
+        /**
+         * The command service will call this when it's time to run a command
+         * provided by your extension.
+         */
+        'call': {'type': 'method', 'args': ['name', 'arg']}
+      }
+    },
+
+    // Additional services can be declared here.
+    ...
+  }
+}
+```
+
+And another sample from the [Axiom Shell](https://github.com/rginda/axiom_shell) [descriptor](https://github.com/rginda/axiom_shell/lib/axiom_shell/descriptor.js) , showing how a new command is defined.
+
+
+```js
+{
+  'id': 'axiom_shell',
+  'version': '1.0.0',
+  // Declares that we require a compatible axiom-services module.
+  'requires': 'axiom-services^1.0.0',
+
+  // The list of services we extend.
+  'extends': {
+
+    // Services must have globally unique identifiers.  The 'commands'
+    // identifier here references the service defined by the 'axiom-services'
+    // module.
+    'commands': {
+      // This is the 'define-commands' attribute introduced in the
+      // 'extension-descriptor' of the 'commands' service declaration.
+      'define-commands': {
+        'launch-app': {}
+      },
+    }
+  }
+};
+```
+
 ## Axiom Services
 
 Rough swing at the default services...
