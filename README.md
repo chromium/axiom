@@ -10,8 +10,8 @@ Normally, you'd use `npm install` to satisfy the dependency on axiom library, bu
 $ cd /path/to/axiom
 $ npm link  # This symlinks the axiom directory into your global node_modules.
 $ cd /path/to/axiom_shell
-$ # This links from global node_modules/axiom to the local node_modules/ \
-    directory.
+$ # This links from global node_modules/axiom to the local node_modules/
+$ # directory.
 $ npm link axiom
 ```
 
