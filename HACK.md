@@ -4,7 +4,6 @@ The build requires [npm](https://github.com/npm/npm) and [grunt](http://gruntjs.
 
 Npm is the Node Package Manager.  It's the package manager for node.js, and is part of the standard node.js installation.  Node can be installed for all users (as root) or for a single user.  I recommend the single-user home-directory based node install, which goes like this:
 
-```sh
 Visit [http://nodejs.org/download/](http://nodejs.org/download/) and download the latest version of the node.js source.  Untar the source
 
 ```sh
