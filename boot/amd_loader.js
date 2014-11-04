@@ -8,14 +8,16 @@ if (typeof define !== 'function' && typeof requireModule !== 'function') {
       registry[name] = { deps: deps, callback: callback };
     };
 
-    requireModule = function(name, from) {
+    requireModule = function(name, opt_fromList) {
       if (seen[name]) { return seen[name]; }
+      var fromList = opt_fromList || [];
 
       var mod = registry[name];
 
       if (!mod) {
         throw new Error("Module: '" + name +
-                        "' not found, referenced from: " + from);
+                        "' not found, referenced from: " +
+                        fromList[fromList.length - 1]);
       }
 
       var deps = mod.deps,
@@ -23,13 +25,19 @@ if (typeof define !== 'function' && typeof requireModule !== 'function') {
       reified = [],
       exports;
 
+      fromList.push(name);
+
       for (var i = 0, l = deps.length; i<l; i++) {
         if (deps[i] === 'exports') {
           reified.push(exports = {});
         } else {
-          reified.push(requireModule(deps[i], name));
+          if (fromList.indexOf(deps[i]) != -1)
+            throw new Error('Circular dependency: ' + name + ' -> ' + deps[i]);
+          reified.push(requireModule(deps[i], fromList));
         }
       }
+
+      fromList.pop(name);
 
       var value = callback.apply(this, reified);
 

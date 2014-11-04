@@ -21,5 +21,5 @@ But, since the axiom library is so new, you're probably making changes to the ax
 
 ```sh
 $ cd /path/to/axiom_shell
-$ cd node_modules/axiom; grunt dist; cd ../../; grunt reload_chrome_app
+$ if ( cd node_modules/axiom; grunt dist ); then grunt reload_chrome_app; fi
 ```
