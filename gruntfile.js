@@ -16,7 +16,11 @@ module.exports = function(grunt) {
     pkg: pkg,
     env: process.env,
 
-    clean: ['out', 'dist'],
+    clean: {
+      all: ['out', 'dist'],
+      most: ['out'],
+      transpile: ['out/amd', 'out/cjs']
+    },
 
     npm_adapt: {
       // This is a custom task defined in ./build/tasks/ which adapts simple
@@ -110,8 +114,8 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('build', ['jshint', 'transpile', 'npm_adapt', 'concat',
-                               'uglify']);
+  grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
+                               'npm_adapt', 'concat', 'uglify']);
   grunt.registerTask('dist', ['build', 'copy:dist']);
   grunt.registerTask('default', ['build']);
 };
