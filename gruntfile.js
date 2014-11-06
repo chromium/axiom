@@ -40,7 +40,14 @@ module.exports = function(grunt) {
             src: ['images/**/*.png'],
             dest: 'out/chrome_app/'
           },
-          { expand: true,
+          {
+            expand: true,
+            cwd: 'chrome_app/',
+            src: ['html/**/*.html'],
+            dest: 'out/chrome_app/'
+          },
+          {
+            expand: true,
             cwd: 'boot/',
             src: ['amd_loader.js', 'chrome_app_background.js'],
             dest: 'out/chrome_app/js/'
