@@ -13,6 +13,7 @@
   "lastsemic": true,
   "latedef": true,
   "laxbreak": false,
+  "loopfunc": true,
   "newcap": true,
   "noarg": true,
   "noempty": false,

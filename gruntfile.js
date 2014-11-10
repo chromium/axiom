@@ -16,7 +16,11 @@ module.exports = function(grunt) {
     pkg: pkg,
     env: process.env,
 
-    clean: ['out', 'dist'],
+    clean: {
+      all: ['out', 'dist'],
+      most: ['out/*', '!out/chrome-profile'],
+      transpile: ['out/amd', 'out/cjs']
+    },
 
     chrome_app_manifest: {
       tot: {
@@ -135,8 +139,8 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('build', ['jshint', 'transpile', 'concat',
-                               'uglify', 'copy:chrome_app']);
+  grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
+                               'concat', 'uglify', 'copy:chrome_app']);
   grunt.registerTask('dist', ['build', 'copy:dist']);
 
   grunt.registerTask('reload_chrome_app',
