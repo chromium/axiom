@@ -1,0 +1,32 @@
+<!-- Main Window Frame-->
+<html>
+<head>
+  <link rel="import" href="bower_components/polymer/polymer.html">
+  <link rel="import" href="axiom-container.html">
+  <link rel="import" href="axiom-view.html">
+  <link rel="import" href="axiom-splitter.html">
+  <link rel="import" href="axiom-tabs.html">
+  <link rel="import" href="axiom-anchors.html">
+</head>
+<body>
+  <polymer-element name="axiom-frame">
+    <template>
+      <style>
+        :host([debug]) {
+          /* TODO(rpaquay): debug only */
+          border-width: 4px;
+          border-style: solid;
+          border-color: bisque;
+        }
+        #anchors {
+          background: rgba(30,0,0,0.5);
+        }
+      </style>
+     <content></content>
+     <axiom-anchors id="anchors"></axiom-anchors>
+    </template>
+    <script src="axiom-view-manager.js"></script>
+    <script src="axiom-frame.js"></script>
+  </polymer-element>
+</body>
+</html>

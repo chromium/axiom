@@ -19,7 +19,8 @@ module.exports = function(grunt) {
     clean: {
       all: ['out', 'dist'],
       most: ['out'],
-      transpile: ['out/amd', 'out/cjs']
+      transpile: ['out/amd', 'out/cjs'],
+      polymer: ['out/polymer', 'dist/polymer']
     },
 
     npm_adapt: {
@@ -50,9 +51,23 @@ module.exports = function(grunt) {
             cwd: 'out/cjs',
             src: ['lib/**/*.js'],
             dest: 'dist/cjs'
+          },
+          { expand: true,
+            cwd: 'out/polymer',
+            src: ['axiom-vulcanized.html', '*.js', 'bower_components/platform/platform.js', 'bower_components/polymer/polymer.js'],
+            dest: 'dist/polymer/'
           }
         ]
-      }
+      },
+      polymer_out: {
+        files: [
+          { expand: true,
+            cwd: 'lib/polymer',
+            src: ['axiom-vulcanized.html', '*.js', 'bower_components/platform/platform.js', 'bower_components/polymer/polymer.js'],
+            dest: 'out/polymer/'
+          }
+        ]
+      },
     },
 
     // Convert our ES6 import/export keywords into plain js.  We generate an
@@ -64,7 +79,7 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           cwd: 'lib/',
-          src: ['**/*.js'],
+          src: ['axiom/**/*.js'],
           dest: 'out/amd/lib/'
         }]
       },
@@ -73,7 +88,7 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           cwd: 'lib/',
-          src: ['**/*.js'],
+          src: ['axiom/**/*.js'],
           dest: 'out/cjs/lib/'
         }]
       }
@@ -97,7 +112,7 @@ module.exports = function(grunt) {
     // Linting.
     jshint: {
       lib: {
-        src: 'lib/**/*.js',
+        src: 'lib/axiom/**/*.js',
         options: {
           jshintrc: '.jshintrc',
           force: false
@@ -111,11 +126,42 @@ module.exports = function(grunt) {
        src: ['out/concat/lib/' + pkg.name + '.amd.js'],
         dest: 'out/concat/lib/' + pkg.name + '.amd.min.js'
       },
+    },
+
+    // Bower package support:
+    bower: {
+      // Run 'grunt bower:install' and you'll see files from your Bower packages
+      // in lib directory
+      install: {
+        options: {
+          targetDir: 'lib/polymer/bower_components',
+          install: true,
+          /*verbose: true,*/
+          cleanTargetDir: false,
+          cleanBowerDir: true
+        }
+      },
+    },
+
+    vulcanize: {
+      default: {
+        options: {
+          csp: true
+        },
+        files: {
+          /* Note: We generate in the "lib" directory because we want to have
+           * url with relative paths starting at the current directory.
+           * Another option would be to copy everything in "out" before vulcanizing,
+           * but that would be alot of files to copy to merely generate 2 output files. */
+          'lib/polymer/axiom-vulcanized.html': ['lib/polymer/axiom.html']
+        },
+      }
     }
   });
 
+  grunt.registerTask('build_polymer', ['bower:install', 'clean:polymer', 'vulcanize', 'copy:polymer_out']);
   grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
-                               'npm_adapt', 'concat', 'uglify']);
+                               'npm_adapt', 'build_polymer', 'concat', 'uglify']);
   grunt.registerTask('dist', ['build', 'copy:dist']);
   grunt.registerTask('default', ['build']);
 };
