@@ -3,3 +3,5 @@ node_modules/
 out/
 dist/
 lib/polymer/bower_components/
+/lib/polymer/axiom-vulcanized.js
+/lib/polymer/axiom-vulcanized.html
