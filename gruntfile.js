@@ -54,7 +54,7 @@ module.exports = function(grunt) {
           },
           { expand: true,
             cwd: 'out/polymer',
-            src: ['axiom-vulcanized.html', '*.js', 'bower_components/platform/platform.js', 'bower_components/polymer/polymer.js'],
+            src: ['axiom_vulcanized.html', '*.js', 'bower_components/platform/platform.js', 'bower_components/polymer/polymer.js'],
             dest: 'dist/polymer/'
           }
         ]
@@ -63,7 +63,7 @@ module.exports = function(grunt) {
         files: [
           { expand: true,
             cwd: 'lib/polymer',
-            src: ['axiom-vulcanized.html', '*.js', 'bower_components/platform/platform.js', 'bower_components/polymer/polymer.js'],
+            src: ['axiom_vulcanized.html', '*.js', 'bower_components/platform/platform.js', 'bower_components/polymer/polymer.js'],
             dest: 'out/polymer/'
           }
         ]
@@ -153,7 +153,7 @@ module.exports = function(grunt) {
            * url with relative paths starting at the current directory.
            * Another option would be to copy everything in "out" before vulcanizing,
            * but that would be alot of files to copy to merely generate 2 output files. */
-          'lib/polymer/axiom-vulcanized.html': ['lib/polymer/axiom.html']
+          'lib/polymer/axiom_vulcanized.html': ['lib/polymer/axiom.html']
         },
       }
     }
