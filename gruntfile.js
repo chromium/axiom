@@ -138,7 +138,8 @@ module.exports = function(grunt) {
           install: true,
           /*verbose: true,*/
           cleanTargetDir: false,
-          cleanBowerDir: true
+          /* Keep the top level directory to improve performance between runs. */
+          cleanBowerDir: false
         }
       },
     },
