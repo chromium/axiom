@@ -54,7 +54,10 @@ module.exports = function(grunt) {
           },
           { expand: true,
             cwd: 'out/polymer',
-            src: ['axiom_vulcanized.html', '*.js', 'bower_components/platform/platform.js', 'bower_components/polymer/polymer.js'],
+            src: ['axiom_vulcanized.html',
+                  '*.js',
+                  'bower_components/platform/platform.js',
+                  'bower_components/polymer/polymer.js'],
             dest: 'dist/polymer/'
           }
         ]
@@ -63,7 +66,10 @@ module.exports = function(grunt) {
         files: [
           { expand: true,
             cwd: 'lib/polymer',
-            src: ['axiom_vulcanized.html', '*.js', 'bower_components/platform/platform.js', 'bower_components/polymer/polymer.js'],
+            src: ['axiom_vulcanized.html',
+                  '*.js',
+                  'bower_components/platform/platform.js',
+                  'bower_components/polymer/polymer.js'],
             dest: 'out/polymer/'
           }
         ]
