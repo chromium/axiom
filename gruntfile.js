@@ -65,6 +65,11 @@ module.exports = function(grunt) {
             dest: 'out/chrome_app/js/'
           },
           { expand: true,
+            cwd: 'node_modules/hterm/dist/amd/lib/',
+            src: ['hterm.amd.js'],
+            dest: 'out/chrome_app/js/'
+          },
+          { expand: true,
             cwd: 'node_modules/axiom/dist/polymer/',
             src: ['**/*'],
             dest: 'out/chrome_app/polymer/'
