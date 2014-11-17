@@ -1,8 +1,17 @@
-<!-- View -->
+<!--
+  Copyright (c) 2014 The Chromium OS Authors. All rights reserved.
+  Use of this source code is governed by a BSD-style license that can be
+  found in the LICENSE file.
+-->
+
+<!--
+Fired when the "close" button of the view is clicked.
+
+@event close
+-->
 <html>
 <head>
   <link rel="import" href="bower_components/polymer/polymer.html">
-  <link rel="import" href="bower_components/core-drag-drop/core-drag-drop.html">
   <link rel="import" href="bower_components/core-icon-button/core-icon-button.html">
   <link rel="import" href="axiom_anchors.html">
 </head>
@@ -37,7 +46,6 @@
       </style>
       <axiom-anchors id="anchors"></axiom-anchors>
       <div class="outerContainer" layout vertical fit relative>
-        <!--<core-drag-drop></core-drag-drop>-->
         <div class="header" id="header" draggable="true" layout horizontal relative>
           <div class="title" flex>{{id}}</div>
           <core-icon-button class="icon" icon="close" id="closeicon"></core-icon-button>
