@@ -45,6 +45,16 @@ module.exports = function(grunt) {
             dest: 'out/chrome_app/'
           },
           { expand: true,
+            cwd: 'chrome_app/',
+            src: ['html/**/*.html'],
+            dest: 'out/chrome_app/'
+          },
+          { expand: true,
+            cwd: 'chrome_app/',
+            src: ['polymer/**/*.html', 'polymer/**/*.js'],
+            dest: 'out/chrome_app/'
+          },
+          { expand: true,
             cwd: 'boot/',
             src: ['amd_loader.js', 'chrome_app_background.js'],
             dest: 'out/chrome_app/js/'
@@ -53,6 +63,11 @@ module.exports = function(grunt) {
             cwd: 'node_modules/axiom/dist/amd/lib/',
             src: ['axiom_npm_deps.amd.js', 'axiom.amd.js'],
             dest: 'out/chrome_app/js/'
+          },
+          { expand: true,
+            cwd: 'node_modules/axiom/dist/polymer/',
+            src: ['**/*'],
+            dest: 'out/chrome_app/polymer/'
           },
           { expand: true,
             cwd: 'out/concat/lib',
