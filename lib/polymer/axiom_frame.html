@@ -1,0 +1,35 @@
+<!--
+  Copyright (c) 2014 The Chromium OS Authors. All rights reserved.
+  Use of this source code is governed by a BSD-style license that can be
+  found in the LICENSE file.
+-->
+
+<html>
+<head>
+  <link rel="import" href="bower_components/polymer/polymer.html">
+  <link rel="import" href="axiom_container.html">
+  <link rel="import" href="axiom_view.html">
+  <link rel="import" href="axiom_splitter.html">
+  <link rel="import" href="axiom_anchors.html">
+</head>
+<body>
+  <polymer-element name="axiom-frame">
+    <template>
+      <style>
+        :host([debug]) {
+          /* TODO(rpaquay): debug only */
+          border-width: 4px;
+          border-style: solid;
+          border-color: bisque;
+        }
+        #anchors {
+          background: rgba(30,0,0,0.5);
+        }
+      </style>
+     <content></content>
+     <axiom-anchors id="anchors"></axiom-anchors>
+    </template>
+    <script src="axiom_frame.js"></script>
+  </polymer-element>
+</body>
+</html>

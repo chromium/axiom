@@ -1,4 +1,8 @@
 *~
+bower_components/
+dist/
+lib/polymer/bower_components/
+lib/polymer/axiom_vulcanized.js
+lib/polymer/axiom_vulcanized.html
 node_modules/
 out/
-dist/
