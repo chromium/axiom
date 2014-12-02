@@ -20,7 +20,9 @@ module.exports = function(grunt) {
       all: ['out', 'dist'],
       most: ['out'],
       transpile: ['out/amd', 'out/cjs'],
-      polymer: ['out/polymer', 'dist/polymer']
+      polymer: ['out/polymer', 'dist/polymer'],
+      polymer_lib: ['lib/polymer/axiom_vulcanized.html',
+                    'lib/polymer/axiom_vulcanized.js']
     },
 
     npm_adapt: {
@@ -166,7 +168,8 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('build_polymer', ['bower:install', 'clean:polymer', 'vulcanize', 'copy:polymer_out']);
+  grunt.registerTask('build_polymer', ['bower:install', 'clean:polymer', 'vulcanize',
+                                       'copy:polymer_out', 'clean:polymer_lib']);
   grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
                                'npm_adapt', 'build_polymer', 'concat', 'uglify']);
   grunt.registerTask('dist', ['build', 'copy:dist']);
