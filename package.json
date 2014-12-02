@@ -21,7 +21,6 @@
     "matchdep": "~0.3.0"
   },
   "dependencies": {
-    "axiom": "^1.0.0",
-    "hterm": "^2.0.0"
+    "axiom": "^1.0.0"
   }
 }
