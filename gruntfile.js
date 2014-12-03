@@ -49,14 +49,16 @@ module.exports = function(grunt) {
             src: ['html/**/*.html'],
             dest: 'out/chrome_app/'
           },
+          // Copy application polymer elements
           { expand: true,
-            cwd: 'chrome_app/',
+            cwd: 'lib/',
             src: ['polymer/**/*.html', 'polymer/**/*.js'],
             dest: 'out/chrome_app/'
           },
           { expand: true,
             cwd: 'boot/',
-            src: ['amd_loader.js', 'chrome_app_background.js'],
+            src: ['amd_loader.js',
+                  'chrome_app_background.js'],
             dest: 'out/chrome_app/js/'
           },
           { expand: true,
@@ -84,44 +86,42 @@ module.exports = function(grunt) {
 
       web_app: {
         files: [
-          {
-            expand: true,
+          { expand: true,
             cwd: 'web_app/',
             src: ['images/**/*.png'],
             dest: 'out/web_app/'
           },
-          {
-            expand: true,
+          { expand: true,
             cwd: 'web_app/',
             src: ['**/*.html'],
             dest: 'out/web_app/'
           },
-          {
-            expand: true,
-            cwd: 'web_app/',
-            src: ['polymer/**/*.html', 'polymer/**/*.js', 'polymer/**/*.js.map'],
+          // Copy application polymer elements
+          { expand: true,
+            cwd: 'lib/',
+            src: ['polymer/**/*.html', 'polymer/**/*.js'],
             dest: 'out/web_app/'
           },
-          {
-            expand: true,
+          { expand: true,
             cwd: 'boot/',
             src: ['amd_loader.js', 'web_app_startup.js'],
             dest: 'out/web_app/js/'
           },
+          // Copy JavaScript files from "axiom"
           {
             expand: true,
             cwd: 'node_modules/axiom/dist/amd/lib/',
             src: ['axiom_npm_deps.amd.js', 'axiom.amd.js'],
             dest: 'out/web_app/js/'
           },
-          {
-            expand: true,
+          // Copy all "polymer" component files from "axiom"
+          { expand: true,
             cwd: 'node_modules/axiom/dist/polymer/',
             src: ['**/*'],
             dest: 'out/web_app/polymer/'
           },
-          {
-            expand: true,
+          // Copy JavaScript files for axiom-shell
+          { expand: true,
             cwd: 'out/concat/lib',
             src: [pkg.name + '.amd.js'],
             dest: 'out/web_app/js/'
@@ -168,7 +168,7 @@ module.exports = function(grunt) {
     // Linting.
     jshint: {
       lib: {
-        src: 'lib/**/*.js',
+        src: 'lib/' + pkg.name + '/**/*.js',
         options: {
           jshintrc: '.jshintrc',
           force: false
@@ -179,7 +179,7 @@ module.exports = function(grunt) {
     // Minification.
     uglify: {
       lib: {
-       src: ['out/concat/lib/' + pkg.name + '.amd.js'],
+        src: ['out/concat/lib/' + pkg.name + '.amd.js'],
         dest: 'out/concat/lib/' + pkg.name + '.amd.min.js'
       },
     },
