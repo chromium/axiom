@@ -99,7 +99,7 @@ module.exports = function(grunt) {
           {
             expand: true,
             cwd: 'web_app/',
-            src: ['polymer/**/*.html', 'polymer/**/*.js'],
+            src: ['polymer/**/*.html', 'polymer/**/*.js', 'polymer/**/*.js.map'],
             dest: 'out/web_app/'
           },
           {
@@ -193,6 +193,23 @@ module.exports = function(grunt) {
           async: true
         }
       }
+    },
+
+    'http-server': {
+      'web_app': {
+        // the server root directory
+        root: 'out/web_app',
+        port: 8282,
+        // port: function() { return 8282; }
+        host: "127.0.0.1",
+        cache: 1,
+        showDir : true,
+        autoIndex: true,
+        // server default file extension
+        ext: "html",
+        // run in parallel with other tasks
+        runInBackground: false
+      }
     }
   });
 
@@ -204,6 +221,9 @@ module.exports = function(grunt) {
   grunt.registerTask('reload_chrome_app',
                      ['build', 'chrome_app_manifest:tot',
                       'shell:load_and_launch']);
+
+  grunt.registerTask('run_web_app',
+                     ['build', 'http-server:web_app']);
 
   grunt.registerTask('default', ['build']);
 };
