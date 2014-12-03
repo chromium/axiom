@@ -59,7 +59,9 @@ module.exports = function(grunt) {
             src: ['axiom_vulcanized.html',
                   '*.js',
                   'bower_components/platform/platform.js',
-                  'bower_components/polymer/polymer.js'],
+                  'bower_components/platform/platform.js.map',
+                  'bower_components/polymer/polymer.js',
+                  'bower_components/polymer/polymer.js.map'],
             dest: 'dist/polymer/'
           }
         ]
@@ -71,7 +73,9 @@ module.exports = function(grunt) {
             src: ['axiom_vulcanized.html',
                   '*.js',
                   'bower_components/platform/platform.js',
-                  'bower_components/polymer/polymer.js'],
+                  'bower_components/platform/platform.js.map',
+                  'bower_components/polymer/polymer.js',
+                  'bower_components/polymer/polymer.js.map'],
             dest: 'out/polymer/'
           }
         ]
