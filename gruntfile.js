@@ -114,6 +114,11 @@ module.exports = function(grunt) {
             src: ['axiom_npm_deps.amd.js', 'axiom.amd.js'],
             dest: 'out/web_app/js/'
           },
+          { expand: true,
+            cwd: 'third_party/',
+            src: ['hterm.amd.min.js'],
+            dest: 'out/web_app/js/'
+          },
           // Copy all "polymer" component files from "axiom"
           { expand: true,
             cwd: 'node_modules/axiom/dist/polymer/',
