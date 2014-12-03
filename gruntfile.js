@@ -205,14 +205,13 @@ module.exports = function(grunt) {
         // the server root directory
         root: 'out/web_app',
         port: 8282,
-        // port: function() { return 8282; }
         host: "127.0.0.1",
-        cache: 1,
+        cache: 1, // in seconds
         showDir : true,
         autoIndex: true,
         // server default file extension
         ext: "html",
-        // run in parallel with other tasks
+        // Don't run in parallel with other tasks
         runInBackground: false
       }
     }
