@@ -82,6 +82,53 @@ module.exports = function(grunt) {
         ]
       },
 
+      web_app: {
+        files: [
+          {
+            expand: true,
+            cwd: 'web_app/',
+            src: ['images/**/*.png'],
+            dest: 'out/web_app/'
+          },
+          {
+            expand: true,
+            cwd: 'web_app/',
+            src: ['**/*.html'],
+            dest: 'out/web_app/'
+          },
+          {
+            expand: true,
+            cwd: 'web_app/',
+            src: ['polymer/**/*.html', 'polymer/**/*.js'],
+            dest: 'out/web_app/'
+          },
+          {
+            expand: true,
+            cwd: 'boot/',
+            src: ['amd_loader.js', 'web_app_startup.js'],
+            dest: 'out/web_app/js/'
+          },
+          {
+            expand: true,
+            cwd: 'node_modules/axiom/dist/amd/lib/',
+            src: ['axiom_npm_deps.amd.js', 'axiom.amd.js'],
+            dest: 'out/web_app/js/'
+          },
+          {
+            expand: true,
+            cwd: 'node_modules/axiom/dist/polymer/',
+            src: ['**/*'],
+            dest: 'out/web_app/polymer/'
+          },
+          {
+            expand: true,
+            cwd: 'out/concat/lib',
+            src: [pkg.name + '.amd.js'],
+            dest: 'out/web_app/js/'
+          }
+        ]
+      },
+
       dist: {
         files: [
           { expand: true,
@@ -150,7 +197,8 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
-                               'concat', 'uglify', 'copy:chrome_app']);
+                               'concat', 'uglify', 'copy:chrome_app',
+                               'copy:web_app']);
   grunt.registerTask('dist', ['build', 'copy:dist']);
 
   grunt.registerTask('reload_chrome_app',
