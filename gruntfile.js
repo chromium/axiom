@@ -49,14 +49,16 @@ module.exports = function(grunt) {
             src: ['html/**/*.html'],
             dest: 'out/chrome_app/'
           },
+          // Copy application polymer elements
           { expand: true,
-            cwd: 'chrome_app/',
+            cwd: 'lib/',
             src: ['polymer/**/*.html', 'polymer/**/*.js'],
             dest: 'out/chrome_app/'
           },
           { expand: true,
             cwd: 'boot/',
-            src: ['amd_loader.js', 'chrome_app_background.js'],
+            src: ['amd_loader.js',
+                  'chrome_app_background.js'],
             dest: 'out/chrome_app/js/'
           },
           { expand: true,
@@ -78,6 +80,56 @@ module.exports = function(grunt) {
             cwd: 'out/concat/lib',
             src: [pkg.name + '.amd.js'],
             dest: 'out/chrome_app/js/'
+          }
+        ]
+      },
+
+      web_app: {
+        files: [
+          { expand: true,
+            cwd: 'web_app/',
+            src: ['images/**/*.png'],
+            dest: 'out/web_app/'
+          },
+          { expand: true,
+            cwd: 'web_app/',
+            src: ['**/*.html'],
+            dest: 'out/web_app/'
+          },
+          // Copy application polymer elements
+          { expand: true,
+            cwd: 'lib/',
+            src: ['polymer/**/*.html', 'polymer/**/*.js'],
+            dest: 'out/web_app/'
+          },
+          { expand: true,
+            cwd: 'boot/',
+            src: ['amd_loader.js', 'web_app_startup.js'],
+            dest: 'out/web_app/js/'
+          },
+          // Copy JavaScript files from "axiom"
+          {
+            expand: true,
+            cwd: 'node_modules/axiom/dist/amd/lib/',
+            src: ['axiom_npm_deps.amd.js', 'axiom.amd.js'],
+            dest: 'out/web_app/js/'
+          },
+          { expand: true,
+            cwd: 'third_party/',
+            src: ['hterm.amd.min.js'],
+            dest: 'out/web_app/js/'
+          },
+          // Copy all "polymer" component files from "axiom"
+          { expand: true,
+            cwd: 'node_modules/axiom/dist/polymer/',
+            src: ['**/*'],
+            dest: 'out/web_app/polymer/'
+          },
+          // Copy JavaScript files for axiom-shell
+          { expand: true,
+            cwd: 'out/concat/lib',
+            src: [pkg.name + '.amd.js'],
+            dest: 'out/web_app/js/'
           }
         ]
       },
@@ -121,7 +173,7 @@ module.exports = function(grunt) {
     // Linting.
     jshint: {
       lib: {
-        src: 'lib/**/*.js',
+        src: 'lib/' + pkg.name + '/**/*.js',
         options: {
           jshintrc: '.jshintrc',
           force: false
@@ -132,7 +184,7 @@ module.exports = function(grunt) {
     // Minification.
     uglify: {
       lib: {
-       src: ['out/concat/lib/' + pkg.name + '.amd.js'],
+        src: ['out/concat/lib/' + pkg.name + '.amd.js'],
         dest: 'out/concat/lib/' + pkg.name + '.amd.min.js'
       },
     },
@@ -146,16 +198,36 @@ module.exports = function(grunt) {
           async: true
         }
       }
+    },
+
+    'http-server': {
+      'web_app': {
+        // the server root directory
+        root: 'out/web_app',
+        port: 8282,
+        host: "127.0.0.1",
+        cache: 1, // in seconds
+        showDir : true,
+        autoIndex: true,
+        // server default file extension
+        ext: "html",
+        // Don't run in parallel with other tasks
+        runInBackground: false
+      }
     }
   });
 
   grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
-                               'concat', 'uglify', 'copy:chrome_app']);
+                               'concat', 'uglify', 'copy:chrome_app',
+                               'copy:web_app']);
   grunt.registerTask('dist', ['build', 'copy:dist']);
 
   grunt.registerTask('reload_chrome_app',
                      ['build', 'chrome_app_manifest:tot',
                       'shell:load_and_launch']);
+
+  grunt.registerTask('run_web_app',
+                     ['build', 'http-server:web_app']);
 
   grunt.registerTask('default', ['build']);
 };
