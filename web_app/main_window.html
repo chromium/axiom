@@ -3,6 +3,15 @@
 <html>
 <head>
   <title>Console</title>
+  <script>
+    window.__polymerReady__ = new Promise(function(resolve, reject) {
+      window.addEventListener('polymer-ready', function() {
+        console.log('polymer-ready');
+        resolve();
+      });
+    });
+  </script>
+
   <script src="js/amd_loader.js"></script>
   <script src="js/hterm.amd.min.js"></script>
   <script src="js/axiom_npm_deps.amd.js"></script>
