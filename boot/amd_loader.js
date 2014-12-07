@@ -1,5 +1,5 @@
-if (typeof define !== 'function' && typeof requireModule !== 'function') {
-  var define, requireModule;
+if (typeof define !== 'function' && typeof __axiomRequire__ !== 'function') {
+  var define, __axiomRequire__;
 
   (function() {
     var registry = {}, seen = {};
@@ -8,7 +8,7 @@ if (typeof define !== 'function' && typeof requireModule !== 'function') {
       registry[name] = { deps: deps, callback: callback };
     };
 
-    requireModule = function(name, opt_fromList) {
+    __axiomRequire__ = function(name, opt_fromList) {
       if (seen[name]) { return seen[name]; }
       var fromList = opt_fromList || [];
 
@@ -33,7 +33,7 @@ if (typeof define !== 'function' && typeof requireModule !== 'function') {
         } else {
           if (fromList.indexOf(deps[i]) != -1)
             throw new Error('Circular dependency: ' + name + ' -> ' + deps[i]);
-          reified.push(requireModule(deps[i], fromList));
+          reified.push(__axiomRequire__(deps[i], fromList));
         }
       }
 
