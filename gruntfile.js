@@ -205,7 +205,7 @@ module.exports = function(grunt) {
         // the server root directory
         root: 'out/web_app',
         port: 8282,
-        host: "127.0.0.1",
+        host: "0.0.0.0",
         cache: 1, // in seconds
         showDir : true,
         autoIndex: true,
