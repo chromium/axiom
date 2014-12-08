@@ -55,9 +55,26 @@ module.exports = function(grunt) {
         }
       },
     },
+
+    'http-server': {
+      'axiom_pnacl': {
+        // the server root directory
+        root: 'out',
+        port: 8283,
+        host: "127.0.0.1",
+        cache: 1, // in seconds
+        showDir: true,
+        autoIndex: true,
+        // server default file extension
+        ext: "html",
+        // Don't run in parallel with other tasks
+        runInBackground: false
+      }
+    }
   });
 
   grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
                                'copy']);
   grunt.registerTask('default', ['build']);
+  grunt.registerTask('run', ['build', 'http-server:axiom_pnacl']);
 };

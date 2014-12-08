@@ -1,10 +1,10 @@
 {
-  "name": "axiom_thing",
+  "name": "axiom_pnacl",
   "version": "1.0.0",
-  "description": "Sample extension to axiom_shell.",
+  "description": "Extensions to axiom_shell based on PNaCl implementation.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rginda/axiom_thing.git"
+    "url": "https://github.com/rpaquay/axiom_pnacl.git"
   },
   "author": "Chromium authors",
   "licensce": "BSD",
@@ -15,6 +15,7 @@
     "grunt-contrib-copy": "^0.6.0",
     "grunt-contrib-jshint": "~0.10.0",
     "grunt-es6-module-transpiler": "^0.6.0",
+    "grunt-http-server": "^1.1.0",
     "matchdep": "~0.3.0"
   }
 }

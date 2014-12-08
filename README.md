@@ -1,1 +1,1 @@
-A quick and dirty axiom plugin example.
+Extensions to axiom_shell based on PNaCl implementation.
