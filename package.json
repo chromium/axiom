@@ -16,6 +16,8 @@
     "grunt-contrib-jshint": "~0.10.0",
     "grunt-es6-module-transpiler": "^0.6.0",
     "grunt-http-server": "^1.1.0",
+    "http-server": "^0.7.4",
+    "lodash": "^2.4.1",
     "matchdep": "~0.3.0"
   }
 }

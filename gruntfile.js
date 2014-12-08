@@ -6,6 +6,9 @@ module.exports = function(grunt) {
   // Load the grunt related dev deps listed in package.json.
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
+  // Load our custom tasks.
+  grunt.loadTasks('./build/tasks/');
+
   // Read in our own package file.
   var pkg = grunt.file.readJSON('./package.json');
 
@@ -56,7 +59,7 @@ module.exports = function(grunt) {
       },
     },
 
-    'http-server': {
+    'http-server-cors': {
       'axiom_pnacl': {
         // the server root directory
         root: 'out',
@@ -68,7 +71,9 @@ module.exports = function(grunt) {
         // server default file extension
         ext: "html",
         // Don't run in parallel with other tasks
-        runInBackground: false
+        runInBackground: false,
+        // Serve files from any origin
+        cors: true
       }
     }
   });
@@ -76,5 +81,5 @@ module.exports = function(grunt) {
   grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
                                'copy']);
   grunt.registerTask('default', ['build']);
-  grunt.registerTask('run', ['build', 'http-server:axiom_pnacl']);
+  grunt.registerTask('run', ['build', 'http-server-cors:axiom_pnacl']);
 };
