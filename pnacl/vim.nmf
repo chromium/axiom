@@ -1,9 +1,0 @@
-{
-  "program": {
-    "portable": {
-      "pnacl-translate": {
-        "url": "vim_pnacl.pexe"
-      }
-    }
-  }
-}

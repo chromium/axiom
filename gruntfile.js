@@ -83,11 +83,22 @@ module.exports = function(grunt) {
         // Serve files from any origin
         cors: true
       }
+    },
+
+    'curl-dir': {
+      'vim-pnacl': {
+        src: [
+          'http://gsdview.appspot.com/nativeclient-mirror/naclports/pepper_37/1338/publish/vim/pnacl/vim/vim.nmf',
+          'http://gsdview.appspot.com/nativeclient-mirror/naclports/pepper_37/1338/publish/vim/pnacl/vim/vim.tar',
+          'http://gsdview.appspot.com/nativeclient-mirror/naclports/pepper_37/1338/publish/vim/pnacl/vim/vim_pnacl.pexe',
+        ],
+        dest: 'out/pnacl'
+      }
     }
   });
 
   grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
-                               'copy']);
+                               'copy', 'curl-dir:vim-pnacl']);
   grunt.registerTask('default', ['build']);
   grunt.registerTask('run', ['build', 'http-server-cors:axiom_pnacl']);
 };
