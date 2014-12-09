@@ -72,8 +72,8 @@ module.exports = function(grunt) {
         // the server root directory
         root: 'out',
         port: 8283,
-        host: "127.0.0.1",
-        cache: 1, // in seconds
+        host: "0.0.0.0",
+        cache: -1, // in seconds (-1 = no caching)
         showDir: true,
         autoIndex: true,
         // server default file extension
