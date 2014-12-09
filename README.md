@@ -10,7 +10,7 @@ A `Module` is the basic unit of thing-that-can-be-loaded.  Modules can be compil
 
 A `Service` is an object provided by a Module.  For example, the "commands" service, provided by the base Axiom module, contains a registry of commands that can be dispatched within an application.
 
-An `Extension` is an object applied to another module's Service.  The [axiom_shell](https://github.com/rginda/axiom_shell) module provided an extension to the "commands" service which defines the commands available in the Axiom Shell application.
+An `Extension` is an object applied to another module's Service.  The [axiom_shell](https://github.com/rginda/axiom_shell) module provides an extension to the "commands" service which defines the commands available in the Axiom Shell application.
 
 Each module has an associated module descriptor which specifies the services and extenstion contained within the module.  Service descriptors specify the service's interface (methods and events), a schema for the service's extension descriptor, and an interface for extension implementations.  See the [base descriptor](lib/axiom/descriptor.js) for an example.
 
