@@ -44,6 +44,14 @@ module.exports = function(grunt) {
           src: ['*.html'],
           dest: 'out/'
         },
+      ]},
+      pnacl_out: {
+        files: [{
+          expand: true,
+          cwd: 'pnacl',
+          src: ['*'],
+          dest: 'out/pnacl'
+        },
       ]}
     },
 
