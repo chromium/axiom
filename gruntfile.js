@@ -3,6 +3,15 @@
 // found in the LICENSE file.
 
 module.exports = function(grunt) {
+  var pnaclConfig = {
+    base: 'http://gsdview.appspot.com/nativeclient-mirror/naclports',
+    vpath: 'pepper_37/1338',
+  };
+
+  var globalConfig = {
+    pnaclBaseUrl: pnaclConfig.base + '/' + pnaclConfig.vpath + "/publish",
+  };
+
   // Load the grunt related dev deps listed in package.json.
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
@@ -15,6 +24,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: pkg,
     env: process.env,
+    globalConfig: globalConfig,
 
     clean: {
       all: ['out'],
@@ -86,9 +96,14 @@ module.exports = function(grunt) {
     },
 
     'curl-dir': {
-      'vim-pnacl': {
+      'pnacl-binaries': {
         src: [
-          'http://gsdview.appspot.com/nativeclient-mirror/naclports/pepper_37/1338/publish/vim/pnacl/vim/{vim.nmf,vim.tar,vim_pnacl.pexe}'
+          '<%= globalConfig.pnaclBaseUrl %>/curl/pnacl/{curl.nmf,curl_ppapi_pnacl.pexe}',
+          '<%= globalConfig.pnaclBaseUrl %>/nano/pnacl/nano/{nano.nmf,nano.tar,nano_pnacl.pexe}',
+          '<%= globalConfig.pnaclBaseUrl %>/nethack/pnacl/nethack/{nethack.nmf,nethack.tar,nethack_pnacl.pexe}',
+          '<%= globalConfig.pnaclBaseUrl %>/python/pnacl/{python.nmf,python.pexe,pydata_pnacl.tar}',
+          '<%= globalConfig.pnaclBaseUrl %>/unzip/pnacl/{unzip.nmf,unzip_pnacl.pexe}',
+          '<%= globalConfig.pnaclBaseUrl %>/vim/pnacl/vim/{vim.nmf,vim.tar,vim_pnacl.pexe}',
         ],
         dest: 'out/pnacl'
       }
@@ -96,7 +111,7 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
-                               'copy', 'curl-dir:vim-pnacl']);
+                               'copy', 'curl-dir:pnacl-binaries']);
   grunt.registerTask('default', ['build']);
   grunt.registerTask('run', ['build', 'http-server-cors:axiom_pnacl']);
 };
