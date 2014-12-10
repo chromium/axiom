@@ -88,9 +88,7 @@ module.exports = function(grunt) {
     'curl-dir': {
       'vim-pnacl': {
         src: [
-          'http://gsdview.appspot.com/nativeclient-mirror/naclports/pepper_37/1338/publish/vim/pnacl/vim/vim.nmf',
-          'http://gsdview.appspot.com/nativeclient-mirror/naclports/pepper_37/1338/publish/vim/pnacl/vim/vim.tar',
-          'http://gsdview.appspot.com/nativeclient-mirror/naclports/pepper_37/1338/publish/vim/pnacl/vim/vim_pnacl.pexe',
+          'http://gsdview.appspot.com/nativeclient-mirror/naclports/pepper_37/1338/publish/vim/pnacl/vim/{vim.nmf,vim.tar,vim_pnacl.pexe}'
         ],
         dest: 'out/pnacl'
       }
