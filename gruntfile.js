@@ -214,6 +214,16 @@ module.exports = function(grunt) {
         // Don't run in parallel with other tasks
         runInBackground: false
       }
+    },
+
+    'watch': {
+      shell: {
+        files: ['lib/**/*.js',
+                'lib/**/*.html',
+                'boot/**/*.js',
+                'node_modules/axiom/dist/**/*'],
+        tasks: ['build'],
+      }
     }
   });
 
