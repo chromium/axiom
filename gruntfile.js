@@ -4,8 +4,8 @@
 
 module.exports = function(grunt) {
   var pnaclConfig = {
-    base: 'http://gsdview.appspot.com/nativeclient-mirror/naclports',
-    vpath: 'pepper_37/1338',
+    base: 'http://gsdview.appspot.com/naclports/builds',
+    vpath: 'pepper_39/1598-17315b6',
   };
 
   var globalConfig = {
@@ -99,7 +99,7 @@ module.exports = function(grunt) {
       'pnacl-binaries': {
         src: [
           '<%= globalConfig.pnaclBaseUrl %>/curl/pnacl/{curl.nmf,curl_ppapi_pnacl.pexe}',
-          '<%= globalConfig.pnaclBaseUrl %>/nano/pnacl/nano/{nano.nmf,nano.tar,nano_pnacl.pexe}',
+          '<%= globalConfig.pnaclBaseUrl %>/nano/pnacl/{nano.nmf,nano.tar,nano_pnacl.pexe}',
           '<%= globalConfig.pnaclBaseUrl %>/nethack/pnacl/nethack/{nethack.nmf,nethack.tar,nethack_pnacl.pexe}',
           '<%= globalConfig.pnaclBaseUrl %>/python/pnacl/{python.nmf,python.pexe,pydata_pnacl.tar}',
           '<%= globalConfig.pnaclBaseUrl %>/unzip/pnacl/{unzip.nmf,unzip_pnacl.pexe}',
