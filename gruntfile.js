@@ -25,6 +25,14 @@ module.exports = function(grunt) {
                     'lib/polymer/axiom_vulcanized.js']
     },
 
+    'watch': {
+      shell: {
+        files: ['lib/**/*.js',
+                'node_modules/axiom/dist/**/*'],
+        tasks: ['dist'],
+      }
+    },
+
     npm_adapt: {
       // This is a custom task defined in ./build/tasks/ which adapts simple
       // npm module to our module system.
