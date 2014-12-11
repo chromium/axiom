@@ -220,6 +220,7 @@ module.exports = function(grunt) {
       shell: {
         files: ['lib/**/*.js',
                 'lib/**/*.html',
+                'web_app/**/*.html',
                 'boot/**/*.js',
                 'node_modules/axiom/dist/**/*'],
         tasks: ['build'],
