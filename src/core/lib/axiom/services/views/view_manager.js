@@ -300,6 +300,9 @@ ViewManager.prototype.hide = function(viewId) {
  */
 ViewManager.prototype.closeView = function(view) {
   this.detachView(view);
+  if (view.firstElementChild && view.firstElementChild.viewClosed) {
+    view.firstElementChild.viewClosed();
+  }
   // TODO(rpaquay): Remove from views_?
 };
 

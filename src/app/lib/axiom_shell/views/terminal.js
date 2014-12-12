@@ -72,6 +72,11 @@ export var TerminalView = function() {
 
       this.htermElem_.followObject = object;
       this.viewElem_.appendChild(object);
+
+      // TODO(rpaquay): Find a better way than adding a member to the element?
+      this.viewElem_.viewClosed = function() {
+        TerminalView.viewClosed(object);
+      };
     }.bind(this));
 };
 
@@ -115,6 +120,17 @@ TerminalView.getIframeContainer = function() {
   }
 
   return node;
+};
+
+TerminalView.viewClosed = function(followObject) {
+  var container = TerminalView.getIframeContainer();
+  for (var i = 0; i < container.children.length; i++) {
+    var htermElem = container.children[i];
+    if (htermElem.followObject === followObject) {
+      container.removeChild(htermElem);
+      break;
+    }
+  }
 };
 
 TerminalView.prototype.execute = function(pathSpec, arg, env) {
