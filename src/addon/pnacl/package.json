@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/rpaquay/axiom_pnacl.git"
   },
-  "author": "Chromium authors",
+  "author": "Axiom authors",
   "licensce": "BSD",
   "readmeFilename": "README.md",
   "devDependencies": {

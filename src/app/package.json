@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/rginda/axiom-shell.git"
   },
-  "author": "Chromium authors",
+  "author": "Axiom authors",
   "licensce": "CHROMIUM",
   "readmeFilename": "README.md",
   "devDependencies": {

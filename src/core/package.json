@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/rginda/axiom.git"
   },
-  "author": "Chromium authors",
+  "author": "Axiom authors",
   "licensce": "CHROMIUM",
   "readmeFilename": "README.md",
   "devDependencies": {
