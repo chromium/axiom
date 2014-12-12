@@ -96,28 +96,17 @@ var checkValidFrame = function(frame) {
   }
 };
 
-var forEachContainerViews = function(container, callback) {
-  Check.eq(container.tagName, AXIOM_CONTAINER);
-
-  for (var i = 0; i < container.children.length; i++) {
-    var child = container.children[i];
-    if (child.tagName === AXIOM_VIEW) {
-      callback(child);
-    }
-  }
-};
-
+/*
+ * Calls a function on each view contained in a frame.
+ * @param {Element} frame
+ * @param {function} callback
+ */
 var forEachFrameViews = function(frame, callback) {
   Check.eq(frame.tagName, AXIOM_FRAME);
 
-  var child = frame.firstElementChild;
-  if (child !== null) {
-    Check.in(child.tagName, [AXIOM_CONTAINER, AXIOM_VIEW]);
-    if (child.tagName === AXIOM_CONTAINER) {
-      forEachContainerViews(child, callback);
-    } else {
-      callback(child);
-    }
+  var views = frame.querySelectorAll(AXIOM_VIEW);
+  for (var i = 0; i < views.length; i++) {
+    callback(views[i]);
   }
 };
 
@@ -592,7 +581,7 @@ ViewManager.prototype.moveViewIntoFrame = function(view, frame, position) {
 
   // The frame is empty, makes the view fit its entire area.
   if (frame.children.length === 0) {
-    this.makeSingleViewFrame(frame, view);
+    this.makeSingleViewFrame(view);
     frame.appendChild(view);
     return view;
   } else {
@@ -681,7 +670,7 @@ ViewManager.prototype.detachView = function(rawView) {
     // This takes care of removing the splitter and other sibling view
     parent.replaceChild(sibling, container);
     if (parent.tagName === AXIOM_FRAME) {
-      this.makeSingleViewFrame(parent, sibling);
+      this.makeSingleViewFrame(sibling);
       return view;
     } else {
       // Recompute layout of the container, after removing 'flex' from this
