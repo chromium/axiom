@@ -1,0 +1,62 @@
+<!--
+  Copyright (c) 2014 The Chromium OS Authors. All rights reserved.
+  Use of this source code is governed by a BSD-style license that can be
+  found in the LICENSE file.
+-->
+
+<!--
+Fired when the "close" button of the view is clicked.
+
+@event close
+-->
+<html>
+<head>
+  <link rel="import" href="bower_components/polymer/polymer.html">
+  <link rel="import" href="bower_components/core-icon-button/core-icon-button.html">
+  <link rel="import" href="axiom_anchors.html">
+</head>
+<body>
+  <polymer-element name="axiom-view">
+    <template>
+      <style>
+        .outerContainer {
+          padding: 0;
+          background: linear-gradient(rgb(214, 227, 231), lightblue);
+        }
+        .header {
+          font-size: 14px;
+          padding: 0 0 0 2px;
+          background-color: #4F7DC9;
+          color: #FFF;
+        }
+        .title {
+          line-height: 24px;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+        .content {
+          overflow: auto;
+          position: relative;
+        }
+        .icon {
+          margin: 0;
+          padding: 0;
+          display: block;
+          font-size: 14px;
+        }
+      </style>
+      <axiom-anchors id="anchors"></axiom-anchors>
+      <div class="outerContainer" layout vertical fit relative>
+        <div class="header" id="header" draggable="true" layout horizontal relative>
+          <div class="title" flex>{{id}}</div>
+          <core-icon-button class="icon" icon="close" id="closeicon"></core-icon-button>
+        </div>
+        <div class="content" flex>
+          <content></content>
+        </div>
+      </div>
+    </template>
+    <script src="axiom_view.js"></script>
+  </polymer-element>
+</body>
+</html>
