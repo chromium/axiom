@@ -1,0 +1,6 @@
+# See http://git-scm.com/docs/gitattributes
+# If you want to interoperate with a source code management system that
+# enforces end-of-line normalization, or you simply want all text files
+# in your repository to be normalized, you should instead set the text
+# attribute to "auto" for all files.
+*	text=auto
