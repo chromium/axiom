@@ -22,4 +22,10 @@ Polymer('axiom-view', {
   anchorsElement: function() {
     return this.$.anchors;
   },
+  enterDragMode: function() {
+    this.$['content-div'].style.zIndex = "200";
+  },
+  leaveDragMode: function() {
+    this.$['content-div'].style.zIndex = "0";
+  }
 });

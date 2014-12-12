@@ -66,7 +66,7 @@ var checkValidContainer = function(container) {
     var child = container.children[i];
     if ((i % 2) === 0) {
       Check.in(child.tagName, [AXIOM_CONTAINER, AXIOM_VIEW]);
-      if (child.tagName == AXIOM_CONTAINER) {
+      if (child.tagName === AXIOM_CONTAINER) {
         checkValidContainer(child);
       } else {
         checkValidView(child);
@@ -92,6 +92,31 @@ var checkValidFrame = function(frame) {
       checkValidContainer(child);
     } else {
       checkValidView(child);
+    }
+  }
+};
+
+var forEachContainerViews = function(container, callback) {
+  Check.eq(container.tagName, AXIOM_CONTAINER);
+
+  for (var i = 0; i < container.children.length; i++) {
+    var child = container.children[i];
+    if (child.tagName === AXIOM_VIEW) {
+      callback(child);
+    }
+  }
+};
+
+var forEachFrameViews = function(frame, callback) {
+  Check.eq(frame.tagName, AXIOM_FRAME);
+
+  var child = frame.firstElementChild;
+  if (child !== null) {
+    Check.in(child.tagName, [AXIOM_CONTAINER, AXIOM_VIEW]);
+    if (child.tagName === AXIOM_CONTAINER) {
+      forEachContainerViews(child, callback);
+    } else {
+      callback(child);
     }
   }
 };
@@ -291,24 +316,42 @@ ViewManager.prototype.closeView = function(view) {
   // TODO(rpaquay): Remove from views_?
 };
 
+ViewManager.prototype.trackStart = function(frame) {
+  forEachFrameViews(frame, function(view) {
+    view.enterDragMode();
+  });
+};
+
+ViewManager.prototype.trackEnd = function(frame) {
+  forEachFrameViews(frame, function(view) {
+    view.leaveDragMode();
+  });
+};
+
 /*
  * @param {Document} document
  * @return {Promise}  A promise resolvinf to the 'axiom-frame' element.
  */
 ViewManager.prototype.createRootFrame = function(document) {
   var createFrame = function() {
-    var frame = document.createElement('axiom-frame');
+    var frame = document.createElement(AXIOM_FRAME);
     document.body.appendChild(frame);
     frame.setAttribute('fit', '');
     frame.addEventListener('drop-view', function(e) {
       this.moveView(
         e.detail.view, e.detail.target, e.detail.targetPosition);
     }.bind(this));
+    frame.addEventListener('drag-start', function(e) {
+      this.trackStart(frame);
+    }.bind(this));
+    frame.addEventListener('drag-end', function(e) {
+      this.trackEnd(frame);
+    }.bind(this));
     return frame;
   }.bind(this);
 
   if (document.readyState === 'complete') {
-    var frame = document.querySelector('axiom-frame') || createFrame();
+    var frame = document.querySelector(AXIOM_FRAME) || createFrame();
     return Promise.resolve(frame);
   }
 
@@ -324,11 +367,12 @@ ViewManager.prototype.createRootFrame = function(document) {
 };
 
 /*
+ * @param {Document} document
  * @param {string} tagName
  * @return {Element}  The 'axiom-view' element.
  */
 ViewManager.prototype.createViewElement = function(document, tagName) {
-  var viewElement = document.createElement('axiom-view');
+  var viewElement = document.createElement(AXIOM_VIEW);
   viewElement.setAttribute('fit', '');
   viewElement.addEventListener('close', function() {
     this.closeView(viewElement);
@@ -339,6 +383,22 @@ ViewManager.prototype.createViewElement = function(document, tagName) {
   element.style.width = '100%';
   viewElement.appendChild(element);
   return viewElement;
+};
+
+/*
+ * @param {Document} document
+ * @return {Element} The 'axiom-splitter' element.
+ */
+ViewManager.prototype.createSplitter = function(document) {
+  var frame = document.querySelector(AXIOM_FRAME);
+  var splitter = document.createElement(AXIOM_SPLITTER);
+  splitter.addEventListener('trackstart', function(e) {
+    this.trackStart(frame);
+  }.bind(this));
+  splitter.addEventListener('trackend', function(e) {
+    this.trackEnd(frame);
+  }.bind(this));
+  return splitter;
 };
 
 /*
@@ -387,7 +447,7 @@ ViewManager.prototype.insertView = function(view, target, position) {
  *
  * @param {Element} view  The 'axiom-view' element to move.
  * @param {Element} target  The element (view, container or frame) @view moves
- * relative to. 
+ * relative to.
  * @param {string} position  'left', 'right', 'top', 'bottom': where to move
  * the view relative to 'target'.
  */
@@ -400,7 +460,7 @@ ViewManager.prototype.moveView = function(view, target, position) {
   if (!frame)
     return;
 
-  // Remove the view and re-grunt. Note this may remove the container from 
+  // Remove the view and re-grunt. Note this may remove the container from
   // the frame.
   this.detachView(view);
 
@@ -693,7 +753,7 @@ ViewManager.prototype.groutContainer = function(container) {
         child = nextChild;
       } else {
         if (child.tagName !== AXIOM_SPLITTER) {
-          var splitter = document.createElement(AXIOM_SPLITTER);
+          var splitter = this.createSplitter(document);
           container.insertBefore(splitter, child);
         } else {
           child = nextChild;

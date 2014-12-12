@@ -55,8 +55,7 @@ export var TerminalView = function() {
           'height: 100%; ' +
           'width: 100%; ' +
           'overflow: hidden; ' +
-          'pointer-events: none; ' +
-          'z-index: -1;');
+          'pointer-events: none;');
 
       var onResize = function() {
         TerminalView.resizeIframes();

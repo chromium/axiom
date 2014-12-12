@@ -73,11 +73,19 @@
 
       // This causes the drag-drop operation to be canceled.
       //this['view-manager'].detachView(event.target, window.document.body);
+
+      // Fire custom 'drag-start' event
+      var view = event.target;
+      this.fire('drag-start', { view: view });
     },
 
     dragEnd: function (event) {
       this.dragLeave(event);
       event.target.style.opacity = '';
+
+      // Fire custom 'drag-end' event
+      var view = event.target;
+      this.fire('drag-end', { view: view });
 
       // Done with this operation.
       if (this.dragDropState && this.dragDropState.currentAnchor)
