@@ -117,14 +117,12 @@ var forEachFrameViews = function(frame, callback) {
  *
  * @param {Element} frame
  */
-var fixupSplitters = function(frame) {
-  for (var child = frame.firstElementChild; child !== null;
-       child = child.nextElementSibling) {
-    if (child.tagName === AXIOM_SPLITTER) {
-      child.directionChanged();
-    } else {
-      fixupSplitters(child);
-    }
+var fixupSplitters = function(container) {
+  Check.eq(container.tagName, AXIOM_CONTAINER);
+
+  var splitters = container.querySelectorAll(AXIOM_SPLITTER);
+  for (var i = 0; i < splitters.length; i++) {
+    splitters[i].directionChanged();
   }
 };
 
