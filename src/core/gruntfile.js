@@ -28,6 +28,8 @@ module.exports = function(grunt) {
     'watch': {
       shell: {
         files: ['lib/**/*.js',
+                'lib/**/*.html',
+                'lib/**/*.css',
                 'node_modules/axiom/dist/**/*'],
         tasks: ['dist'],
       }
