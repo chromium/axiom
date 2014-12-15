@@ -139,9 +139,10 @@ DomFileSystem.prototype.unlink = function(pathSpec) {
  * @return {Promise<>}
  */
 DomFileSystem.prototype.list = function(pathSpec) {
-  return DomfsUtil.listDirectory(this.fileSystem.root, pathSpec).then(function(entries) {
-    return Promise.resolve(entries);
-  });
+  return DomfsUtil.listDirectory(this.fileSystem.root, pathSpec).then(
+    function(entries) {
+      return Promise.resolve(entries);
+    });
 };
 
 /**

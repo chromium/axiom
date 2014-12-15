@@ -45,7 +45,6 @@ domfsUtil.statEntry = function(entry) {
  */
 domfsUtil.listDirectory = function(root, path, onSuccess, opt_onError) {
   return new Promise(function(resolve, reject) {
-
     var entries = {};
     var promises = [];
     var rv = {};
