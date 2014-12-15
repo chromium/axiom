@@ -4,12 +4,13 @@
 
 module.exports = function(grunt) {
   var pnaclConfig = {
-    base: 'http://gsdview.appspot.com/naclports/builds',
-    vpath: 'pepper_39/1598-17315b6',
+    baseUrl: 'http://gsdview.appspot.com/naclports/builds',
+    build: 'pepper_39/1598-17315b6',
   };
 
   var globalConfig = {
-    pnaclBaseUrl: pnaclConfig.base + '/' + pnaclConfig.vpath + "/publish",
+    pnaclPublishUrl: pnaclConfig.baseUrl + '/' + pnaclConfig.build + "/publish",
+    pnaclBuild: pnaclConfig.build,
   };
 
   // Load the grunt related dev deps listed in package.json.
@@ -54,14 +55,6 @@ module.exports = function(grunt) {
           src: ['*.html'],
           dest: 'out/'
         },
-      ]},
-      pnacl_out: {
-        files: [{
-          expand: true,
-          cwd: 'pnacl',
-          src: ['*'],
-          dest: 'out/pnacl'
-        },
       ]}
     },
 
@@ -96,22 +89,48 @@ module.exports = function(grunt) {
     },
 
     'curl-dir': {
+      // Copy pnacl build to a local cache directory (one time only)
       'pnacl-binaries': {
         src: [
-          '<%= globalConfig.pnaclBaseUrl %>/curl/pnacl/{curl.nmf,curl_ppapi_pnacl.pexe}',
-          '<%= globalConfig.pnaclBaseUrl %>/nano/pnacl/{nano.nmf,nano.tar,nano_pnacl.pexe}',
-          '<%= globalConfig.pnaclBaseUrl %>/nethack/pnacl/nethack/{nethack.nmf,nethack.tar,nethack_pnacl.pexe}',
-          '<%= globalConfig.pnaclBaseUrl %>/python/pnacl/{python.nmf,python.pexe,pydata_pnacl.tar}',
-          '<%= globalConfig.pnaclBaseUrl %>/unzip/pnacl/{unzip.nmf,unzip_pnacl.pexe}',
-          '<%= globalConfig.pnaclBaseUrl %>/vim/pnacl/vim/{vim.nmf,vim.tar,vim_pnacl.pexe}',
+          '<%= globalConfig.pnaclPublishUrl %>/curl/pnacl/{curl.nmf,curl_ppapi_pnacl.pexe}',
+          '<%= globalConfig.pnaclPublishUrl %>/nano/pnacl/{nano.nmf,nano.tar,nano_pnacl.pexe}',
+          '<%= globalConfig.pnaclPublishUrl %>/nethack/pnacl/nethack/{nethack.nmf,nethack.tar,nethack_pnacl.pexe}',
+          '<%= globalConfig.pnaclPublishUrl %>/python/pnacl/{python.nmf,python.pexe,pydata_pnacl.tar}',
+          '<%= globalConfig.pnaclPublishUrl %>/unzip/pnacl/{unzip.nmf,unzip_pnacl.pexe}',
+          '<%= globalConfig.pnaclPublishUrl %>/vim/pnacl/vim/{vim.nmf,vim.tar,vim_pnacl.pexe}',
         ],
-        dest: 'out/pnacl'
+        dest: 'cache/pnacl/<%= globalConfig.pnaclBuild %>'
       }
-    }
+    },
+
+    sync: {
+      // Sync the pnacl local cache with the "out" directory
+      'pnacl-binaries': {
+        files: [{
+          src: ['cache/pnacl/<%= globalConfig.pnaclBuild %>/**'],
+          dest: 'out/pnacl',
+        }],
+        // Display log messages when copying files
+        verbose: true,
+        // Remove all files from dest that are not found in src
+        updateAndDelete: true
+      }
+    },
+
+
+    'watch': {
+      sources: {
+        files: ['lib/**/*.js',
+                'lib/**/*.html'],
+        tasks: ['build'],
+      }
+    },
+
   });
 
   grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
-                               'copy', 'curl-dir:pnacl-binaries']);
+                               'if-missing:curl-dir:pnacl-binaries',
+                               'sync:pnacl-binaries', 'copy']);
   grunt.registerTask('default', ['build']);
   grunt.registerTask('run', ['build', 'http-server-cors:axiom_pnacl']);
 };
