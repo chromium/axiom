@@ -28,7 +28,7 @@ module.exports = function(grunt) {
     globalConfig: globalConfig,
 
     clean: {
-      all: ['out'],
+      all: ['cache', 'out'],
       transpile: ['out/amd']
     },
 
