@@ -9,3 +9,5 @@ export var util = {
   string: string,
   Termcap: Termcap
 };
+
+export default util;
