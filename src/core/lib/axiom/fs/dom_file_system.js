@@ -9,6 +9,7 @@ import FileSystemBinding from 'axiom/bindings/fs/file_system';
 import Path from 'axiom/fs/path';
 import DomExecuteContext from 'axiom/fs/dom_execute_context';
 import DomOpenContext from 'axiom/fs/dom_open_context';
+import DomfsUtil from 'axiom/fs/domfs_util';
 
 /**
  * @param {FileSystemBinding} opt_binding An optional FileSystemBinding
@@ -138,7 +139,9 @@ DomFileSystem.prototype.unlink = function(pathSpec) {
  * @return {Promise<>}
  */
 DomFileSystem.prototype.list = function(pathSpec) {
-    return Promise.reject(new AxiomError.NotImplemented('To be implemented.'));
+  return DomfsUtil.listDirectory(this.fileSystem.root, pathSpec).then(function(entries) {
+    return Promise.resolve(entries);
+  });
 };
 
 /**
