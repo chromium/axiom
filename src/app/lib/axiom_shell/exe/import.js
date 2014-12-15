@@ -52,11 +52,17 @@ export var main = function(cx) {
             'No main exported by: ' + todo[1]));
       }
 
-      return main(module, { sourceUrl: e.target.import.URL }).then(
-        function() {
-          cx.stdout('Module ready.\n');
-          return nextTodo();
-        });
+      try {
+        return main(module, { sourceUrl: e.target.import.URL }).then(
+            function() {
+              cx.stdout('Module ready.\n');
+              return nextTodo();
+            }).catch(function(err) {
+              return reject(err);
+            });
+      } catch(err) {
+        return reject(err);
+      }
     };
 
     return nextTodo();
