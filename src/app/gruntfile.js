@@ -36,6 +36,20 @@ module.exports = function(grunt) {
       }
     },
 
+    npm_adapt: {
+      // This is a custom task defined in ./build/tasks/ which adapts simple
+      // npm module to our module system.
+      main: {
+        files: [
+          {
+            cwd: 'out/amd/lib/npm/',
+            src: 'node_modules/minimist/index.js',
+            dest: 'minimist.js'
+          }
+        ]
+      }
+    },
+
     copy: {
       chrome_app: {
         files: [
@@ -80,6 +94,11 @@ module.exports = function(grunt) {
             cwd: 'out/concat/lib',
             src: [pkg.name + '.amd.js'],
             dest: 'out/chrome_app/js/'
+          },
+          { expand: true,
+            cwd: 'out/concat/lib',
+            src: [pkg.name + '_npm_deps.amd.js'],
+            dest: 'out/web_app/js/'
           }
         ]
       },
@@ -130,6 +149,11 @@ module.exports = function(grunt) {
             cwd: 'out/concat/lib',
             src: [pkg.name + '.amd.js'],
             dest: 'out/web_app/js/'
+          },
+          { expand: true,
+            cwd: 'out/concat/lib',
+            src: [pkg.name + '_npm_deps.amd.js'],
+            dest: 'out/web_app/js/'
           }
         ]
       },
@@ -162,6 +186,12 @@ module.exports = function(grunt) {
     },
 
     concat: {
+      npm: {
+        // Concatenate all of our npm deps into a single file.  (We only
+        // have one dep right now.)
+        src: ['out/amd/lib/npm/**/*.js'],
+        dest: 'out/concat/lib/' + pkg.name + '_npm_deps.amd.js'
+      },
       lib: {
         // Concatenate the AMD version of the transpiled source into a single
         // library.
@@ -229,8 +259,8 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
-                               'concat', 'uglify', 'copy:chrome_app',
-                               'copy:web_app']);
+                               'npm_adapt', 'concat', 'uglify',
+                               'copy:chrome_app', 'copy:web_app']);
   grunt.registerTask('dist', ['build', 'copy:dist']);
 
   grunt.registerTask('reload_chrome_app',

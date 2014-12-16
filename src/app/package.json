@@ -23,6 +23,7 @@
     "grunt-contrib-watch": "^0.6.1"
   },
   "dependencies": {
-    "axiom": "^1.0.0"
+    "axiom": "^1.0.0",
+    "minimist": "^1.1.0"
   }
 }

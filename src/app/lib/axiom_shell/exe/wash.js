@@ -11,6 +11,7 @@ import Path from 'axiom/fs/path';
 import Termcap from 'axiom_shell/util/termcap';
 import WashBuiltins from 'axiom_shell/exe/wash_builtins';
 import environment from 'axiom_shell/environment';
+import minimist from 'minimist';
 
 /**
  * The shell read-eval-print loop.
@@ -251,7 +252,7 @@ Shell.prototype.parseArgv = function(argSigil, argv) {
       return argv.split(/\s+/g);
 
     if (argSigil == '%')
-      throw new AxiomError.Runtime('Expected argv as an object');
+      return minimist(argv.split(/\s+/g), opts={});
   }
 };
 
