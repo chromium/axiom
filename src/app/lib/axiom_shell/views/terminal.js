@@ -162,7 +162,8 @@ TerminalView.prototype.execute_ = function(pathSpec, arg, env) {
 
       this.executeContext.onClose.addListener(function(reason, value) {
         console.log('TerminalView: execute closed: ' + reason, value);
-      });
+        this.hterm_.uninstallKeyboard();
+      }.bind(this));
 
       this.executeContext.execute();
     }.bind(this));

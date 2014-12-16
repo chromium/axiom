@@ -126,6 +126,8 @@ Shell.prototype.readEvalPrint = function() {
     function(result) {
       if (result == null) {
         // EOF from readline.
+        this.executeContext.stdout('exit\n');
+        this.executeContext.closeOk(null);
         return Promise.resolve(null);
       }
 
