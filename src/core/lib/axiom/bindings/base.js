@@ -116,7 +116,7 @@ BaseBinding.prototype.describeMethod = function(name, args, opt_first) {
         });
     }
 
-    return Promise.resolve(f.impl.apply(null, arguments));
+    return f.impl.apply(null, arguments);
   };
 
   f.impl = null;
