@@ -239,7 +239,7 @@ Shell.prototype.parseArgv = function(argSigil, argv) {
       return argv;
 
     if (argSigil == '@')
-      return argv.split(/\s+/g);
+      return argv ? argv.split(/\s+/g) : [];
 
     if (argSigil == '%')
       return minimist(argv.split(/\s+/g), {});
