@@ -87,7 +87,7 @@ Readline.defaultBindings = {
   '%ctrl("E")': 'end-of-line',
   '%ctrl("H")': 'backward-delete-char',
   '%ctrl("K")': 'kill-line',
-  '%ctrl("L")': 'redraw-line',
+  '%ctrl("L")': 'clear-home',
   '%ctrl("N")': 'next-history',
   '%ctrl("P")': 'previous-history',
   '%ctrl("Y")': 'yank',
@@ -330,6 +330,14 @@ Readline.prototype.onStdIn_ = function(value) {
 };
 
 Readline.prototype.commands = {};
+
+Readline.prototype.commands['clear-home'] = function(string) {
+  this.print('%clear-terminal()%set-row-column(row, column)',
+             {row: 0, column: 0});
+  this.cursorHome_ = null;
+  this.cursorPrompt_ = null;
+  this.print('%get-row-column()');
+};
 
 Readline.prototype.commands['redraw-line'] = function(string) {
   if (!this.cursorHome_) {
