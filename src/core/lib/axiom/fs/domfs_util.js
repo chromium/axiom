@@ -51,7 +51,6 @@ domfsUtil.listDirectory = function(root, path, onSuccess, opt_onError) {
     var rv = {};
 
 var onFileError = domfsUtil.rejectFileError.bind(null, path, reject);
-console.log(onFileError);
     var onDirectoryFound = function(dirEntry) {
       var reader = dirEntry.createReader();
       reader.readEntries(function(results) {
