@@ -52,34 +52,25 @@ FileSystem.prototype = Object.create(BaseBinding.prototype);
  *   OpenContext..read() call.
  */
 FileSystem.prototype.readFile = function(path, openArg, readArg) {
+  if (!openArg)
+    openArg = {};
+  openArg.read = true;
+
   readArg = readArg || {};
-  return new Promise(function(resolve, reject) {
-    var openContext = new this.createContext('open', path, openArg);
-    openContext.then(function(ocx) {
-      ocx.onClose.addListener(function(value) {
-          if (!ocx.readyValue)
-          reject(ocx.closeValue);
-      });
 
-      ocx.onReady.addListener(function() {
-        ocx.read(readArg).then(function(result) {
-          resolve(result);
-          ocx.closeOk(null);
-        }).catch(function(e) {
-          ocx.closeOk(null);
-          reject(e);
+  return this.createContext('open', path, openArg).then(
+    function(ocx) {
+      return ocx.open().then(
+        function() {
+          return ocx.read(readArg).then(function(result) {
+            ocx.closeOk(null);
+            return Promise.resolve(result);
+          }).catch(function(e) {
+            ocx.closeErrorValue(e);
+            return Promise.reject(e);
+          });
         });
-      });
-
-      if (!openArg)
-        openArg = {};
-
-      openArg.read = true;
-      ocx.open(path, openArg).catch(function(e) {
-        reject(e);
-      });
-    }.bind(this));
-  }.bind(this));
+    });
 };
 
 /**

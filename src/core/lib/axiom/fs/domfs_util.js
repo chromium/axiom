@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import Path from 'axiom/fs/path';
+import AxiomError from 'axiom/core/error';
 
 export var domfsUtil = {};
 
@@ -66,6 +67,25 @@ domfsUtil.listDirectory = function(root, path, onSuccess, opt_onError) {
     };
     root.getDirectory(path, {create: false}, onDirectoryFound, reject);
   });
+};
+
+/**
+ * Convenience method to convert a FileError to a promise rejection with an
+ * Axiom error.
+ *
+ * Used in the context of a FileEntry.
+ */
+domfsUtil.rejectFileError = function(pathSpec, reject, error) {
+  if (error.name == 'TypeMismatchError')
+    return reject(new AxiomError.TypeMismatch('entry-type', pathSpec));
+
+  if (error.name == 'NotFoundError')
+    return reject(new AxiomError.NotFound(pathSpec));
+
+  if (error.name == 'PathExistsError')
+    return reject(new AxiomError.Duplicate(pathSpec));
+
+  return new AxiomError.Runtime(pathSpec + ':' + error.toString());
 };
 
 export default domfsUtil;

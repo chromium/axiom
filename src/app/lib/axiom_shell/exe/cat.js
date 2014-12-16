@@ -12,16 +12,26 @@ export var main = function(executeContext) {
   executeContext.ready();
 
   var arg = executeContext.arg;
-
-  var pathSpec = arg.path;
-  pathSpec = Path.abs(executeContext.getEnv('$PWD', '/'), pathSpec);
+  if (!arg._ && arg._.length)
+    return Promise.reject(new AxiomError.Missing('path'));
 
   var fileSystem = environment.getServiceBinding('filesystems@axiom');
 
-  return fileSystem.readFile(pathSpec, {read: true}).then(
-    function(data) { 
-      executeContext.stdout(data.data);
-    });
+  var catNext = function() {
+    if (!arg._.length)
+      return Promise.resolve(null);
+
+    var pathSpec = arg._.shift();
+    pathSpec = Path.abs(executeContext.getEnv('$PWD', '/'), pathSpec);
+
+    return fileSystem.readFile(pathSpec, {read: true}).then(
+        function(data) {
+          executeContext.stdout(data.data);
+          return catNext();
+        });
+  };
+
+  return catNext();
 };
 
 export default main;
