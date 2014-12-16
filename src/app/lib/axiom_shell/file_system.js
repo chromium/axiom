@@ -8,6 +8,7 @@ import JsFileSystem from 'axiom/fs/js_file_system';
 import DomFileSystem from 'axiom/fs/dom_file_system';
 
 import catMain from 'axiom_shell/exe/cat';
+import clearMain from 'axiom_shell/exe/clear';
 import cpMain from 'axiom_shell/exe/cp';
 import echoMain from 'axiom_shell/exe/echo';
 import htermMain from 'axiom_shell/exe/hterm';
@@ -32,6 +33,7 @@ ShellFS.prototype.bind = function(fileSystemExtensionBinding) {
       function(jsdir) {
         jsdir.install({
           'cat': catMain,
+          'clear': clearMain,
           'cp': cpMain,
           'echo': echoMain,
           'hterm': htermMain,

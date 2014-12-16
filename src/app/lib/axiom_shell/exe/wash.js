@@ -223,18 +223,8 @@ Shell.prototype.dispatchExecuteContext = function(cx) {
 };
 
 Shell.prototype.parseArgv = function(argSigil, argv) {
-  if (!argv) {
-    if (argSigil == '$')
-      return '';
-
-    if (argSigil == '@')
-      return [];
-
-    if (argSigil == '%')
-      return {};
-
-    return null;
-  }
+  if (!argv)
+    argv = '';
 
   if (/[\{\[\"\']/.test(argv.substr(0, 1))) {
     // argv starts with {, [, ", or '... parse it as JSON.
@@ -249,7 +239,7 @@ Shell.prototype.parseArgv = function(argSigil, argv) {
       return argv;
 
     if (argSigil == '@')
-      return argv.split(/\s+/g);
+      return argv ? argv.split(/\s+/g) : [];
 
     if (argSigil == '%')
       return minimist(argv.split(/\s+/g), {});

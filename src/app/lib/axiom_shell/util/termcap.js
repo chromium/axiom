@@ -100,6 +100,10 @@ Termcap.prototype.outputVars = {
  * The valid functions for Termcap..output()
  */
 Termcap.prototype.outputFunctions = {
+  'clear-terminal': function() {
+    return '\x1b[2J';
+  },
+
   'crlf': function(str) {
     return str.replace(/\n/g, '\r\n');
   },
