@@ -77,12 +77,7 @@ SpawnNacl.prototype.run = function () {
     } else if (keySigil === '@') {
       // Arrays are translated into list of elements separated by ":".
       envKey = key.substr(1);
-      envValue = '';
-      for(var index = 0; index < env[key].length; index++) {
-        if (index > 0)
-          envValue += ':';
-        envValue += env[key][index];
-      }
+      envValue = env[key].join(':');
     } else if (keySigil === '%') {
       // Dictionaries are ignored.
     } else {
