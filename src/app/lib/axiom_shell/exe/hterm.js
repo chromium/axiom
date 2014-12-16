@@ -12,7 +12,10 @@ export var main = function(cx) {
   cx.ready();
   var tv = new TerminalView(this.moduleManager);
   var command = cx.arg['command'] || '/axiom_shell/exe/wash';
-  var env = cx.arg['env'] || {'@PATH': ['/axiom_shell/exe/']};
+  var env = cx.arg['env'] || {
+    '@PATH': ['/axiom_shell/exe/'],
+    '$TERM': 'xterm-256color'
+  };
   tv.execute(command, {}, env);
   return Promise.resolve(null);
 };

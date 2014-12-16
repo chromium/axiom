@@ -66,8 +66,27 @@ SpawnNacl.prototype.run = function () {
 
   var env = this.executeContext.getEnvs();
   for (var key in env) {
-    if (!params.hasOwnProperty(key))
-      params[key] = env[key];
+    var keySigil = key.charAt(0);
+    var envKey = null;
+    var envValue = null;
+
+    if (keySigil === '$') {
+      // Arbitrary values go through unchanged.
+      envKey = key.substr(1);
+      envValue = env[key];
+    } else if (keySigil === '@') {
+      // Arrays are translated into list of elements separated by ":".
+      envKey = key.substr(1);
+      envValue = env[key].join(':');
+    } else if (keySigil === '%') {
+      // Dictionaries are ignored.
+    } else {
+      // No prefix is an error: ignore.
+    }
+
+    if (envKey && !params.hasOwnProperty(envKey)) {
+      params[envKey] = envValue;
+    }
   }
 
   for (var i = 0; i < this.posixArgs_.length; i++) {

@@ -120,8 +120,10 @@ FileSystem.prototype.writeFile = function(path, openArg, writeArg) {
       if (!openArg.mode)
         openArg.mode = {};
 
-      openArg.mode = 'write';
+      openArg.create = 'true';
       ocx.open(path, openArg);
-    }.bind(this));
+    }.bind(this)).catch (function(e) {
+      reject(e);
+    });
   }.bind(this));
 };

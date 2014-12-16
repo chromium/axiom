@@ -17,7 +17,7 @@ module.exports = function(grunt) {
     env: process.env,
 
     clean: {
-      all: ['out', 'dist'],
+      all: ['bower_components', 'out', 'dist'],
       most: ['out'],
       transpile: ['out/amd', 'out/cjs'],
       polymer: ['out/polymer', 'dist/polymer'],
@@ -145,25 +145,41 @@ module.exports = function(grunt) {
     // Minification.
     uglify: {
       lib: {
-       src: ['out/concat/lib/' + pkg.name + '.amd.js'],
+        src: ['out/concat/lib/' + pkg.name + '.amd.js'],
         dest: 'out/concat/lib/' + pkg.name + '.amd.min.js'
       },
     },
 
     // Bower package support:
     bower: {
-      // Run 'grunt bower:install' and you'll see files from your Bower packages
-      // in lib directory
+      // Install bower components into top level 'bower_components'.
       install: {
         options: {
-          targetDir: 'lib/polymer/bower_components',
+          // Download the files locally into 'bower_components'.
           install: true,
-          /*verbose: true,*/
-          cleanTargetDir: false,
-          /* Keep the top level directory to improve performance between runs. */
-          cleanBowerDir: false
+          // Keep the top level directory.
+          cleanBowerDir: false,
+          // Don't copy to the 'lib' directory (see 'sync' task below).
+          copy: false,
         }
       },
+    },
+
+    sync: {
+      // Sync top level 'bower_components' into 'lib/polymer' directory.
+      // We need this task because the vulcanize task expects bower
+      // components to be found relative to 'lib/polymer'.
+      'bower_components': {
+        files: [{
+          cwd: 'bower_components/',
+          src: ['**'],
+          dest: 'lib/polymer/bower_components',
+        }],
+        // Display log messages when copying files
+        //verbose: true,
+        // Remove all files from dest that are not found in src
+        updateAndDelete: true
+      }
     },
 
     vulcanize: {
@@ -174,18 +190,21 @@ module.exports = function(grunt) {
         files: {
           /* Note: We generate in the "lib" directory because we want to have
            * url with relative paths starting at the current directory.
-           * Another option would be to copy everything in "out" before vulcanizing,
-           * but that would be alot of files to copy to merely generate 2 output files. */
+           * Another option would be to copy everything in "out" before
+           * vulcanizing, but that would be alot of files to copy to merely
+           * generate 2 output files. */
           'lib/polymer/axiom_vulcanized.html': ['lib/polymer/axiom.html']
         },
       }
     }
   });
 
-  grunt.registerTask('build_polymer', ['bower:install', 'clean:polymer', 'vulcanize',
-                                       'copy:polymer_out', 'clean:polymer_lib']);
+  grunt.registerTask('build_polymer', ['bower:install', 'sync:bower_components',
+                     'clean:polymer', 'vulcanize', 'copy:polymer_out',
+                     'clean:polymer_lib']);
   grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
-                               'npm_adapt', 'build_polymer', 'concat', 'uglify']);
+                               'npm_adapt', 'build_polymer', 'concat',
+                               'uglify']);
   grunt.registerTask('dist', ['build', 'copy:dist']);
   grunt.registerTask('default', ['build']);
 };

@@ -107,7 +107,8 @@ module.exports = function(grunt) {
       // Sync the pnacl local cache with the "out" directory
       'pnacl-binaries': {
         files: [{
-          src: ['cache/pnacl/<%= globalConfig.pnaclBuild %>/**'],
+          cwd: 'cache/pnacl/<%= globalConfig.pnaclBuild %>',
+          src: ['**'],
           dest: 'out/pnacl',
         }],
         // Display log messages when copying files
