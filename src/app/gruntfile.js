@@ -52,7 +52,7 @@ module.exports = function(grunt) {
           // Copy application polymer elements
           { expand: true,
             cwd: 'lib/',
-            src: ['polymer/**/*.html', 'polymer/**/*.js'],
+            src: ['polymer/**/*.html', 'polymer/**/*.css', 'polymer/**/*.js'],
             dest: 'out/chrome_app/'
           },
           { expand: true,
@@ -99,7 +99,7 @@ module.exports = function(grunt) {
           // Copy application polymer elements
           { expand: true,
             cwd: 'lib/',
-            src: ['polymer/**/*.html', 'polymer/**/*.js'],
+            src: ['polymer/**/*.html', 'polymer/**/*.css', 'polymer/**/*.js'],
             dest: 'out/web_app/'
           },
           { expand: true,
