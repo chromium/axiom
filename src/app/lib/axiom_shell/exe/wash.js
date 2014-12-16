@@ -223,18 +223,8 @@ Shell.prototype.dispatchExecuteContext = function(cx) {
 };
 
 Shell.prototype.parseArgv = function(argSigil, argv) {
-  if (!argv) {
-    if (argSigil == '$')
-      return '';
-
-    if (argSigil == '@')
-      return [];
-
-    if (argSigil == '%')
-      return {};
-
-    return null;
-  }
+  if (!argv)
+    argv = '';
 
   if (/[\{\[\"\']/.test(argv.substr(0, 1))) {
     // argv starts with {, [, ", or '... parse it as JSON.
