@@ -5,8 +5,7 @@
 import Termcap from 'axiom_shell/util/termcap';
 
 /**
- * Simple callback for a JsExecutable which echos the argument list to stdout
- * and exits.
+ * Clear the terminal screen and return the cursor to the home position.
  */
 export var main = function(cx) {
   cx.ready();
