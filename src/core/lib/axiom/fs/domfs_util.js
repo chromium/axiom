@@ -50,6 +50,8 @@ domfsUtil.listDirectory = function(root, path, onSuccess, opt_onError) {
     var promises = [];
     var rv = {};
 
+var onFileError = domfsUtil.rejectFileError.bind(null, path, reject);
+console.log(onFileError);
     var onDirectoryFound = function(dirEntry) {
       var reader = dirEntry.createReader();
       reader.readEntries(function(results) {
@@ -63,9 +65,24 @@ domfsUtil.listDirectory = function(root, path, onSuccess, opt_onError) {
         Promise.all(promises).then(function() {
           resolve(rv);
         });
-      }, reject);
+      }, onFileError);
     };
-    root.getDirectory(path, {create: false}, onDirectoryFound, reject);
+    root.getDirectory(path, {create: false}, onDirectoryFound, onFileError);
+  });
+};
+
+domfsUtil.getFileOrDirectory = function(root, pathSpec) {
+  return new Promise(function(resolve, reject) {
+    var onFileFound = function(r) {
+      resolve(r);
+    };
+
+    var onError = function() {
+       var onFileError = domfsUtil.rejectFileError.bind(null, pathSpec, reject);
+       root.getDirectory(pathSpec, {create: false}, onFileFound, onFileError);
+    };
+
+    root.getFile(pathSpec, {create: false}, onFileFound, onError);
   });
 };
 
@@ -80,10 +97,10 @@ domfsUtil.rejectFileError = function(pathSpec, reject, error) {
     return reject(new AxiomError.TypeMismatch('entry-type', pathSpec));
 
   if (error.name == 'NotFoundError')
-    return reject(new AxiomError.NotFound(pathSpec));
+    return reject(new AxiomError.NotFound('path', pathSpec));
 
   if (error.name == 'PathExistsError')
-    return reject(new AxiomError.Duplicate(pathSpec));
+    return reject(new AxiomError.Duplicate('path', pathSpec));
 
   return new AxiomError.Runtime(pathSpec + ':' + error.toString());
 };
