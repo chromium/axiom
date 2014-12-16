@@ -252,7 +252,7 @@ Shell.prototype.parseArgv = function(argSigil, argv) {
       return argv.split(/\s+/g);
 
     if (argSigil == '%')
-      return minimist(argv.split(/\s+/g), opts={});
+      return minimist(argv.split(/\s+/g), {});
   }
 };
 
