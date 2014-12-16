@@ -5,7 +5,7 @@
 import AxiomError from 'axiom/core/error';
 
 import OpenContextBinding from 'axiom/bindings/fs/open_context';
-import DomfsUtil from 'axiom/fs/domfs_util';
+import domfsUtil from 'axiom/fs/domfs_util';
 
 import Path from 'axiom/fs/path';
 
@@ -22,16 +22,18 @@ export var DomOpenContext = function(domfs, path, arg) {
   this.domfs = domfs;
   this.path = path;
   this.arg = arg;
-  
+
+  this.onFileError_ = domfsUtil.rejectFileError.bind(null, path.spec);
+
   // The current read/write position.
   this.position_ = 0;
- 
+
   // The DOM FileEntry we're operation on.
   this.entry_ = null;
 
   // THe DOM file we're operating on.
   this.file_ = null;
-  
+
   this.binding = new OpenContextBinding(domfs.binding, path.spec, arg);
   this.binding.bind(this, {
     open: this.open_,
@@ -80,9 +82,9 @@ DomOpenContext.prototype.seek_ = function(arg) {
 };
 
 DomOpenContext.prototype.open_ = function() {
-  var onFileError = this.onFileError_.bind(this);
   var mode = this.arg;
   return new Promise(function(resolve, reject) {
+    var onFileError = this.onFileError_.bind(null, reject);
     var onStat = function(stat) {
       this.entry_.file(function(f) {
           this.file_ = f;
@@ -91,23 +93,23 @@ DomOpenContext.prototype.open_ = function() {
       }.bind(this), onFileError);
     }.bind(this);
 
-     var onFileFound = function(entry) {
+    var onFileFound = function(entry) {
       this.entry_ = entry;
       if (mode.write && mode.truncate) {
         this.entry_.createWriter(
             function(writer) {
               writer.truncate(0);
-              DomfsUtil.statEntry(entry, onStat, onFileError);
+              domfsUtil.statEntry(entry, onStat, onFileError);
             },
             reject);
-      } else {
-        DomfsUtil.statEntry(entry).then(function(value) {
-          onStat(value);
-        }).catch(function(e) {
-          reject(e);
-        });
+        return;
       }
-      resolve();
+
+      domfsUtil.statEntry(entry).then(function(value) {
+        onStat(value);
+      }).catch(function(e) {
+        reject(e);
+      });
     }.bind(this);
 
     this.domfs.fileSystem.root.getFile(
@@ -134,7 +136,7 @@ DomOpenContext.prototype.read_ = function(arg) {
       if (!rv) {
         return reject();
       }
-    
+
       var fileSize = this.file_.size;
       var end;
       if (arg.count) {
@@ -144,7 +146,6 @@ DomOpenContext.prototype.read_ = function(arg) {
       }
 
       var dataType = arg.dataType || 'utf8-string';
- 
       var reader = new FileReader(this.file_);
 
       reader.onload = function(e) {
@@ -152,16 +153,16 @@ DomOpenContext.prototype.read_ = function(arg) {
         var data = reader.result;
 
         if (dataType == 'base64-string') {
-          // TODO: By the time we read this into a string the data may already have
-          // been munged.  We need an ArrayBuffer->Base64 string implementation to
-          // make this work for real.
+          // TODO: By the time we read this into a string the data may already
+          // have been munged.  We need an ArrayBuffer->Base64 string
+          // implementation to make this work for real.
           data = btoa(data);
         }
         resolve({dataType: dataType, data: data});
       }.bind(this);
 
       reader.onerror = function(error) {
-        return this.onFileError_(error);
+        return this.onFileError_(reject, error);
       };
 
       var slice = this.file_.slice(this.position_, end);
@@ -203,7 +204,7 @@ DomOpenContext.prototype.write_ = function(arg) {
       }
 
       writer.onerror = function(error) {
-        return this.onFileError_(error);
+        return this.onFileError_(reject, error);
       }.bind(this);
 
       writer.onwrite = function() {
@@ -214,29 +215,16 @@ DomOpenContext.prototype.write_ = function(arg) {
       writer.seek(this.position_);
       writer.write(blob);
     }.bind(this);
-    
+
     this.seek_(arg).then(function(rv) {
       if (!rv) {
         return reject();
       }
       this.entry_.createWriter(
           onWriterReady,
-          this.onFileError_.bind(this),
-          function(error) {
-            return this.onFileError_(error);
-          }.bind(this));
+          this.onFileError_.bind(null, reject));
     }.bind(this));
   }.bind(this));
-};
-
-/**
- * Convenience method to convert a FileError to a axiom error
- * close this context with it.
- *
- * Used in the context of a FileEntry.
- */
-DomOpenContext.prototype.onFileError_ = function(error) {
-  return new AxiomError.RunTime(this.path.spec + ':' + error.toString());
 };
 
 export default DomOpenContext;
