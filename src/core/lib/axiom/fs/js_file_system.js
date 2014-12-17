@@ -99,7 +99,7 @@ JsFileSystem.prototype.mkdir = function(pathSpec) {
   var rv = this.resolve(parentPath);
 
   if (rv.entry instanceof FileSystemBinding)
-    return rv.entry.mkdir(Path.join(rv.suffixList));
+    return rv.entry.mkdir(Path.join(rv.suffixList, targetName));
 
   if (!rv.isFinal) {
     return Promise.reject(new AxiomError.NotFound(
