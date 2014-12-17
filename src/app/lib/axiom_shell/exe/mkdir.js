@@ -25,7 +25,6 @@ export var main = function(executeContext) {
     var pathSpec = arg._.shift();
     pathSpec = Path.abs(executeContext.getEnv('$PWD', '/'), pathSpec);
 
-console.log(pathSpec);
     return fileSystem.mkdir(pathSpec).then(
         function() {
       return mkdirNext();
