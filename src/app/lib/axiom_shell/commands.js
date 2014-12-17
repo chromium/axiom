@@ -5,6 +5,7 @@
 import AxiomError from 'axiom/core/error';
 
 import environment from 'axiom_shell/environment';
+import EditorView from 'axiom_shell/views/editor';
 import TerminalView from 'axiom_shell/views/terminal';
 
 export var ShellCommands = function(moduleManager) {
