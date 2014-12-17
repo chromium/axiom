@@ -68,7 +68,7 @@ export var main = function(executeContext) {
      if (AxiomError.TypeMismatch.test(value)) {
        return fileSystem.stat(pathSpec).then(
          function(stat) {
-           executeContext.stdout(Path.getBaseName(pathSpec) + '  ' +
+           executeContext.stdout(new Path(pathSpec).getBaseName() + '  ' +
                formatStat(stat) + '\n');
            executeContext.closeOk(null);
          }

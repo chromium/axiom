@@ -51,11 +51,10 @@ DomFileSystem.prototype.resolve = function(path) {
  * @return {Promise<>}
  */
 DomFileSystem.prototype.stat = function(pathSpec) {
-  var path = new Path(pathSpec);
-  if (!path.spec)
-    return Promise.resolve({mode: Path.mode.d});
-
-  return Promise.resolve({});
+  return DomfsUtil.getFileOrDirectory(this.fileSystem.root, pathSpec).then(
+      function(r) {
+    return DomfsUtil.statEntry(r);
+  });
 };
 
 /**
