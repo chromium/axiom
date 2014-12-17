@@ -26,9 +26,11 @@ export var main = function(executeContext) {
 
     return fileSystem.readFile(pathSpec, {read: true}).then(
         function(data) {
-          executeContext.stdout(data.data);
-          return catNext();
-        });
+      executeContext.stdout(data.data);
+      return catNext();
+    }).catch(function(e) {
+      return catNext();
+    });
   };
 
   return catNext();
