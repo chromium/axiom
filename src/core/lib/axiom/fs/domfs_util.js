@@ -88,10 +88,19 @@ domfsUtil.getFileOrDirectory = function(root, pathSpec) {
 /**
  * Removes all files and sub directories for a given path.
  */
-domfsUtil.remove = function(dir, path) {
+domfsUtil.remove = function(root, path) {
   return new Promise(function(resolve, reject) {
+    return domfsUtil.getFileOrDirectory(root, path).then(function(r) {
+      if (r.isDirectory === false) {
+        r.remove(resolve, reject);
+      } else {
+        r.removeRecursively(resolve, reject);
+      }
+    }).catch(function(e) {
+      reject(e);
+    });
   });
-});
+};
 
 /**
  * Convenience method to convert a FileError to a promise rejection with an

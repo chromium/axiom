@@ -132,7 +132,7 @@ DomFileSystem.prototype.move = function(fromPathSpec, toPathSpec) {
 DomFileSystem.prototype.unlink = function(pathSpec) {
   var path = new Path(pathSpec);
   if (!path.isValid) {
-    return Promise.reject(new AxiomError.Invalid('path', pathSpec);
+    return Promise.reject(new AxiomError.Invalid('path', pathSpec));
   }
 
   return new Promise(function(resolve, reject) {
@@ -140,16 +140,25 @@ DomFileSystem.prototype.unlink = function(pathSpec) {
     var targetName = path.getBaseName();
 
     var onDirectoryFound = function(dir) {
-      DomfsUtil.remove(dir, targetName).then((function(r) {
+      return DomfsUtil.remove(dir, targetName).then(function(r) {
         resolve(r);
+      }).catch (function(e) {
+        reject(e);
       });
-    });
+    };
 
     var onFileError = DomfsUtil.rejectFileError.bind(null, pathSpec, reject);
 
-    this.fileSystem.root.getDirectory(parentPath, {create: false},
+    var parentPathSpec = parentPath.spec;
+
+    //TODO(grv): This should be taken care by Path class.
+    if (parentPathSpec === '' || parentPathSpec == null) {
+      parentPathSpec = '/';
+    }
+
+    this.fileSystem.root.getDirectory(parentPath.spec, {create: false},
         onDirectoryFound, onFileError);
-  });
+  }.bind(this));
 };
 
 /**
