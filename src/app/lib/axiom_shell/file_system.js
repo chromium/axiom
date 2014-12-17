@@ -15,6 +15,7 @@ import htermMain from 'axiom_shell/exe/hterm';
 import importMain from 'axiom_shell/exe/import';
 import lsMain from 'axiom_shell/exe/ls';
 import readlineMain from 'axiom_shell/exe/readline';
+import rmMain from 'axiom_shell/exe/rm';
 import washMain from 'axiom_shell/exe/wash';
 
 export var ShellFS = function(moduleManager) {
@@ -40,6 +41,7 @@ ShellFS.prototype.bind = function(fileSystemExtensionBinding) {
           'import': importMain,
           'ls': lsMain,
           'readline': readlineMain,
+          'rm': rmMain,
           'wash': washMain,
         });
       });
