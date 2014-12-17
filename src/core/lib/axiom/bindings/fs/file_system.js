@@ -87,34 +87,24 @@ FileSystem.prototype.readFile = function(path, openArg, readArg) {
  *   OpenContext..write() call.
  */
 FileSystem.prototype.writeFile = function(path, openArg, writeArg) {
-  return new Promise(function(resolve, reject) {
-    var openContext = new this.createContext('open', path, openArg);
-    openContext.then(function(ocx) {
-      ocx.onClose.addListener(function(value) {
-        if (!ocx.readyValue)
-          reject(ocx.closeValue);
+  if (!openArg)
+    openArg = {};
+
+  openArg.create = 'true';
+
+  writeArg = writeArg || {};
+
+  return this.createContext('open', path, openArg).then(
+    function(ocx) {
+    return ocx.open().then(
+      function() {
+      return ocx.write(writeArg).then(function(result) {
+        ocx.closeOk(null);
+	return Promise.resolve(result);
+      }).catch(function(e) {
+        ocx.closeErrorValue(e);
+	return Promise.reject(e);
       });
-
-      ocx.onReady.addListener(function() {
-        ocx.write(writeArg).then(function(result) {
-          ocx.closeOk(null);
-          resolve(result);
-        }).catch(function(e) {
-          ocx.closeOk(null);
-          reject(e);
-        });
-      });
-
-      if (!openArg)
-        openArg = {};
-
-      if (!openArg.mode)
-        openArg.mode = {};
-
-      openArg.create = 'true';
-      ocx.open(path, openArg);
-    }.bind(this)).catch (function(e) {
-      reject(e);
     });
-  }.bind(this));
+  });
 };

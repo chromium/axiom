@@ -15,6 +15,11 @@ import JsFileSystem from 'axiom/fs/js_file_system';
 export var FileSystemManager = function() {
   this.extensionBindings_ = [];
   this.jsfs_ = new JsFileSystem();
+
+  this.jsfs_.mkdir('mnt').then(function(mntDir) {
+    this.mountDomfs('persistent', 'html5', mntDir);
+    this.mountDomfs('temporary', 'tmp', this.jsfs_.rootDirectory);
+  }.bind(this));
 };
 
 export default FileSystemManager;
@@ -99,8 +104,4 @@ FileSystemManager.prototype.onExtend = function(extensionBinding) {
   fsb.ready();
 
   this.jsfs_.rootDirectory.mount(sourceModuleId, fsb);
-  this.jsfs_.mkdir('mnt').then(function(mntDir) {
-    this.mountDomfs('persistent', 'html5', mntDir);
-    this.mountDomfs('temporary', 'tmp', this.jsfs_.rootDirectory);
-  }.bind(this));
 };
