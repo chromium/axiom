@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "axiom": "^1.0.0",
+    "hterm": "^2.0.0",
     "minimist": "^1.1.0"
   }
 }
