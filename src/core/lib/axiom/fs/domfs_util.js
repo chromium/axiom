@@ -103,6 +103,16 @@ domfsUtil.remove = function(root, path) {
 };
 
 /**
+ * Create a directory with a given name under root.
+ */
+domfsUtil.mkdir = function(root, name) {
+  return new Promise(function(resolve, reject) {
+    var onError = domfsUtil.rejectFileError.bind(null, name, reject);
+    root.getDirectory(name, {create: true, exclusive: true}, resolve, onError);
+  });
+};
+
+/**
  * Convenience method to convert a FileError to a promise rejection with an
  * Axiom error.
  *

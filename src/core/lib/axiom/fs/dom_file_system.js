@@ -65,7 +65,9 @@ DomFileSystem.prototype.stat = function(pathSpec) {
  * @return {Promise<>}
  */
 DomFileSystem.prototype.mkdir_ = function(pathSpec) {
-  return this.mkdir(pathSpec).then(function() { return null; });
+  return this.mkdir(pathSpec).then(function() {
+    return null;
+  });
 };
 
 /**
@@ -77,16 +79,30 @@ DomFileSystem.prototype.mkdir = function(pathSpec) {
   if (!path.isValid)
     return Promise.reject(new AxiomError.Invalid('path', pathSpec));
 
-  var parentPath = path.getParentPath();
-  var targetName = path.getBaseName();
+  return new Promise(function(resolve, reject) {
+    var parentPath = path.getParentPath();
+    var targetName = path.getBaseName();
 
+    var onDirectoryFound = function(dir) {
+      return DomfsUtil.mkdir(dir, targetName).then(function(r) {
+        resolve(r);
+      }).catch (function(e) {
+        reject(e);
+      });
+    };
 
-  var rv = this.resolve(parentPath);
+    var onFileError = DomfsUtil.rejectFileError.bind(null, pathSpec, reject);
 
-  if (!rv.entry.hasMode('d'))
-    return Promise.reject(new AxiomError.TypeMismatch('dir', parentPath.spec));
+    var parentPathSpec = parentPath.spec;
 
-  return rv.entry.mkdir(targetName);
+    //TODO(grv): This should be taken care by Path class.
+    if (parentPathSpec === '' || parentPathSpec == null) {
+      parentPathSpec = '/';
+    }
+
+    this.fileSystem.root.getDirectory(parentPath.spec, {create: false},
+        onDirectoryFound, onFileError);
+  }.bind(this));
 };
 
 /**
