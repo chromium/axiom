@@ -70,6 +70,14 @@ domfsUtil.listDirectory = function(root, path, onSuccess, opt_onError) {
 };
 
 /**
+ * Removes all files and sub directories for a given path.
+ */
+domfsUtil.remove = function(dir, path) {
+  return new Promise(function(resolve, reject) {
+  });
+});
+
+/**
  * Convenience method to convert a FileError to a promise rejection with an
  * Axiom error.
  *

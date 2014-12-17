@@ -123,7 +123,7 @@ DomFileSystem.prototype.alias = function(pathSpecFrom, pathSpecTo) {
  * @return {Promise<>}
  */
 DomFileSystem.prototype.move = function(fromPathSpec, toPathSpec) {
-    return Promise.reject(new AxiomError.NotImplemented('To be implemented.'));
+  return Promise.reject(new AxiomError.NotImplemented('To be implemented.'));
 };
 
 /**
@@ -131,7 +131,26 @@ DomFileSystem.prototype.move = function(fromPathSpec, toPathSpec) {
  * @return {Promise<>}
  */
 DomFileSystem.prototype.unlink = function(pathSpec) {
-    return Promise.reject(new AxiomError.NotImplemented('To be implemented.'));
+  var path = new Path(pathSpec);
+  if (!path.isValid) {
+    return Promise.reject(new AxiomError.Invalid('path', pathSpec);
+  }
+
+  return new Promise(function(resolve, reject) {
+    var parentPath = path.getParentPath();
+    var targetName = path.getBaseName();
+
+    var onDirectoryFound = function(dir) {
+      DomfsUtil.remove(dir, targetName).then((function(r) {
+        resolve(r);
+      });
+    });
+
+    var onFileError = DomfsUtil.rejectFileError.bind(null, pathSpec, reject);
+
+    this.fileSystem.root.getDirectory(parentPath, {create: false},
+        onDirectoryFound, onFileError);
+  });
 };
 
 /**
