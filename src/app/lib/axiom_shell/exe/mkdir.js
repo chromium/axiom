@@ -18,24 +18,24 @@ export var main = function(executeContext) {
 
   var fileSystem = environment.getServiceBinding('filesystems@axiom');
 
-  var rmNext = function() {
+  var mkdirNext = function() {
     if (!arg._.length)
       return Promise.resolve(null);
 
     var pathSpec = arg._.shift();
     pathSpec = Path.abs(executeContext.getEnv('$PWD', '/'), pathSpec);
 
-    return fileSystem.unlink(pathSpec).then(
+console.log(pathSpec);
+    return fileSystem.mkdir(pathSpec).then(
         function() {
-      return rmNext();
+      return mkdirNext();
     }).catch(function(e) {
-      executeContext.stdout(e);
       //TODO(grv): handle error here.
-      return rmNext();
+      return mkdirNext();
     });
   };
 
-  return rmNext();
+  return mkdirNext();
 };
 
 export default main;

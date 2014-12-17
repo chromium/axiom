@@ -14,6 +14,7 @@ import echoMain from 'axiom_shell/exe/echo';
 import htermMain from 'axiom_shell/exe/hterm';
 import importMain from 'axiom_shell/exe/import';
 import lsMain from 'axiom_shell/exe/ls';
+import mkdirMain from 'axiom_shell/exe/mkdir';
 import readlineMain from 'axiom_shell/exe/readline';
 import rmMain from 'axiom_shell/exe/rm';
 import washMain from 'axiom_shell/exe/wash';
@@ -40,6 +41,7 @@ ShellFS.prototype.bind = function(fileSystemExtensionBinding) {
           'hterm': htermMain,
           'import': importMain,
           'ls': lsMain,
+          'mkdir': mkdirMain,
           'readline': readlineMain,
           'rm': rmMain,
           'wash': washMain,
