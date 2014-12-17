@@ -177,10 +177,11 @@ PnaclCommand.prototype.run = function(cx) {
 
 // Creates and runs the pnacl executable.
 PnaclCommand.prototype.runPnacl = function(cx) {
-    // Apply additional environment variables to [cx]
+  // Apply additional environment variables to [cx]
   if (this.env) {
-    for(var key in this.env)
+    for (var key in this.env) {
       cx.setEnv(key, this.env[key]);
+    }
   }
   var nmfUrl = this.baseUrl + 'pnacl/' + this.commandName + '.nmf';
   var nmfFile = '/tmp/pnacl/' + this.commandName + '.nmf';
