@@ -5,7 +5,9 @@
 module.exports = function(grunt) {
   var pnaclConfig = {
     baseUrl: 'http://gsdview.appspot.com/naclports/builds',
-    build: 'pepper_39/1598-17315b6',
+    // Note: With builds older than (approximately) pepper41/trunk-223-g26a4b66,
+    // uncomment the tar downloading code in pnacl_commands.js.
+    build: 'pepper_41/trunk-234-ge2927d4',
   };
 
   var globalConfig = {

@@ -61,7 +61,10 @@ SpawnNacl.prototype.run = function () {
     PS_STDERR: '/dev/tty',
     PS_VERBOSITY: '2',
     PS_EXIT_MESSAGE: 'exited',
-    //NACL_DATA_URL: urlBase
+    // Base url nacl startup code uses to download resources (.tar file)
+    NACL_DATA_URL: urlBase,
+    // Allow CORS requests when downloading resources (.tar file)
+    NACL_DATA_MOUNT_FLAGS: 'allow_cross_origin_requests=true',
   };
 
   var env = this.executeContext.getEnvs();
