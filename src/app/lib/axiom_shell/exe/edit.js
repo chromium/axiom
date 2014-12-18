@@ -10,7 +10,6 @@ import Path from 'axiom/fs/path';
  */
 export var main = function(executeContext) {
   executeContext.ready();
-  var editorView = new EditorView(this.moduleManager);
   var arg = executeContext.arg;
   // if (!arg._ && arg._.length)
   //   return Promise.reject(new AxiomError.Missing('path'));
@@ -19,7 +18,8 @@ export var main = function(executeContext) {
 
   filePath = Path.abs(executeContext.getEnv('$PWD', '/'), filePath);
 
-  editorView.execute(filePath);
+  var editorView = new EditorView(filePath);
+
   return Promise.resolve(null);
 };
 

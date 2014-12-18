@@ -6,7 +6,7 @@ import AxiomError from 'axiom/core/error';
 
 import environment from 'axiom_shell/environment';
 
-export var EditorView = function() {
+export var EditorView = function(filePath) {
   EditorView.sequence++;
   this.id = 'editor-' + EditorView.sequence;
 
@@ -17,6 +17,35 @@ export var EditorView = function() {
       return viewsBinding.show(this.id);
     }.bind(this)).then(function(viewElem) {
       this.viewElem_ = viewElem;
+
+      var object = document.createElement('object');
+      object.style.cssText = (
+          'display: block; ' +
+          'position: absolute; ' +
+          'top: 0; ' +
+          'left: 0; ' +
+          'height: 100%; ' +
+          'width: 100%; ' +
+          'overflow: hidden; ' +
+          'pointer-events: none;');
+
+      var onResize = function() {
+        console.log('onResize!');
+      }.bind(this);
+
+      object.onload = function() {
+        console.log('onload!');
+        this.contentDocument.defaultView.addEventListener(
+            'resize', onResize);
+        onResize();
+      };
+
+      object.type = 'text/html';
+      object.data = 'about:blank';
+
+      // this.htermElem_.followObject = object;
+      this.viewElem_.appendChild(object);
+
       var ace = document.createElement('div');
       ace.className = 'ace';
       ace.style.cssText = (
@@ -30,22 +59,15 @@ export var EditorView = function() {
           'overflow: hidden; ' +
           'pointer-events: none;');
 
-      var onResize = function() {
-        console.log('onResize!');
-      }.bind(this);
-
-      ace.onload = function() {
-        console.log('onload!');
-        this.contentDocument.defaultView.addEventListener(
-            'resize', onResize);
-        onResize();
-      };
-
       this.viewElem_.appendChild(ace);
 
       this.viewElem_.viewClosed = function() {
         console.log('viewClosed!');
       };
+
+      var fileSystem = environment.getServiceBinding('filesystems@axiom');
+      return fileSystem.readFile(filePath, {read: true}).then(
+          this.displayData_.bind(this));
     }.bind(this));
 };
 
@@ -59,17 +81,10 @@ EditorView.viewClosed = function(followObject) {
   console.log('viewClosed!');
 };
 
-EditorView.prototype.execute = function(filePath) {
-  this.whenReady.then(this.execute_.bind(this, filePath));
+EditorView.prototype.displayContents_ = function(contents) {
+  this.viewElem_.getElementsByClassName('ace')[0].textContent = contents;
 };
 
-EditorView.prototype.execute_ = function(filePath) {
-  this.viewElem_.getElementsByClassName('ace')[0].innerHTML = filePath;
-
-  var fileSystem = environment.getServiceBinding('filesystems@axiom');
-
-  return fileSystem.readFile(filePath, {read: true}).then(function(data) {
-    this.viewElem_.getElementsByClassName('ace')[0].innerHTML = data.data;
-  });
+EditorView.prototype.displayData_ = function(data) {
+  this.displayContents_(data.data);
 };
-
