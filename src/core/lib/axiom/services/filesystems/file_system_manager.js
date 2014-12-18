@@ -58,7 +58,9 @@ FileSystemManager.prototype.bind = function(serviceBinding) {
   ).then(function(mntDir) {
     return this.mountDomfs('persistent', 'html5', mntDir);
   }.bind(this)).then(function(domfs) {
-    return domfs.mkdir('home');
+    return domfs.stat('home').catch(function (err) {
+      return domfs.mkdir('home');
+    });
   }).then(function() {
     serviceBinding.ready();
   }).catch(function(error) {
