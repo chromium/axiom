@@ -11,7 +11,7 @@
   <link rel="import" href="bower_components/core-icons/core-icons.html">
 </head>
 <body>
-  <polymer-element name="axiom-drop-zone" attributes="position orientation">
+  <polymer-element name="axiom-drop-zone" attributes="position">
     <template>
       <style>
         :host {
@@ -29,21 +29,27 @@
         }
         :host([position="top"]) {
           top: 0;
-          left: 50%; transform: translate(-50%, 0); /* center */
+          left: 50%;
+          transform: translate(-50%, 0);
         }
         :host([position="bottom"]) {
           bottom: 0;
-          left: 50%; transform: translate(-50%, 0); /* center */
+          left: 50%;
+          transform: translate(-50%, 0);
         }
         :host([position="left"]) {
           left: 0;
-          top: 50%; transform: translate(0, -50%); /* center */
-          transform: rotate(90deg);
+          top: 50%;
+          transform: translate(0, -50%) rotate(90deg);
         }
         :host([position="right"]) {
           right: 0;
-          top: 50%; transform: translate(0, -50%); /* center */
-          transform: rotate(90deg);
+          top: 50%;
+          transform: translate(0, -50%) rotate(90deg);
+        }
+        :host([highlight=""]) {
+          background: blue;
+          opacity: 1.0;
         }
         .icon {
           position: absolute;
@@ -53,9 +59,14 @@
           right: 0;
           transform: translate(-50%, -50%); /* center */
         }
+        /* Set this on children elements to prevent drag-drop events on these
+           children to be fired by the browser. */
+        .no-pointer-events {
+          pointer-events: none;
+        }
       </style>
       <content></content>
-      <div id="{{position}}-zone" relative fit>
+      <div id="{{position}}-zone" class="no-pointer-events" relative fit>
         <core-icon class="icon" icon="arrow-drop-{{arrowtype}}"></core-icon>
       </div>
     </template>
