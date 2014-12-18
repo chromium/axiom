@@ -35,12 +35,23 @@ export var main = function(executeContext) {
     pathSpec = Path.abs(executeContext.getEnv('$PWD', '/'), pathSpec);
 
     return fileSystem.readFile(pathSpec, {read: true}).then(
-        function(data) {
-      executeContext.stdout(data.data);
-      return catNext();
-    }).catch(function(e) {
-      return catNext();
-    });
+      function(data) {
+        executeContext.stdout(data.data);
+        return catNext();
+      }
+    ).catch(function(e) {
+        var errorString;
+
+        if (e instanceof AxiomError) {
+          errorString = e.errorName;
+        } else {
+          errorString = e.toString();
+        }
+
+        executeContext.stdout('cat: ' + pathSpec + ': ' + errorString + '\n');
+        return catNext();
+      }
+    );
   };
 
   return catNext();
