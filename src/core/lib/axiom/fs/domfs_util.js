@@ -138,7 +138,7 @@ domfsUtil.rejectFileError = function(pathSpec, reject, error) {
   if (error.name == 'PathExistsError')
     return reject(new AxiomError.Duplicate('path', pathSpec));
 
-  return new AxiomError.Runtime(pathSpec + ':' + error.toString());
+  return reject(new AxiomError.Runtime(pathSpec + ':' + error.toString()));
 };
 
 export default domfsUtil;

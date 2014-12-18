@@ -127,7 +127,7 @@ DomOpenContext.prototype.open_ = function() {
         {create: mode.create,
          exclusive: mode.exclusive
         },
-        onFileFound, reject);
+        onFileFound, onFileError);
   }.bind(this));
 };
 
