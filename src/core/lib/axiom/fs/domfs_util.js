@@ -42,7 +42,7 @@ domfsUtil.statEntry = function(entry) {
      if ('getMetadata' in entry) {
        entry.getMetadata(onMetadata.bind(null, entry), reject);
      } else {
-       resolve({abilities: [], source: 'domfs'});
+       reject(new AxiomError.Runtime('entry has no getMetadata'));
      }
    });
  };

@@ -25,11 +25,6 @@ import JsFileSystem from 'axiom/fs/js_file_system';
 export var FileSystemManager = function() {
   this.extensionBindings_ = [];
   this.jsfs_ = new JsFileSystem();
-
-  this.jsfs_.mkdir('mnt').then(function(mntDir) {
-    this.mountDomfs('persistent', 'html5', mntDir);
-    this.mountDomfs('temporary', 'tmp', this.jsfs_.rootDirectory);
-  }.bind(this));
 };
 
 export default FileSystemManager;
@@ -55,7 +50,17 @@ FileSystemManager.prototype.bind = function(serviceBinding) {
     'writeFile' : 'writeFile'
   });
 
-  serviceBinding.ready();
+  this.jsfs_.mkdir('mnt').then(function(mntDir) {
+    return this.mountDomfs('persistent', 'html5', mntDir).then(
+      function() {
+        this.mountDomfs('temporary', 'tmp', this.jsfs_.rootDirectory);
+      }.bind(this));
+  }.bind(this)).then(function() {
+    serviceBinding.ready();
+  }).catch(function(error) {
+    console.log('error mounting domfs', error);
+    serviceBinding.ready();
+  });
 };
 
 /**
@@ -65,28 +70,34 @@ FileSystemManager.prototype.bind = function(serviceBinding) {
  * @param mountName
  */
 FileSystemManager.prototype.mountDomfs = function(type, mountName, jsDir) {
-  var requestFs = window.requestFileSystem || window.webkitRequestFileSystem;
-  // This is currently ignored.
-  var capacity = 1024 * 1024 * 1024;
+  return new Promise(function(resolve, reject) {
+    var requestFs = (window.requestFileSystem ||
+                     window.webkitRequestFileSystem);
+    // This is currently ignored.
+    var capacity = 1024 * 1024 * 1024;
 
-  var onFileSystemFound = function(jsDir, fs) {
-    var domfs = new DomFileSystem(fs);
-    jsDir.mount(mountName, domfs.binding);
-  }.bind(null, jsDir);
+    var onFileSystemFound = function(fs) {
+      var domfs = new DomFileSystem(fs);
+      jsDir.mount(mountName, domfs.binding);
+      resolve();
+    };
 
-  var onFileSystemError = function(e) {
-    throw new AxiomError.Runtime(e);
-  };
+    var onFileSystemError = function(e) {
+      reject(new AxiomError.Runtime(e));
+    };
 
-  if (type == 'temporary') {
-    navigator.webkitTemporaryStorage.requestQuota(capacity, function(bytes) {
-      requestFs(window.TEMPORARY, bytes, onFileSystemFound, onFileSystemError);
-    });
-  } else {
-    navigator.webkitPersistentStorage.requestQuota(capacity, function(bytes) {
-      requestFs(window.PERSISTENT, bytes, onFileSystemFound, onFileSystemError);
-    });
-  }
+    if (type == 'temporary') {
+      navigator.webkitTemporaryStorage.requestQuota(capacity, function(bytes) {
+          requestFs(window.TEMPORARY, bytes,
+                    onFileSystemFound, onFileSystemError);
+        });
+    } else {
+      navigator.webkitPersistentStorage.requestQuota(capacity, function(bytes) {
+          requestFs(window.PERSISTENT, bytes,
+                    onFileSystemFound, onFileSystemError);
+        });
+    }
+  });
 };
 
 /**

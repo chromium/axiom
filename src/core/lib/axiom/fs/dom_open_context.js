@@ -109,7 +109,7 @@ DomOpenContext.prototype.open_ = function() {
         this.entry_.createWriter(
             function(writer) {
               writer.truncate(0);
-              domfsUtil.statEntry(entry, onStat, onFileError);
+              domfsUtil.statEntry(entry).then(onStat).catch(onFileError);
             },
             reject);
         return;
