@@ -7,13 +7,14 @@
 <html>
 <head>
   <link rel="import" href="bower_components/polymer/polymer.html">
-  <link rel="import" href="bower_components/core-icon-button/core-icon-button.html">
+  <!-- core-icons loads the default icon set and the core-icon element -->
+  <link rel="import" href="bower_components/core-icons/core-icons.html">
 </head>
 <body>
   <polymer-element name="axiom-drop-zone" attributes="position orientation">
     <template>
       <style>
-        .zone {
+        :host {
           position: absolute;
           padding: 0;
           margin: 0;
@@ -26,35 +27,36 @@
           border-style: solid;
           border-radius: 10px;
         }
-        .vertical-zone {
-          top: 50%; transform: translate(0, -50%); /* center */
-        }
-        .horizontal-zone {
+        :host([position="top"]) {
+          top: 0;
           left: 50%; transform: translate(-50%, 0); /* center */
         }
-        .top-zone {
-          top: 0;
-        }
-        .bottom-zone {
+        :host([position="bottom"]) {
           bottom: 0;
+          left: 50%; transform: translate(-50%, 0); /* center */
         }
-        .left-zone {
+        :host([position="left"]) {
           left: 0;
+          top: 50%; transform: translate(0, -50%); /* center */
           transform: rotate(90deg);
         }
-        .right-zone {
+        :host([position="right"]) {
           right: 0;
+          top: 50%; transform: translate(0, -50%); /* center */
           transform: rotate(90deg);
         }
         .icon {
           position: absolute;
-          display: block;
-          font-size: 14px;
+          top: 50%;
+          bottom: 0;
+          left: 50%;
+          right: 0;
+          transform: translate(-50%, -50%); /* center */
         }
       </style>
       <content></content>
-      <div id="{{position}}-zone" class="{{position}}-zone zone {{orientation}}-zone" dropzone="move">
-        <core-icon-button class="icon" icon="arrow-drop-{{arrowtype}}"></core-icon-button>
+      <div id="{{position}}-zone" relative fit>
+        <core-icon class="icon" icon="arrow-drop-{{arrowtype}}"></core-icon>
       </div>
     </template>
     <script src="axiom_drop_zone.js"></script>
