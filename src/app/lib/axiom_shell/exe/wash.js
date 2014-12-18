@@ -17,6 +17,7 @@ import AxiomError from 'axiom/core/error';
 import JsFileSystem from 'axiom/fs/js_file_system';
 import JsEntry from 'axiom/fs/js_entry';
 import Path from 'axiom/fs/path';
+import domfsUtil from 'axiom/fs/domfs_util';
 
 import Termcap from 'axiom_shell/util/termcap';
 import WashBuiltins from 'axiom_shell/exe/wash_builtins';
@@ -310,9 +311,16 @@ Shell.prototype.exit = function() {
         console.log('closed');
         this.executeContext.closeOk(null);
       }.bind(this)
-  ).catch(function(value) {
-    console.log('shit', value);
-  });
+  ).catch(
+    function(error) {
+      // TODO: writeFile should only raise AxiomErrors.
+      if (error instanceof window.FileError)
+        error = domfsUtil.convertFileError(this.historyFile, error);
+
+      this.printErrorValue(error);
+      this.executeContext.closeOk(null);
+    }.bind(this)
+  );
 };
 
 Shell.prototype.println = function(str) {

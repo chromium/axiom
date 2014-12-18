@@ -101,17 +101,21 @@ domfsUtil.getFileOrDirectory = function(root, pathSpec) {
  *
  * Used in the context of a FileEntry.
  */
-domfsUtil.rejectFileError = function(pathSpec, reject, error) {
+domfsUtil.convertFileError = function(pathSpec, error) {
   if (error.name == 'TypeMismatchError')
-    return reject(new AxiomError.TypeMismatch('entry-type', pathSpec));
+    return new AxiomError.TypeMismatch('entry-type', pathSpec);
 
   if (error.name == 'NotFoundError')
-    return reject(new AxiomError.NotFound('path', pathSpec));
+    return new AxiomError.NotFound('path', pathSpec);
 
   if (error.name == 'PathExistsError')
-    return reject(new AxiomError.Duplicate('path', pathSpec));
+    return new AxiomError.Duplicate('path', pathSpec);
 
   return new AxiomError.Runtime(pathSpec + ':' + error.toString());
+};
+
+domfsUtil.rejectFileError = function(pathSpec, reject, error) {
+  reject(domfsUtil.convertFileError(pathSpec, error));
 };
 
 export default domfsUtil;
