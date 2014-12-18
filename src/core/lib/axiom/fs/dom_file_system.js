@@ -19,7 +19,7 @@ import FileSystemBinding from 'axiom/bindings/fs/file_system';
 import Path from 'axiom/fs/path';
 import DomExecuteContext from 'axiom/fs/dom_execute_context';
 import DomOpenContext from 'axiom/fs/dom_open_context';
-import DomfsUtil from 'axiom/fs/domfs_util';
+import domfsUtil from 'axiom/fs/domfs_util';
 
 /**
  * @param {FileSystemBinding} opt_binding An optional FileSystemBinding
@@ -61,9 +61,9 @@ DomFileSystem.prototype.resolve = function(path) {
  * @return {Promise<>}
  */
 DomFileSystem.prototype.stat = function(pathSpec) {
-  return DomfsUtil.getFileOrDirectory(this.fileSystem.root, pathSpec).then(
+  return domfsUtil.getFileOrDirectory(this.fileSystem.root, pathSpec).then(
       function(r) {
-    return DomfsUtil.statEntry(r);
+    return domfsUtil.statEntry(r);
   });
 };
 
@@ -94,14 +94,14 @@ DomFileSystem.prototype.mkdir = function(pathSpec) {
     var targetName = path.getBaseName();
 
     var onDirectoryFound = function(dir) {
-      return DomfsUtil.mkdir(dir, targetName).then(function(r) {
+      return domfsUtil.mkdir(dir, targetName).then(function(r) {
         resolve(r);
       }).catch (function(e) {
         reject(e);
       });
     };
 
-    var onFileError = DomfsUtil.rejectFileError.bind(null, pathSpec, reject);
+    var onFileError = domfsUtil.rejectFileError.bind(null, pathSpec, reject);
 
     var parentPathSpec = parentPath.spec;
 
@@ -166,14 +166,14 @@ DomFileSystem.prototype.unlink = function(pathSpec) {
     var targetName = path.getBaseName();
 
     var onDirectoryFound = function(dir) {
-      return DomfsUtil.remove(dir, targetName).then(function(r) {
+      return domfsUtil.remove(dir, targetName).then(function(r) {
         resolve(r);
       }).catch (function(e) {
         reject(e);
       });
     };
 
-    var onFileError = DomfsUtil.rejectFileError.bind(null, pathSpec, reject);
+    var onFileError = domfsUtil.rejectFileError.bind(null, pathSpec, reject);
 
     var parentPathSpec = parentPath.spec;
 
@@ -192,7 +192,7 @@ DomFileSystem.prototype.unlink = function(pathSpec) {
  * @return {Promise<>}
  */
 DomFileSystem.prototype.list = function(pathSpec) {
-  return DomfsUtil.listDirectory(this.fileSystem.root, pathSpec).then(
+  return domfsUtil.listDirectory(this.fileSystem.root, pathSpec).then(
     function(entries) {
       return Promise.resolve(entries);
     });
