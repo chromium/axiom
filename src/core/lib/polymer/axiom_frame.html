@@ -21,6 +21,7 @@
   <link rel="import" href="axiom_view.html">
   <link rel="import" href="axiom_splitter.html">
   <link rel="import" href="axiom_anchors.html">
+  <link rel="import" href="axiom_drop_zones.html">
 </head>
 <body>
   <polymer-element name="axiom-frame">
@@ -32,12 +33,10 @@
           border-style: solid;
           border-color: bisque;
         }
-        #anchors {
-          background: rgba(30,0,0,0.5);
-        }
       </style>
-     <content></content>
-     <axiom-anchors id="anchors"></axiom-anchors>
+      <content></content>
+      <axiom-anchors id="anchors"></axiom-anchors>
+      <axiom-drop-zones id="drop-arrows"></axiom-drop-zones>
     </template>
     <script src="axiom_frame.js"></script>
   </polymer-element>

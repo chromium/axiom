@@ -1,0 +1,63 @@
+<!--
+  Copyright (c) 2014 The Axiom Authors. All rights reserved.
+  Use of this source code is governed by a BSD-style license that can be
+  found in the LICENSE file.
+-->
+
+<html>
+<head>
+  <link rel="import" href="bower_components/polymer/polymer.html">
+  <link rel="import" href="bower_components/core-icon-button/core-icon-button.html">
+</head>
+<body>
+  <polymer-element name="axiom-drop-zone" attributes="location orientation">
+    <template>
+      <style>
+        .zone {
+          position: absolute;
+          padding: 0;
+          margin: 0;
+          background: DarkSlateGray;
+          opacity: 0.8;
+          z-index: 300;
+          width: 44px;
+          height: 44px;
+          border: darkgray;
+          border-style: solid;
+          border-radius: 10px;
+        }
+        .vertical-zone {
+          top: 50%; transform: translate(0, -50%); /* center */
+        }
+        .horizontal-zone {
+          left: 50%; transform: translate(-50%, 0); /* center */
+        }
+        .top-zone {
+          top: 0;
+        }
+        .bottom-zone {
+          bottom: 0;
+        }
+        .left-zone {
+          left: 0;
+          transform: rotate(90deg);
+        }
+        .right-zone {
+          right: 0;
+          transform: rotate(90deg);
+        }
+        .icon {
+          position: absolute;
+          display: block;
+          font-size: 14px;
+        }
+      </style>
+      <content></content>
+      <div id="{{location}}-zone" class="{{location}}-zone zone {{orientation}}-zone" dropzone="move">
+        <core-icon-button class="icon" icon="arrow-drop-{{arrowtype}}"></core-icon-button>
+      </div>
+    </template>
+    <script src="axiom_drop_zone.js"></script>
+  </polymer-element>
+</body>
+</html>

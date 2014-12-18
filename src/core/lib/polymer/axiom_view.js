@@ -15,6 +15,10 @@
 Polymer('axiom-view', {
   created: function() {
     this.anchorsElement = this.anchorsElement.bind(this);
+    this.enterDragMode = this.enterDragMode.bind(this);
+    this.leaveDragMode = this.leaveDragMode.bind(this);
+    this.dragEnter = this.dragEnter.bind(this);
+    this.dragLeave = this.dragLeave.bind(this);
     this.setAttribute("relative", "");
   },
   attached: function () {
@@ -37,5 +41,13 @@ Polymer('axiom-view', {
   },
   leaveDragMode: function() {
     this.$['content-div'].style.zIndex = "0";
+  },
+  dragEnter: function() {
+    console.log("dragEnter", this);
+    //this.$['drop-arrows'].removeAttribute("hidden");
+  },
+  dragLeave: function() {
+    console.log("dragLeave", this);
+    //this.$['drop-arrows'].setAttribute("hidden", "");
   }
 });
