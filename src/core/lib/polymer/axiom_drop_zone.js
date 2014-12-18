@@ -4,6 +4,6 @@
 
 Polymer('axiom-drop-zone', {
   computed: {
-    arrowtype: '(location == "top" || location == "right") ? "up" : "down"'
+    arrowtype: '(position == "top" || position == "right") ? "up" : "down"'
   }
 });

@@ -10,7 +10,7 @@
   <link rel="import" href="bower_components/core-icon-button/core-icon-button.html">
 </head>
 <body>
-  <polymer-element name="axiom-drop-zone" attributes="location orientation">
+  <polymer-element name="axiom-drop-zone" attributes="position orientation">
     <template>
       <style>
         .zone {
@@ -53,7 +53,7 @@
         }
       </style>
       <content></content>
-      <div id="{{location}}-zone" class="{{location}}-zone zone {{orientation}}-zone" dropzone="move">
+      <div id="{{position}}-zone" class="{{position}}-zone zone {{orientation}}-zone" dropzone="move">
         <core-icon-button class="icon" icon="arrow-drop-{{arrowtype}}"></core-icon-button>
       </div>
     </template>
