@@ -50,12 +50,16 @@ FileSystemManager.prototype.bind = function(serviceBinding) {
     'writeFile' : 'writeFile'
   });
 
-  this.jsfs_.mkdir('mnt').then(function(mntDir) {
-    return this.mountDomfs('persistent', 'html5', mntDir).then(
-      function() {
-        this.mountDomfs('temporary', 'tmp', this.jsfs_.rootDirectory);
-      }.bind(this));
-  }.bind(this)).then(function() {
+
+  this.mountDomfs('temporary', 'tmp', this.jsfs_.rootDirectory).then(
+    function () {
+      return this.jsfs_.mkdir('mnt');
+    }.bind(this)
+  ).then(function(mntDir) {
+    return this.mountDomfs('persistent', 'html5', mntDir);
+  }.bind(this)).then(function(domfs) {
+    return domfs.mkdir('home');
+  }).then(function() {
     serviceBinding.ready();
   }).catch(function(error) {
     console.log('error mounting domfs', error);
@@ -79,7 +83,7 @@ FileSystemManager.prototype.mountDomfs = function(type, mountName, jsDir) {
     var onFileSystemFound = function(fs) {
       var domfs = new DomFileSystem(fs);
       jsDir.mount(mountName, domfs.binding);
-      resolve();
+      resolve(domfs);
     };
 
     var onFileSystemError = function(e) {
