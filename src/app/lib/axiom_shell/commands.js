@@ -41,9 +41,12 @@ ShellCommands.commands = {
   'launch-app': function(arg) {
     console.log('Lauching app!');
     var fs = environment.getServiceBinding('filesystems@axiom');
-    fs.createContext('execute', '/axiom_shell/exe/hterm', {}).then(
-      function(cx) {
-        cx.execute();
+    fs.whenLoadedAndReady().then(
+      function() {
+        fs.createContext('execute', '/axiom_shell/exe/hterm', {}).then(
+            function(cx) {
+              cx.execute();
+            });
       });
   }
 };

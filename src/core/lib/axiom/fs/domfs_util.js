@@ -42,7 +42,7 @@ domfsUtil.statEntry = function(entry) {
      if ('getMetadata' in entry) {
        entry.getMetadata(onMetadata.bind(null, entry), reject);
      } else {
-       resolve({abilities: [], source: 'domfs'});
+       reject(new AxiomError.Runtime('entry has no getMetadata'));
      }
    });
  };
@@ -128,17 +128,21 @@ domfsUtil.mkdir = function(root, name) {
  *
  * Used in the context of a FileEntry.
  */
-domfsUtil.rejectFileError = function(pathSpec, reject, error) {
+domfsUtil.convertFileError = function(pathSpec, error) {
   if (error.name == 'TypeMismatchError')
-    return reject(new AxiomError.TypeMismatch('entry-type', pathSpec));
+    return new AxiomError.TypeMismatch('entry-type', pathSpec);
 
   if (error.name == 'NotFoundError')
-    return reject(new AxiomError.NotFound('path', pathSpec));
+    return new AxiomError.NotFound('path', pathSpec);
 
   if (error.name == 'PathExistsError')
-    return reject(new AxiomError.Duplicate('path', pathSpec));
+    return new AxiomError.Duplicate('path', pathSpec);
 
   return reject(new AxiomError.Runtime(pathSpec + ':' + error.toString()));
+};
+
+domfsUtil.rejectFileError = function(pathSpec, reject, error) {
+  reject(domfsUtil.convertFileError(pathSpec, error));
 };
 
 export default domfsUtil;

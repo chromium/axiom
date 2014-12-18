@@ -99,12 +99,6 @@ export var WashBuiltins = function(shellInstance) {
       }
 
       return Promise.resolve(null);
-    },
-
-    'exit()': function(executeContext) {
-      executeContext.ready();
-      shellInstance.executeContext.closeOk(null);
-      return Promise.resolve(null);
     }
   };  // this.callbacks = {
 };
