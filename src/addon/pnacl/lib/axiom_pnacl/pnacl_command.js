@@ -151,7 +151,7 @@ export var PnaclCommand = function(name, sourceUrl, opt_tarFilename, opt_env) {
   if (index == sourceUrl.length - 1)
     this.baseUrl = this.sourceUrl;
   else
-    this.baseUrl = this.sourceUrl(0, index + 1);
+    this.baseUrl = this.sourceUrl.substr(0, index + 1);
 };
 
 PnaclCommand.prototype.run = function(cx) {
@@ -166,28 +166,28 @@ PnaclCommand.prototype.run = function(cx) {
     }.bind(this));
     cx.ready();
 
-    this.runPnacl(cx);
+    //this.runPnacl(cx);
 
     // TODO(rpaquay): Remove this code (and [copyUrlToTemporaryStorage]) when
     // there is no need to test with naclports builds older than (approximately)
     // pepper41/trunk-223-g26a4b66.
 
     // If no tar file, run the command right away.
-    //if (!this.tarFilename) {
-    //  this.runPnacl(cx);
-    //  return;
-    //}
+    if (!this.tarFilename) {
+      this.runPnacl(cx);
+      return;
+    }
 
     // TODO(rpaquay): We copy the tar file into the the temporary DOM
     // filesystem (under 'pnacl') and then pass '/tmp/pnacl/<cmd>.nmf' to
     // <cmd> so that '/tmp/pnacl/<cmd>.tar' will be opened at startup.
     // See http://goo.gl/Km8YWu
-    //var tarUrl = this.baseUrl + 'pnacl/' + this.tarFilename;
-    //copyUrlToTemporaryStorage(cx, tarUrl, 'pnacl').then(function() {
-    //  this.runPnacl(cx);
-    //}.bind(this)).catch(function(e) {
-    //  reject(e);
-    //});
+    var tarUrl = this.baseUrl + 'pnacl/' + this.tarFilename;
+    copyUrlToTemporaryStorage(cx, tarUrl, 'pnacl').then(function() {
+      this.runPnacl(cx);
+    }.bind(this)).catch(function(e) {
+      reject(e);
+    });
   }.bind(this));
 };
 
