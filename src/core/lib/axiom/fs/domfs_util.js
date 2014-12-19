@@ -138,7 +138,7 @@ domfsUtil.convertFileError = function(pathSpec, error) {
   if (error.name == 'PathExistsError')
     return new AxiomError.Duplicate('path', pathSpec);
 
-  return reject(new AxiomError.Runtime(pathSpec + ':' + error.toString()));
+  return new AxiomError.Runtime(pathSpec + ':' + error.toString());
 };
 
 domfsUtil.rejectFileError = function(pathSpec, reject, error) {
