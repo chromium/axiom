@@ -63,24 +63,75 @@ Shell.main = function(executeContext) {
   window.wash_ = shell;  // Console debugging aid.
   executeContext.ready();
 
-  return shell.fileSystem.readFile(
-      shell.historyFile, {read: true}, {dataType: 'utf8-string'}).then(
-    function(data) {
-      var history = JSON.parse(data.data);
-      if (history instanceof Array)
-        shell.inputHistory = history;
+  var repl = shell.readEvalPrintLoop.bind(shell);
+  var start = function() {
+    return shell.loadWashHistory().then(repl).catch(repl);
+  };
 
-      return shell.readEvalPrintLoop();
-    }
+  if (executeContext.arg['init']) {
+    return shell.loadAxiomJson().then(start).catch(
+      function(err) {
+        shell.printErrorValue(err);
+        start();
+      });
+  }
+
+  return start();
+};
+
+Shell.main.argSigil = '%';
+
+export default Shell.main;
+
+Shell.prototype.loadAxiomJson = function() {
+  // Process the axiom.json modules
+  return this.fileSystem.readFile(
+      '/mnt/html5/home/.axiom.json', {}, {dataType: 'utf8-string'}).then(
+      function(result) {
+        try {
+          var value = JSON.parse(result.data);
+          if (typeof value != 'object') {
+            return Promise.reject(
+                new AxiomError.TypeMismatch('object', '.axiom.json'));
+          }
+
+          var importList  = value['import'];
+          if (importList && importList instanceof Array) {
+            return this.executeContext.callPromise(
+                this.fileSystem,
+                '/addon/axiom_shell/exe/import',
+                {'_': importList});
+          }
+        } catch (ex) {
+          return Promise.reject(ex);
+        }
+      }.bind(this)
+  ).catch(
+    function(err) {
+      if (AxiomError.NotFound.test(err))
+        return Promise.resolve(null);
+
+      return Promise.reject(err);
+    });
+};
+
+Shell.prototype.loadWashHistory = function() {
+  return this.fileSystem.readFile(
+      this.historyFile, {}, {dataType: 'utf8-string'}).then(
+    function(result) {
+      var history = JSON.parse(result.data);
+      if (history instanceof Array)
+        this.inputHistory = history;
+
+      return Promise.resolve(null);
+    }.bind(this)
   ).catch(
     function(err) {
       console.log(err);
-      return shell.readEvalPrintLoop();
+      return Promise.reject(err);
     }
   );
 };
-
-export default Shell.main;
 
 Shell.prototype.absPath = function(path) {
   return Path.abs(this.executeContext.getEnv('$PWD', '/'), path);
@@ -337,7 +388,7 @@ Shell.prototype.printErrorValue = function(value) {
 Shell.prototype.exit = function() {
   return this.fileSystem.writeFile(
       this.historyFile,
-      { create: true, truncate: true, write: true },
+      { create: true, truncate: true },
       { dataType: 'utf8-string',
         data: JSON.stringify(this.inputHistory)
       }

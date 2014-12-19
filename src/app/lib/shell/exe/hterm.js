@@ -22,11 +22,12 @@ export var main = function(cx) {
   cx.ready();
   var tv = new TerminalView(this.moduleManager);
   var command = cx.arg['command'] || '/addon/shell/exe/wash';
+  var arg = cx.arg['arg'] || {};
   var env = cx.arg['env'] || {
     '@PATH': ['/addon/shell/exe/'],
     '$TERM': 'xterm-256color'
   };
-  tv.execute(command, {}, env);
+  tv.execute(command, arg, env);
   return Promise.resolve(null);
 };
 

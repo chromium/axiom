@@ -16,7 +16,13 @@ import AxiomError from 'axiom/core/error';
 import environment from 'shell/environment';
 
 export var main = function(cx) {
-  var onImportLoaded = function(resolve, reject, e) {
+  var onImportLoaded = function(url, resolve, reject, e) {
+    if (!cx.arg['save'])
+      return processPlugins(resolve, reject, e);
+
+  };
+
+  var processPlugins(resolve, reject, e) {
     var pluginList = [];
 
     // There could be multiple x-axiom-plugin nodes in this import.
@@ -113,7 +119,7 @@ export var main = function(cx) {
       });
 
     link.addEventListener('load',
-                          onImportLoaded.bind(null, resolve, reject));
+                          onImportLoaded.bind(null, url, resolve, reject));
 
     document.head.appendChild(link);
   };
@@ -131,3 +137,16 @@ export var main = function(cx) {
 export default main;
 
 main.argSigil = '%';
+
+var saveImport = function(url) {
+  var fs = enviornment.getServiceBinding('filsystems@axiom');
+  return fs.readFile('/mnt/html5/home/.axiom.json', {}, {}).then(
+    function(result) {
+      var value = JSON.parse(result.data);
+      if (typeof value != 'object')
+        return Promise.resolve(null);
+
+      var importList = value['import'];
+
+    });
+};

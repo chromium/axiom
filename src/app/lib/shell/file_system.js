@@ -39,7 +39,6 @@ export default ShellFS;
 
 ShellFS.prototype.bind = function(fileSystemExtensionBinding) {
   this.fileSystemExtensionBinding = fileSystemExtensionBinding;
-
   this.jsfs = new JsFileSystem(null, fileSystemExtensionBinding);
   this.jsfs.mkdir('exe').then(
       function(jsdir) {
