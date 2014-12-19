@@ -17,6 +17,7 @@ import AxiomError from 'axiom/core/error';
 import JsFileSystem from 'axiom/fs/js_file_system';
 import JsEntry from 'axiom/fs/js_entry';
 import Path from 'axiom/fs/path';
+import domfsUtil from 'axiom/fs/domfs_util';
 
 import Termcap from 'axiom_shell/util/termcap';
 import WashBuiltins from 'axiom_shell/exe/wash_builtins';
@@ -35,6 +36,8 @@ export var Shell = function(executeContext) {
   if (!this.executeContext.getEnv('$PWD'))
     this.executeContext.setEnv('$PWD', '/');
 
+  this.historyFile = executeContext.getEnv(
+      '$HISTFILE', '/mnt/html5/home/.wash_history');
   this.inputHistory = [];
 
   // The list of currently active jobs.
@@ -60,7 +63,21 @@ Shell.main = function(executeContext) {
   window.wash_ = shell;  // Console debugging aid.
   executeContext.ready();
 
-  return shell.readEvalPrintLoop();
+  return shell.fileSystem.readFile(
+      shell.historyFile, {read: true}, {dataType: 'utf8-string'}).then(
+    function(data) {
+      var history = JSON.parse(data.data);
+      if (history instanceof Array)
+        shell.inputHistory = history;
+
+      return shell.readEvalPrintLoop();
+    }
+  ).catch(
+    function(err) {
+      console.log(err);
+      return shell.readEvalPrintLoop();
+    }
+  );
 };
 
 export default Shell.main;
@@ -134,11 +151,10 @@ Shell.prototype.evaluate = function(value) {
 Shell.prototype.readEvalPrint = function() {
   return this.read().then(
     function(result) {
-      if (result == null) {
-        // EOF from readline.
-        this.executeContext.stdout('exit\n');
-        this.executeContext.closeOk(null);
-        return Promise.resolve(null);
+      if (result == null || result == 'exit') {
+        if (!result)
+          this.executeContext.stdout('exit\n');
+        return this.exit();
       }
 
       if (typeof result != 'string') {
@@ -281,6 +297,30 @@ Shell.prototype.printErrorValue = function(value) {
     str += ': ' + args.join(', ');
 
   this.errorln(str);
+};
+
+Shell.prototype.exit = function() {
+  return this.fileSystem.writeFile(
+      this.historyFile,
+      { create: true, truncate: true, write: true },
+      { dataType: 'utf8-string',
+        data: JSON.stringify(this.inputHistory)
+      }
+  ).then(
+      function() {
+        console.log('closed');
+        this.executeContext.closeOk(null);
+      }.bind(this)
+  ).catch(
+    function(error) {
+      // TODO: writeFile should only raise AxiomErrors.
+      if (error instanceof window.FileError)
+        error = domfsUtil.convertFileError(this.historyFile, error);
+
+      this.printErrorValue(error);
+      this.executeContext.closeOk(null);
+    }.bind(this)
+  );
 };
 
 Shell.prototype.println = function(str) {

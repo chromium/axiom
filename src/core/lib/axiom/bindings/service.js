@@ -70,7 +70,7 @@ ServiceBinding.prototype = Object.create(BaseBinding.prototype);
 ServiceBinding.prototype.whenLoadedAndReady = function() {
   if (this.isReadyState('WAIT')) {
     console.log('Loading and waiting for service: ' + this.serviceId);
-    this.onLoadRequest();
+    this.onLoadRequest.fire();
     return this.whenReady();
   }
 

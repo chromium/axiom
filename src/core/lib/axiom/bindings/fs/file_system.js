@@ -106,15 +106,15 @@ FileSystem.prototype.writeFile = function(path, openArg, writeArg) {
 
   return this.createContext('open', path, openArg).then(
     function(ocx) {
-    return ocx.open().then(
-      function() {
-      return ocx.write(writeArg).then(function(result) {
-        ocx.closeOk(null);
-	return Promise.resolve(result);
-      }).catch(function(e) {
-        ocx.closeErrorValue(e);
-	return Promise.reject(e);
-      });
-    });
-  });
+      return ocx.open().then(
+        function() {
+          return ocx.write(writeArg).then(function(result) {
+            ocx.closeOk(null);
+            return Promise.resolve(result);
+          }).catch(function(e) {
+            ocx.closeErrorValue(e);
+            return Promise.reject(e);
+          });
+        });
+   });
 };

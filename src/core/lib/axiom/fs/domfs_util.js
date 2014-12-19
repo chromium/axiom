@@ -42,7 +42,7 @@ domfsUtil.statEntry = function(entry) {
      if ('getMetadata' in entry) {
        entry.getMetadata(onMetadata.bind(null, entry), reject);
      } else {
-       resolve({abilities: [], source: 'domfs'});
+       reject(new AxiomError.Runtime('entry has no getMetadata'));
      }
    });
  };
@@ -96,22 +96,53 @@ domfsUtil.getFileOrDirectory = function(root, pathSpec) {
 };
 
 /**
+ * Removes all files and sub directories for a given path.
+ */
+domfsUtil.remove = function(root, path) {
+  return new Promise(function(resolve, reject) {
+    return domfsUtil.getFileOrDirectory(root, path).then(function(r) {
+      if (r.isDirectory === false) {
+        r.remove(resolve, reject);
+      } else {
+        r.removeRecursively(resolve, reject);
+      }
+    }).catch(function(e) {
+      reject(e);
+    });
+  });
+};
+
+/**
+ * Create a directory with a given name under root.
+ */
+domfsUtil.mkdir = function(root, name) {
+  return new Promise(function(resolve, reject) {
+    var onError = domfsUtil.rejectFileError.bind(null, name, reject);
+    root.getDirectory(name, {create: true, exclusive: true}, resolve, onError);
+  });
+};
+
+/**
  * Convenience method to convert a FileError to a promise rejection with an
  * Axiom error.
  *
  * Used in the context of a FileEntry.
  */
-domfsUtil.rejectFileError = function(pathSpec, reject, error) {
+domfsUtil.convertFileError = function(pathSpec, error) {
   if (error.name == 'TypeMismatchError')
-    return reject(new AxiomError.TypeMismatch('entry-type', pathSpec));
+    return new AxiomError.TypeMismatch('entry-type', pathSpec);
 
   if (error.name == 'NotFoundError')
-    return reject(new AxiomError.NotFound('path', pathSpec));
+    return new AxiomError.NotFound('path', pathSpec);
 
   if (error.name == 'PathExistsError')
-    return reject(new AxiomError.Duplicate('path', pathSpec));
+    return new AxiomError.Duplicate('path', pathSpec);
 
   return new AxiomError.Runtime(pathSpec + ':' + error.toString());
+};
+
+domfsUtil.rejectFileError = function(pathSpec, reject, error) {
+  reject(domfsUtil.convertFileError(pathSpec, error));
 };
 
 export default domfsUtil;
