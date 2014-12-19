@@ -100,7 +100,7 @@ FileSystem.prototype.writeFile = function(path, openArg, writeArg) {
   if (!openArg)
     openArg = {};
 
-  openArg.create = 'true';
+  openArg.write = true;
 
   writeArg = writeArg || {};
 
