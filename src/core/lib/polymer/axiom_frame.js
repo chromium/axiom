@@ -130,7 +130,9 @@
     var container = dropZones[dropZones.length - 1];
     var anchor = container.anchorsElement().anchor(position);
     anchor.removeAttribute("hidden");
-    container.dropZones().zone(position).setAttribute("active", "");
+    // Note: We need a value (not just empty string) for the attribute,
+    // otherwise polymer won't detect changes to the attribute value.
+    container.dropZones().zone(position).setAttribute("active", "1");
 
     this.activeDropTarget = {
       view: this.view,
