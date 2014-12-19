@@ -41,6 +41,8 @@
       this.currentDropZones[i].dropZones().setAttribute("hidden", "");
     }
     this.currentDropZones = [];
+
+    this.deactivateAnchorFrame();
   }
 
 
@@ -208,8 +210,13 @@
     this.deactivateAnchorFrame();
 
     var position = dropZone.position;
-    console.log("Activating frame at position: ", position);
+    var dropZones = this.getDropZones(path);
+    var owner = dropZones[dropZones.length - 1];
+    // console.log("Activating frame at position: " + position, owner);
+    var anchor = owner.anchorsElement().anchor(position);
+    anchor.removeAttribute("hidden");
 
+    this.currentAnchorFrame = anchor;
   }
 
   DragDropState.prototype.deactivateAnchorFrame = function() {
