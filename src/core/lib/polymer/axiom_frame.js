@@ -23,8 +23,23 @@
     this.view = view;
     this.currentView = null;
     this.currentDropFrame = null;
+
+    this.currentElement = null;
+    this.currentDropZones = [];
   }
 
+  DragDropState.prototype.dragStart = function() {
+  }
+
+  DragDropState.prototype.dragEnd = function() {
+    // Hide active drop zones.
+    for(var i = 0; i < this.currentDropZones.length; i++) {
+      this.currentDropZones[i].dropZones().setAttribute("hidden", "");
+    }
+    this.currentDropZones = [];
+  }
+
+/*
   DragDropState.prototype.getElementInPath = function(path, tagName) {
     for (var i = 0; i < path.length; i++) {
       if (path[i].tagName === tagName) {
@@ -38,19 +53,185 @@
     return this.getElementInPath(path, 'AXIOM-DROP-ZONE')
   }
 
+  DragDropState.prototype.getView = function(path) {
+    return this.getElementInPath(path, 'AXIOM-VIEW')
+  }
+
+  DragDropState.prototype.enterDropZone = function(dropZone) {
+    if (dropZone === this.currentDropZone) {
+      return;
+    }
+    console.log("enterDropZone", dropZone);
+
+    //dropZone.parentElement.showDropFrame(dropZone);
+
+    this.currentDropZone = dropZone;
+    //this.currentDropFrame = dropZone.parentElement.dropFrame(dropZone.position);
+
+    // Show frame corresponding to drop zone
+    //this.currentDropFrame.removeAttribute("hidden");
+  }
+
+  DragDropState.prototype.leaveDropZone = function() {
+    if (!this.currentDropZone) {
+      return;
+    }
+    console.log("leaveDropZone", this.currentDropZone);
+
+    // Hide currently active frame
+    if (this.currentDropFrame) {
+      this.currentDropFrame.setAttribute("hidden", "");
+    }
+
+    this.currentDropZone = null;
+    this.currentDropFrame = null;
+  }
+
+  DragDropState.prototype.enterView = function(view) {
+    if (view === this.currentView) {
+      return;
+    }
+    console.log("enterView", view);
+
+    this.currentView = view;
+
+    // Show drop zones of parent chain
+    for(var parent = this.currentView; parent; parent = parent.parentElement) {
+      if (parent.dropZones) {
+        parent.dropZones().removeAttribute("hidden");
+      }
+    }
+  }
+
+  DragDropState.prototype.leaveView = function() {
+    if (!this.currentView) {
+      return;
+    }
+    console.log("leaveView", this.currentView);
+
+    // Hide drop zones of parent chain
+    for(var parent = this.currentView; parent; parent = parent.parentElement) {
+      if (parent.dropZones) {
+        parent.dropZones().setAttribute("hidden", "");
+      }
+    }
+
+    this.currentView = null;
+  }
+*/
+
+  // Return an array of elements with drop zones from [path].
+  DragDropState.prototype.getDropZones = function(path) {
+    result = [];
+    for(var i = path.length - 1; i >=0; i--) {
+      var elem = path[i];
+      if (elem.dropZones) {
+        result.push(elem);
+      }
+    }
+    return result;
+  }
+
+  DragDropState.prototype.dragLeave = function(path) {
+    /*
+    var elem = this.currentElement;
+    if (elem === null)
+      return;
+    this.currentElement = null;
+
+    for(; elem != null; elem = elem.parentElement) {
+      if (elem.dropZones) {
+        elem.dropZones().setAttribute("hidden", "");
+      }
+    }
+    */
+  }
+
+
+  DragDropState.prototype.dragEnter = function(path) {
+    var currentPath = this.currentDropZones;
+    var newPath = this.getDropZones(path);
+    //console.log("currentPath: ", currentPath);
+    //console.log("newPath: ", newPath);
+    var lastCommonParent = -1;
+    for (var i = 0; i < Math.min(currentPath.length, newPath.length); i++) {
+      if (currentPath[i] === newPath[i]) {
+        lastCommonParent = i;
+      } else {
+        break;
+      }
+    }
+
+    //console.log("Hiding elements from " + (lastCommonParent + 1) + ' to ' +
+    //  (currentPath.length - 1) + " and showing elements from " + (lastCommonParent + 1) +
+    //  " to " + (newPath.length - 1));
+    for(i = lastCommonParent + 1; i < currentPath.length; i++) {
+      currentPath[i].dropZones().setAttribute("hidden", "");
+    }
+
+    for(i = lastCommonParent + 1; i < newPath.length; i++) {
+      newPath[i].dropZones().removeAttribute("hidden");
+    }
+    this.currentDropZones = newPath;
+  }
+
   DragDropState.prototype.dragOver = function(path) {
+    /*
+    this.dragOverDropZone(path);
+    this.dragOverView(path);
+    */
+  }
+
+/*
+  DragDropState.prototype.dragOverDropZone = function(path) {
+
       var dropZone = this.getDropZone(path);
-      if (dropZone) {
-        console.log(dropZone);
+      if (!dropZone) {
+        this.leaveDropZone();
+        return;
+      }
+      if (dropZone !== this.currentDropZone) {
+        this.leaveDropZone();
+        this.enterDropZone(dropZone);
       }
   }
+
+  DragDropState.prototype.dragOverView = function(path) {
+      var view = this.getView(path);
+      if (!view) {
+        this.leaveView();
+        return;
+      }
+      if (view !== this.currentView) {
+        this.leaveView();
+        this.enterView(view);
+      }
+  }
+  */
 
   Polymer('axiom-frame', {
     created: function () {
       this.anchorsElement = this.anchorsElement.bind(this);
+      this.dropZones = this.dropZones.bind(this);
       this.setAttribute('relative', '');
     },
     ready: function () {
+      /*
+      function getPathString(event) {
+        var s = "";
+        s = event.path[0].tagName;
+        for(var i = 1; i < event.path.length; i++) {
+          var elem = event.path[i];
+          if (elem.tagName && elem.tagName.substr(0, 5) === "AXIOM") {
+            if (s !== "")
+              s += ", "
+            s += elem.tagName;
+          }
+        }
+        return '[' +  s + ']';
+      }
+      */
+
       document.addEventListener('dragstart', function (event) {
         //console.log('dragstart', event);
         this.dragStart(event);
@@ -64,22 +245,27 @@
       /* events fired on the draggable target */
       document.addEventListener('drag', function (event) {
         //console.log('drag', event);
-        this.drag(event);
+        //this.drag(event);
       }.bind(this), false);
 
       /* events fired on the drop targets */
       document.addEventListener('dragover', function (event) {
         //console.log('dragover', event);
-        this.dragOver(event);
+        //console.log('******** dragover ***********', event);
+        //this.dragOver(event);
+        event.preventDefault();
       }.bind(this), false);
 
       document.addEventListener('dragenter', function (event) {
-        console.log('dragenter', event);
-        //this.dragEnter(event);
+        //console.log('dragenter: ' + getPathString(event), event);
+        //console.log('dragenter: ' + getPathString(event), event);
+        //console.log('dragenter', event);
+        this.dragEnter(event);
       }.bind(this), false);
 
       document.addEventListener('dragleave', function (event) {
-        console.log('dragleave', event);
+        //console.log('dragleave: ' + getPathString(event), event);
+        //console.log('dragleave: ' + getPathString(event), event);
         //this.dragLeave(event);
       }.bind(this), false);
 
@@ -96,6 +282,10 @@
       return this.$.anchors;
     },
 
+    dropZones: function () {
+      return this.$['drop-zones'];
+    },
+
     dragStart: function (event) {
       if (event.target.tagName !== 'AXIOM-VIEW')
         return;
@@ -103,6 +293,7 @@
 
       // Use state to keep track of current drag-drop operation.
       this.dragDropState = new DragDropState(this, view);
+      this.dragDropState.dragStart();
 
       // make the view half transparent
       view.style.opacity = .5;
@@ -118,18 +309,22 @@
       this.dragLeave(event);
       event.target.style.opacity = '';
 
+      // Done with this operation.
+      this.dragDropState.dragEnd();
+      this.dragDropState = null;
+
       // Fire custom 'drag-end' event
       var view = event.target;
       this.fire('drag-end', { view: view });
-
-      // Done with this operation.
-      if (this.dragDropState && this.dragDropState.currentAnchor)
-        this.dragDropState.currentAnchor.anchor.setAttribute('hidden', '')
-
-      this.dragDropState = null;
     },
 
     dragEnter: function (event) {
+      // prevent default to allow drop
+      event.preventDefault();
+
+      if (this.dragDropState) {
+        this.dragDropState.dragEnter(event.path);
+      }
       //var targetElement = this.getElementInPath(event, 'AXIOM-VIEW');
       //if (!targetElement)
       //  return null;
@@ -149,7 +344,10 @@
     dragOver: function (event) {
       // prevent default to allow drop
       event.preventDefault();
-      this.dragDropState.dragOver(event.path);
+
+      if (this.dragDropState) {
+        this.dragDropState.dragOver(event.path);
+      }
 
       // Update current anchor if needed
       //var currentAnchor = this.dragDropState.currentAnchor;
@@ -194,6 +392,7 @@
       //this.dragEnd(event);
     },
 
+/*
     getElementInPath: function (event, tagName) {
       var path = event.path;
       for (var i = 0; i < path.length; i++) {
@@ -281,5 +480,6 @@
           newRect(rect.left, rect.bottom - offset, rect.width, offset), 'bottom');
       return anchor;
     },
+*/
   });
 })();
