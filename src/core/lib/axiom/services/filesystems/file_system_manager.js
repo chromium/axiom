@@ -51,7 +51,14 @@ FileSystemManager.prototype.bind = function(serviceBinding) {
   });
 
 
-  this.mountDomfs('temporary', 'tmp', this.jsfs_.rootDirectory).then(
+  this.jsfs_.mkdir('addon').then(
+    function(jsdir) {
+      this.addonDir_ = jsdir;
+    }.bind(this)
+  ).then(function() {
+      return this.mountDomfs('temporary', 'tmp', this.jsfs_.rootDirectory);
+    }.bind(this)
+  ).then(
     function () {
       return this.jsfs_.mkdir('mnt');
     }.bind(this)
@@ -130,5 +137,5 @@ FileSystemManager.prototype.onExtend = function(extensionBinding) {
   fsb.dependsOn(extensionBinding);
   fsb.ready();
 
-  this.jsfs_.rootDirectory.mount(sourceModuleId, fsb);
+  this.addonDir_.mount(sourceModuleId, fsb);
 };
