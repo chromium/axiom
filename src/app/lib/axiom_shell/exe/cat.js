@@ -18,12 +18,19 @@ import Path from 'axiom/fs/path';
 import environment from 'axiom_shell/environment';
 import util from 'axiom_shell/util';
 
+var CAT_CMD_HELP_STRING = 'usage: cat [file...]';
+
 export var main = function(executeContext) {
   executeContext.ready();
 
   var arg = executeContext.arg;
-  if (!arg._ && arg._.length)
+  if ((!arg._ && arg._.length) || arg.h || arg.help) {
+    if (!arg._ && arg._.length) {
+    }
+
+    executeContext.stdout(CAT_CMD_HELP_STRING + '\n');
     return Promise.reject(new AxiomError.Missing('path'));
+  }
 
   var fileSystem = environment.getServiceBinding('filesystems@axiom');
 
