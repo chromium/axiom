@@ -43,7 +43,7 @@ ShellCommands.commands = {
     var fs = environment.getServiceBinding('filesystems@axiom');
     fs.whenLoadedAndReady().then(
       function() {
-        fs.createContext('execute', '/axiom_shell/exe/hterm', {}).then(
+        fs.createContext('execute', '/addon/axiom_shell/exe/hterm', {}).then(
             function(cx) {
               cx.execute();
             });
