@@ -19,20 +19,20 @@ Polymer('axiom-drop-zone', {
     }
     var lastDragOver = null;
     this.addEventListener('dragenter', function(e) {
-      console.log("dragenter: " + getPathString(e), this);
+      console.log("dragenter[drop-zone]: " + getPathString(e), this);
       e.target.setAttribute("highlight", "");
       lastDragOver = null;
       e.preventDefault();
     });
     this.addEventListener('dragleave', function(e) {
-      console.log("dragleave: " + getPathString(e), this);
+      console.log("dragleave[drop-zone]: " + getPathString(e), this);
       e.target.removeAttribute("highlight");
       lastDragOver = null;
     });
     this.addEventListener('dragover', function(e) {
       if (lastDragOver === this)
         return;
-      console.log("dragover: " + getPathString(e), this);
+      console.log("dragover[drop-zone]: " + getPathString(e), this);
       lastDragOver = this;
 
       //e.preventDefault();

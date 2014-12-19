@@ -9,6 +9,7 @@
   <link rel="import" href="bower_components/polymer/polymer.html">
   <!-- core-icons loads the default icon set and the core-icon element -->
   <link rel="import" href="bower_components/core-icons/core-icons.html">
+  <link rel="import" href="bower_components/paper-fab/paper-fab.html">
 </head>
 <body>
   <polymer-element name="axiom-drop-zone" attributes="position">
@@ -18,14 +19,10 @@
           position: absolute;
           padding: 0;
           margin: 0;
-          background: DarkSlateGray;
-          opacity: 0.8;
+          opacity: 0.5;
           z-index: 300;
-          width: 44px;
-          height: 44px;
-          border: darkgray;
-          border-style: solid;
-          border-radius: 10px;
+          width: 56px;
+          height: 56px;
         }
         :host([position="top"]) {
           top: 0;
@@ -48,7 +45,7 @@
           transform: translate(0, -50%) rotate(90deg);
         }
         :host([highlight=""]) {
-          background: blue;
+          /*background: blue;*/
           opacity: 1.0;
         }
         .icon {
@@ -66,9 +63,7 @@
         }
       </style>
       <content></content>
-      <div id="{{position}}-zone" class="no-pointer-events" relative fit>
-        <core-icon class="icon" icon="arrow-drop-{{arrowtype}}"></core-icon>
-      </div>
+      <paper-fab icon="arrow-drop-{{arrowtype}}" class="no-pointer-events"></paper-fab>
     </template>
     <script src="axiom_drop_zone.js"></script>
   </polymer-element>
