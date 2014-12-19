@@ -21,11 +21,15 @@
   var DragDropState = function (frame, view) {
     this.frame = frame;
     this.view = view;
-    this.currentView = null;
-    this.currentDropFrame = null;
 
-    this.currentElement = null;
+    // Array of element with activate drop zones.
     this.currentDropZones = [];
+
+    this.currentAnchorFrame = null;
+    //this.currentView = null;
+    //this.currentDropFrame = null;
+
+    //this.currentElement = null;
   }
 
   DragDropState.prototype.dragStart = function() {
@@ -39,7 +43,8 @@
     this.currentDropZones = [];
   }
 
-/*
+
+  // Return the first element of [path] with [tagName], or null if not found.
   DragDropState.prototype.getElementInPath = function(path, tagName) {
     for (var i = 0; i < path.length; i++) {
       if (path[i].tagName === tagName) {
@@ -49,10 +54,12 @@
     return null;
   }
 
+  // Return the first 'axiom-drop-zone' element of [path], or null if not found.
   DragDropState.prototype.getDropZone = function(path) {
     return this.getElementInPath(path, 'AXIOM-DROP-ZONE')
   }
 
+/*
   DragDropState.prototype.getView = function(path) {
     return this.getElementInPath(path, 'AXIOM-VIEW')
   }
@@ -132,6 +139,11 @@
     return result;
   }
 
+  DragDropState.prototype.dragEnter = function(path) {
+    this.activateDropZones(path);
+    this.activateAnchorFrame(path);
+  }
+
   DragDropState.prototype.dragLeave = function(path) {
     /*
     var elem = this.currentElement;
@@ -147,8 +159,14 @@
     */
   }
 
+  DragDropState.prototype.dragOver = function(path) {
+    /*
+    this.dragOverDropZone(path);
+    this.dragOverView(path);
+    */
+  }
 
-  DragDropState.prototype.dragEnter = function(path) {
+  DragDropState.prototype.activateDropZones = function(path) {
     var currentPath = this.currentDropZones;
     var newPath = this.getDropZones(path);
     //console.log("currentPath: ", currentPath);
@@ -175,11 +193,31 @@
     this.currentDropZones = newPath;
   }
 
-  DragDropState.prototype.dragOver = function(path) {
-    /*
-    this.dragOverDropZone(path);
-    this.dragOverView(path);
-    */
+  DragDropState.prototype.activateAnchorFrame = function(path) {
+    var dropZone = this.getDropZone(path);
+    if (!dropZone) {
+      this.deactivateAnchorFrame();
+      return;
+    }
+
+    if (dropZone === this.currentDropZone) {
+      return;
+    }
+
+    // Activate a new anchor frame
+    this.deactivateAnchorFrame();
+
+    var position = dropZone.position;
+    console.log("Activating frame at position: ", position);
+
+  }
+
+  DragDropState.prototype.deactivateAnchorFrame = function() {
+    if (!this.currentAnchorFrame)
+      return;
+
+    this.currentAnchorFrame.setAttribute("hidden", "");
+    this.currentAnchorFrame = null;
   }
 
 /*
