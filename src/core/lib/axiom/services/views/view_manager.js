@@ -460,9 +460,33 @@ ViewManager.prototype.moveView = function(view, target, position) {
   if (!frame)
     return;
 
+  // If the parent of the view is a container, the container may disappear
+  // during the call to "detach" below. Pick a backup target that we know
+  // won't disappear to use later at the new target.
+  var backupTarget = null;
+  if (view.parentElement.tagName === AXIOM_CONTAINER) {
+    for (var elem = view.parentElement.firstElementChild;
+         elem !== null;
+         elem = elem.nextElementSibling) {
+      if (elem !== view) {
+        if (elem.tagName === AXIOM_CONTAINER || elem.tagName === AXIOM_VIEW) {
+          backupTarget = elem;
+        }
+      }
+    }
+  }
+
   // Remove the view and re-grunt. Note this may remove the container from
   // the frame.
   this.detachView(view);
+
+  // See comment above...
+  if (target.parentElement === null) {
+    if (backupTarget.parentElement !== null)
+      target = backupTarget;
+    else
+      target = frame; // last resort.
+  }
 
   // Insertion into the main frame is a special case, as the main frame
   // is neither horizontal or vertical.
