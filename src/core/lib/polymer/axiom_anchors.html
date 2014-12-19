@@ -26,11 +26,17 @@
           position: absolute;
           padding: 0;
           margin: 0;
-          background: DarkSlateGray;
-          opacity: 0.8;
+          background: transparent;
+          opacity: 1.0;
           z-index: 300;
-          width: 8px;
-          height: 8px;
+          width: 30%;
+          height: 30%;
+          pointer-events: none;
+        }
+        .anchor-inner {
+          border-style: dotted;
+          border-width: 2px;
+          border-color: gray;
         }
         .vertical-anchor {
           height: 100%;
@@ -54,10 +60,38 @@
         }
       </style>
       <content></content>
-      <div id="top-anchor" class="top-anchor anchor horizontal-anchor" dropzone="move" hidden></div>
-      <div id="bottom-anchor" class="bottom-anchor anchor horizontal-anchor" dropzone="move" hidden></div>
-      <div id="left-anchor" class="left-anchor anchor vertical-anchor" dropzone="move" hidden></div>
-      <div id="right-anchor" class="right-anchor anchor vertical-anchor" dropzone="move" hidden></div>
+      <div id="top-anchor" class="top-anchor anchor horizontal-anchor" hidden>
+        <div class="anchor-inner" absolute fit>
+        <div class="anchor-inner" absolute fit>
+        <div class="anchor-inner" absolute fit>
+        </div>
+        </div>
+        </div>
+      </div>
+      <div id="bottom-anchor" class="bottom-anchor anchor horizontal-anchor" hidden>
+        <div class="anchor-inner" absolute fit>
+        <div class="anchor-inner" absolute fit>
+        <div class="anchor-inner" absolute fit>
+        </div>
+        </div>
+        </div>
+      </div>
+      <div id="left-anchor" class="left-anchor anchor vertical-anchor" hidden>
+        <div class="anchor-inner" absolute fit>
+        <div class="anchor-inner" absolute fit>
+        <div class="anchor-inner" absolute fit>
+        </div>
+        </div>
+        </div>
+      </div>
+      <div id="right-anchor" class="right-anchor anchor vertical-anchor" hidden>
+        <div class="anchor-inner" absolute fit>
+        <div class="anchor-inner" absolute fit>
+        <div class="anchor-inner" absolute fit>
+        </div>
+        </div>
+        </div>
+      </div>
     </template>
     <script src="axiom_anchors.js"></script>
   </polymer-element>
