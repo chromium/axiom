@@ -13,4 +13,10 @@
 // limitations under the License.
 
 Polymer('axiom-drop-zones', {
+  created: function () {
+    this.zone = this.zone.bind(this);
+  },
+  zone: function (position) {
+    return this.$[position];
+  }
 });

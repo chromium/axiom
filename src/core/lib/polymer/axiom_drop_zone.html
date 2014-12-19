@@ -22,7 +22,7 @@
   <link rel="import" href="bower_components/paper-fab/paper-fab.html">
 </head>
 <body>
-  <polymer-element name="axiom-drop-zone" attributes="position">
+  <polymer-element name="axiom-drop-zone" attributes="position active">
     <template>
       <style>
         :host {
@@ -66,6 +66,9 @@
           right: 0;
           transform: translate(-50%, -50%); /* center */
         }
+        .active {
+          background: OrangeRed;
+        }
         /* Set this on children elements to prevent drag-drop events on these
            children to be fired by the browser. */
         .no-pointer-events {
@@ -73,7 +76,7 @@
         }
       </style>
       <content></content>
-      <paper-fab icon="arrow-drop-{{arrowtype}}" class="no-pointer-events"></paper-fab>
+      <paper-fab id="icon" icon="arrow-drop-{{arrowtype}}" class="no-pointer-events"></paper-fab>
     </template>
     <script src="axiom_drop_zone.js"></script>
   </polymer-element>

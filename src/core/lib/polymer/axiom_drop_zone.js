@@ -19,4 +19,12 @@ Polymer('axiom-drop-zone', {
     arrowtype: '(position == "top" || position == "right") ? "up" : "down"',
     orientation: '(position == "top" || position == "bottom") ? "horizontal" : "vertical"',
   },
+  active: '',
+  activeChanged: function(oldValue, newValue) {
+    if (newValue || newValue === "") {
+      this.$.icon.classList.add("active");
+    } else {
+      this.$.icon.classList.remove("active");
+    }
+  }
 });

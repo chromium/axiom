@@ -72,7 +72,10 @@
     for(var i = path.length - 1; i >=0; i--) {
       var elem = path[i];
       if (elem.dropZones) {
-        result.push(elem);
+        // The drop zones of the currently dragged view are not valid targets.
+        if (elem !== this.view) {
+          result.push(elem);
+        }
       }
     }
     return result;
@@ -127,6 +130,7 @@
     var container = dropZones[dropZones.length - 1];
     var anchor = container.anchorsElement().anchor(position);
     anchor.removeAttribute("hidden");
+    container.dropZones().zone(position).setAttribute("active", "");
 
     this.activeDropTarget = {
       view: this.view,
@@ -143,6 +147,7 @@
     var container = this.activeDropTarget.target;
     var anchor = container.anchorsElement().anchor(position);
     anchor.setAttribute("hidden", "");
+    container.dropZones().zone(position).removeAttribute("active");
 
     this.activeDropTarget = null;
   }
