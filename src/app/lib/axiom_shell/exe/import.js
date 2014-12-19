@@ -47,19 +47,36 @@ export var main = function(cx) {
         return nextImportUrl(resolve, reject);
 
       var plugin = pluginList.shift();
-      var descriptor = environment.requireModule(plugin[0])['default'];
+      var descriptor;
+      try {
+        descriptor = environment.requireModule(plugin[0])['default'];
+      } catch (ex) {
+        return reject(ex);
+      }
+
       if (!descriptor) {
         return reject(new AxiomError.Runtime(
             'No descriptor exported by: ' + plugin[0]));
       }
 
-      var module = environment.defineModule(descriptor);
-      cx.stdout('New module: ' + module.moduleId + '\n');
+      var main;
+      try {
+        main = environment.requireModule(plugin[1])['default'];
+      } catch (ex) {
+        return reject(ex);
+      }
 
-      var main = environment.requireModule(plugin[1])['default'];
       if (!main) {
         return reject(new AxiomError.Runtime(
             'No main exported by: ' + plugin[1]));
+      }
+
+      var module;
+      try {
+        module = environment.defineModule(descriptor);
+        cx.stdout('New module: ' + module.moduleId + '\n');
+      } catch(ex) {
+        reject(ex);
       }
 
       try {
@@ -70,8 +87,8 @@ export var main = function(cx) {
             }).catch(function(err) {
               return reject(err);
             });
-      } catch(err) {
-        return reject(err);
+      } catch(ex) {
+        return reject(ex);
       }
     };
 

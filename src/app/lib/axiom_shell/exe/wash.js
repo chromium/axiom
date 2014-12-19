@@ -291,10 +291,10 @@ Shell.prototype.printErrorValue = function(value) {
     args.push(key + ': ' + JSON.stringify(value.errorValue[key]));
   }
 
-  var str = this.tc_.output('%set-attr(FG_BOLD, FG_RED)' + value.errorName +
-                            '%set-attr()');
+  var str = this.tc_.output('%set-attr(FG_BOLD, FG_RED)Error%set-attr(): ' +
+                            value.errorName);
   if (args.length)
-    str += ': ' + args.join(', ');
+    str += ' {' + args.join(', ') + '}';
 
   this.errorln(str);
 };

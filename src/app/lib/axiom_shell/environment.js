@@ -33,6 +33,10 @@ export var environment = {
     return axiomModuleManager.defineModule(descriptor);
   },
 
+  getAxiomModule: function(dependencyExpr) {
+    return axiomModuleManager.getModuleBinding(dependencyExpr);
+  },
+
   // TODO(rginda): This is a dynamic es6 module import and has nothing
   // to do with "axiom modules".  We should rename axiom modules to
   // avoid the name collision.

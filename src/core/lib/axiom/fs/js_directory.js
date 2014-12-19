@@ -93,7 +93,7 @@ JsDirectory.prototype.link = function(name, entry) {
     throw new AxiomError.TypeMismatch('instanceof JsEntry', entry);
 
   if (this.entryMap_.has(name))
-    throw new AxiomError.Duplicate('name', name);
+    throw new AxiomError.Duplicate('directory-name', name);
 
   this.entryMap_.set(name, entry);
 };
@@ -113,7 +113,7 @@ JsDirectory.prototype.mount = function(name, fileSystemBinding) {
   }
 
   if (this.entryMap_.has(name))
-    throw new AxiomError.Duplicate('name', name);
+    throw new AxiomError.Duplicate('directory-name', name);
 
   this.entryMap_.set(name, fileSystemBinding);
 };
@@ -143,7 +143,7 @@ JsDirectory.prototype.install = function(executables) {
  */
 JsDirectory.prototype.mkdir = function(name) {
   if (this.entryExists(name))
-    return Promise.reject(new AxiomError.Duplicate('name', name));
+    return Promise.reject(new AxiomError.Duplicate('directory-name', name));
 
   var dir = new JsDirectory(this.jsfs);
   this.entryMap_.set(name, dir);

@@ -35,13 +35,12 @@ export default ModuleManager;
  * @return {ModuleBinding}
  */
 ModuleManager.prototype.defineModule = function(descriptor) {
+  if (this.moduleBindings_.has(descriptor.id))
+    throw new AxiomError.Duplicate('module-id', descriptor.id);
+  if (!SemVer.valid(descriptor.version))
+    throw new AxiomError.Invalid('version', descriptor.version);
+
   var moduleBinding = new ModuleBinding(this, descriptor);
-
-  if (this.moduleBindings_.has(moduleBinding.moduleId))
-    throw new AxiomError.Duplicate('module-id', moduleBinding.moduleId);
-  if (!SemVer.valid(moduleBinding.version))
-    throw new AxiomError.Invalid('version', moduleBinding.version);
-
   this.moduleBindings_.set(moduleBinding.moduleId, moduleBinding);
 
   return moduleBinding;
