@@ -32,7 +32,8 @@ Fired when the "close" button of the view is clicked.
       <style>
         .outerContainer {
           padding: 0;
-          background: linear-gradient(rgb(214, 227, 231), lightblue);
+          background-color: transparent;
+          /*background: linear-gradient(rgb(214, 227, 231), lightblue);*/
         }
         .header {
           font-size: 14px;
@@ -48,6 +49,7 @@ Fired when the "close" button of the view is clicked.
         .content {
           overflow: auto;
           position: relative;
+          background-color: transparent;
         }
         .icon {
           margin: 0;
@@ -57,8 +59,8 @@ Fired when the "close" button of the view is clicked.
         }
       </style>
       <axiom-anchors id="anchors" hidden></axiom-anchors>
-      <axiom-drop-zones id="drop-zones"></axiom-drop-zones>
-      <div class="outerContainer" layout vertical fit relative>
+      <axiom-drop-zones id="drop-zones" hidden></axiom-drop-zones>
+      <div class="outerContainer" id="container" layout vertical fit relative>
         <div class="header" id="header" draggable="true" layout horizontal relative>
           <div class="title" flex>{{id}}</div>
           <core-icon-button class="icon" icon="close" id="closeicon"></core-icon-button>

@@ -15,6 +15,7 @@
 Polymer('axiom-view', {
   created: function() {
     this.anchorsElement = this.anchorsElement.bind(this);
+    this.dropZones = this.dropZones.bind(this);
     this.enterDragMode = this.enterDragMode.bind(this);
     this.leaveDragMode = this.leaveDragMode.bind(this);
     this.dragEnter = this.dragEnter.bind(this);
@@ -36,18 +37,18 @@ Polymer('axiom-view', {
   anchorsElement: function() {
     return this.$.anchors;
   },
+  dropZones: function () {
+    return this.$['drop-zones'];
+  },
   enterDragMode: function() {
-    this.$['content-div'].style.zIndex = "200";
+    this.$.container.style.zIndex = "200";
   },
   leaveDragMode: function() {
-    this.$['content-div'].style.zIndex = "0";
+    this.dropZones().setAttribute("hidden", "");
+    this.$.container.style.zIndex = "0";
   },
   dragEnter: function() {
-    console.log("dragEnter", this);
-    //this.$['drop-arrows'].removeAttribute("hidden");
   },
   dragLeave: function() {
-    console.log("dragLeave", this);
-    //this.$['drop-arrows'].setAttribute("hidden", "");
   }
 });
