@@ -195,10 +195,11 @@
     // Keep a reference to the current drop-drop state.
     dragDropState: null,
 
+    // Used by drag-drop to track active drop anchor
     anchorsElement: function () {
       return this.$.anchors;
     },
-
+    // Used by drag-drop to access the drop zones
     dropZones: function () {
       return this.$['drop-zones'];
     },

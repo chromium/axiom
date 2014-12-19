@@ -18,8 +18,6 @@ Polymer('axiom-view', {
     this.dropZones = this.dropZones.bind(this);
     this.enterDragMode = this.enterDragMode.bind(this);
     this.leaveDragMode = this.leaveDragMode.bind(this);
-    this.dragEnter = this.dragEnter.bind(this);
-    this.dragLeave = this.dragLeave.bind(this);
     this.setAttribute("relative", "");
   },
   attached: function () {
@@ -34,21 +32,20 @@ Polymer('axiom-view', {
       this.fire("close");
     }.bind(this));
   },
+  // Used by drag-drop to track active drop anchor
   anchorsElement: function() {
     return this.$.anchors;
   },
+  // Used by drag-drop to access the drop zones
   dropZones: function () {
     return this.$['drop-zones'];
   },
+  // Called by view manager when entering drag mode.
   enterDragMode: function() {
     this.$.container.style.zIndex = "200";
   },
+  // Called by view manager when leaving drag mode.
   leaveDragMode: function() {
-    this.dropZones().setAttribute("hidden", "");
     this.$.container.style.zIndex = "0";
   },
-  dragEnter: function() {
-  },
-  dragLeave: function() {
-  }
 });

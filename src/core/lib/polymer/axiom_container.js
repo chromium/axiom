@@ -25,9 +25,11 @@ Polymer('axiom-container', {
       }
     }
   },
+  // Used by drag-drop to track active drop anchor
   anchorsElement: function () {
     return this.$.anchors;
   },
+  // Used by drag-drop to access the drop zones
   dropZones: function() {
     return this.$['drop-zones'];
   },
