@@ -397,10 +397,10 @@ ViewManager.prototype.createViewElement = function(document, tagName) {
 ViewManager.prototype.createSplitter = function(document) {
   var frame = document.querySelector(AXIOM_FRAME);
   var splitter = document.createElement(AXIOM_SPLITTER);
-  splitter.addEventListener('trackstart', function(e) {
+  splitter.addEventListener('down', function(e) {
     this.trackStart(frame);
   }.bind(this));
-  splitter.addEventListener('trackend', function(e) {
+  splitter.addEventListener('up', function(e) {
     this.trackEnd(frame);
   }.bind(this));
   return splitter;
