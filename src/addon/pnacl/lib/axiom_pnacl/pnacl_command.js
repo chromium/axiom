@@ -1,6 +1,16 @@
-// Copyright (c) 2014 The Axiom Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import SpawnNacl from 'axiom_pnacl/spawn_nacl';
 
@@ -141,7 +151,7 @@ export var PnaclCommand = function(name, sourceUrl, opt_tarFilename, opt_env) {
   if (index == sourceUrl.length - 1)
     this.baseUrl = this.sourceUrl;
   else
-    this.baseUrl = this.sourceUrl(0, index + 1);
+    this.baseUrl = this.sourceUrl.substr(0, index + 1);
 };
 
 PnaclCommand.prototype.run = function(cx) {
@@ -155,6 +165,12 @@ PnaclCommand.prototype.run = function(cx) {
       }
     }.bind(this));
     cx.ready();
+
+    //this.runPnacl(cx);
+
+    // TODO(rpaquay): Remove this code (and [copyUrlToTemporaryStorage]) when
+    // there is no need to test with naclports builds older than (approximately)
+    // pepper41/trunk-223-g26a4b66.
 
     // If no tar file, run the command right away.
     if (!this.tarFilename) {

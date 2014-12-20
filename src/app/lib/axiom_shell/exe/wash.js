@@ -1,12 +1,23 @@
-// Copyright (c) 2013 The Axiom Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import AxiomError from 'axiom/core/error';
 
 import JsFileSystem from 'axiom/fs/js_file_system';
 import JsEntry from 'axiom/fs/js_entry';
 import Path from 'axiom/fs/path';
+import domfsUtil from 'axiom/fs/domfs_util';
 
 import Termcap from 'axiom_shell/util/termcap';
 import WashBuiltins from 'axiom_shell/exe/wash_builtins';
@@ -25,6 +36,8 @@ export var Shell = function(executeContext) {
   if (!this.executeContext.getEnv('$PWD'))
     this.executeContext.setEnv('$PWD', '/');
 
+  this.historyFile = executeContext.getEnv(
+      '$HISTFILE', '/mnt/html5/home/.wash_history');
   this.inputHistory = [];
 
   // The list of currently active jobs.
@@ -50,7 +63,21 @@ Shell.main = function(executeContext) {
   window.wash_ = shell;  // Console debugging aid.
   executeContext.ready();
 
-  return shell.readEvalPrintLoop();
+  return shell.fileSystem.readFile(
+      shell.historyFile, {read: true}, {dataType: 'utf8-string'}).then(
+    function(data) {
+      var history = JSON.parse(data.data);
+      if (history instanceof Array)
+        shell.inputHistory = history;
+
+      return shell.readEvalPrintLoop();
+    }
+  ).catch(
+    function(err) {
+      console.log(err);
+      return shell.readEvalPrintLoop();
+    }
+  );
 };
 
 export default Shell.main;
@@ -124,11 +151,10 @@ Shell.prototype.evaluate = function(value) {
 Shell.prototype.readEvalPrint = function() {
   return this.read().then(
     function(result) {
-      if (result == null) {
-        // EOF from readline.
-        this.executeContext.stdout('exit\n');
-        this.executeContext.closeOk(null);
-        return Promise.resolve(null);
+      if (result == null || result == 'exit') {
+        if (!result)
+          this.executeContext.stdout('exit\n');
+        return this.exit();
       }
 
       if (typeof result != 'string') {
@@ -265,12 +291,36 @@ Shell.prototype.printErrorValue = function(value) {
     args.push(key + ': ' + JSON.stringify(value.errorValue[key]));
   }
 
-  var str = this.tc_.output('%set-attr(FG_BOLD, FG_RED)' + value.errorName +
-                            '%set-attr()');
+  var str = this.tc_.output('%set-attr(FG_BOLD, FG_RED)Error%set-attr(): ' +
+                            value.errorName);
   if (args.length)
-    str += ': ' + args.join(', ');
+    str += ' {' + args.join(', ') + '}';
 
   this.errorln(str);
+};
+
+Shell.prototype.exit = function() {
+  return this.fileSystem.writeFile(
+      this.historyFile,
+      { create: true, truncate: true, write: true },
+      { dataType: 'utf8-string',
+        data: JSON.stringify(this.inputHistory)
+      }
+  ).then(
+      function() {
+        console.log('closed');
+        this.executeContext.closeOk(null);
+      }.bind(this)
+  ).catch(
+    function(error) {
+      // TODO: writeFile should only raise AxiomErrors.
+      if (error instanceof window.FileError)
+        error = domfsUtil.convertFileError(this.historyFile, error);
+
+      this.printErrorValue(error);
+      this.executeContext.closeOk(null);
+    }.bind(this)
+  );
 };
 
 Shell.prototype.println = function(str) {

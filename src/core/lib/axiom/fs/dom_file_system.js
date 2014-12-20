@@ -1,6 +1,16 @@
-// Copyright (c) 2014 The Axiom Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import AxiomError from 'axiom/core/error';
 
@@ -9,7 +19,7 @@ import FileSystemBinding from 'axiom/bindings/fs/file_system';
 import Path from 'axiom/fs/path';
 import DomExecuteContext from 'axiom/fs/dom_execute_context';
 import DomOpenContext from 'axiom/fs/dom_open_context';
-import DomfsUtil from 'axiom/fs/domfs_util';
+import domfsUtil from 'axiom/fs/domfs_util';
 
 /**
  * @param {FileSystemBinding} opt_binding An optional FileSystemBinding
@@ -51,9 +61,9 @@ DomFileSystem.prototype.resolve = function(path) {
  * @return {Promise<>}
  */
 DomFileSystem.prototype.stat = function(pathSpec) {
-  return DomfsUtil.getFileOrDirectory(this.fileSystem.root, pathSpec).then(
+  return domfsUtil.getFileOrDirectory(this.fileSystem.root, pathSpec).then(
       function(r) {
-    return DomfsUtil.statEntry(r);
+    return domfsUtil.statEntry(r);
   });
 };
 
@@ -65,7 +75,9 @@ DomFileSystem.prototype.stat = function(pathSpec) {
  * @return {Promise<>}
  */
 DomFileSystem.prototype.mkdir_ = function(pathSpec) {
-  return this.mkdir(pathSpec).then(function() { return null; });
+  return this.mkdir(pathSpec).then(function() {
+    return null;
+  });
 };
 
 /**
@@ -77,16 +89,30 @@ DomFileSystem.prototype.mkdir = function(pathSpec) {
   if (!path.isValid)
     return Promise.reject(new AxiomError.Invalid('path', pathSpec));
 
-  var parentPath = path.getParentPath();
-  var targetName = path.getBaseName();
+  return new Promise(function(resolve, reject) {
+    var parentPath = path.getParentPath();
+    var targetName = path.getBaseName();
 
+    var onDirectoryFound = function(dir) {
+      return domfsUtil.mkdir(dir, targetName).then(function(r) {
+        resolve(r);
+      }).catch (function(e) {
+        reject(e);
+      });
+    };
 
-  var rv = this.resolve(parentPath);
+    var onFileError = domfsUtil.rejectFileError.bind(null, pathSpec, reject);
 
-  if (!rv.entry.hasMode('d'))
-    return Promise.reject(new AxiomError.TypeMismatch('dir', parentPath.spec));
+    var parentPathSpec = parentPath.spec;
 
-  return rv.entry.mkdir(targetName);
+    //TODO(grv): This should be taken care by Path class.
+    if (parentPathSpec === '' || parentPathSpec == null) {
+      parentPathSpec = '/';
+    }
+
+    this.fileSystem.root.getDirectory(parentPath.spec, {create: false},
+        onDirectoryFound, onFileError);
+  }.bind(this));
 };
 
 /**
@@ -122,7 +148,7 @@ DomFileSystem.prototype.alias = function(pathSpecFrom, pathSpecTo) {
  * @return {Promise<>}
  */
 DomFileSystem.prototype.move = function(fromPathSpec, toPathSpec) {
-    return Promise.reject(new AxiomError.NotImplemented('To be implemented.'));
+  return Promise.reject(new AxiomError.NotImplemented('To be implemented.'));
 };
 
 /**
@@ -130,7 +156,35 @@ DomFileSystem.prototype.move = function(fromPathSpec, toPathSpec) {
  * @return {Promise<>}
  */
 DomFileSystem.prototype.unlink = function(pathSpec) {
-    return Promise.reject(new AxiomError.NotImplemented('To be implemented.'));
+  var path = new Path(pathSpec);
+  if (!path.isValid) {
+    return Promise.reject(new AxiomError.Invalid('path', pathSpec));
+  }
+
+  return new Promise(function(resolve, reject) {
+    var parentPath = path.getParentPath();
+    var targetName = path.getBaseName();
+
+    var onDirectoryFound = function(dir) {
+      return domfsUtil.remove(dir, targetName).then(function(r) {
+        resolve(r);
+      }).catch (function(e) {
+        reject(e);
+      });
+    };
+
+    var onFileError = domfsUtil.rejectFileError.bind(null, pathSpec, reject);
+
+    var parentPathSpec = parentPath.spec;
+
+    //TODO(grv): This should be taken care by Path class.
+    if (parentPathSpec === '' || parentPathSpec == null) {
+      parentPathSpec = '/';
+    }
+
+    this.fileSystem.root.getDirectory(parentPath.spec, {create: false},
+        onDirectoryFound, onFileError);
+  }.bind(this));
 };
 
 /**
@@ -138,7 +192,7 @@ DomFileSystem.prototype.unlink = function(pathSpec) {
  * @return {Promise<>}
  */
 DomFileSystem.prototype.list = function(pathSpec) {
-  return DomfsUtil.listDirectory(this.fileSystem.root, pathSpec).then(
+  return domfsUtil.listDirectory(this.fileSystem.root, pathSpec).then(
     function(entries) {
       return Promise.resolve(entries);
     });

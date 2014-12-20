@@ -1,6 +1,16 @@
-// Copyright (c) 2014 The Axiom Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import AxiomError from 'axiom/core/error';
 
@@ -15,7 +25,9 @@ import editMain from 'axiom_shell/exe/edit';
 import htermMain from 'axiom_shell/exe/hterm';
 import importMain from 'axiom_shell/exe/import';
 import lsMain from 'axiom_shell/exe/ls';
+import mkdirMain from 'axiom_shell/exe/mkdir';
 import readlineMain from 'axiom_shell/exe/readline';
+import rmMain from 'axiom_shell/exe/rm';
 import washMain from 'axiom_shell/exe/wash';
 
 export var ShellFS = function(moduleManager) {
@@ -41,7 +53,9 @@ ShellFS.prototype.bind = function(fileSystemExtensionBinding) {
           'hterm': htermMain,
           'import': importMain,
           'ls': lsMain,
+          'mkdir': mkdirMain,
           'readline': readlineMain,
+          'rm': rmMain,
           'wash': washMain,
         });
       });
