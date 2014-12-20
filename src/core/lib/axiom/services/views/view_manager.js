@@ -14,6 +14,7 @@
 
 import AxiomError from 'axiom/core/error';
 import Check from 'axiom/util/check';
+import DragDropManager from 'axiom/services/views/drag_drop_manager';
 
 
 // Invariants of the ViewManager, Containers and Views:
@@ -347,6 +348,10 @@ ViewManager.prototype.createRootFrame = function(document) {
     frame.addEventListener('drag-end', function(e) {
       this.trackEnd(frame);
     }.bind(this));
+
+    var dragDropManager = new DragDropManager(frame);
+    dragDropManager.activate();
+
     return frame;
   }.bind(this);
 
