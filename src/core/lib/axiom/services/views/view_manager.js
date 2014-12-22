@@ -107,6 +107,44 @@ var checkValidFrame = function(frame) {
   }
 };
 
+var dumpElementSize = function(elem, indent) {
+  var cstyle = window.getComputedStyle(elem);
+  var estyle = elem.style;
+  console.log(indent + elem.tagName + ' - ' +
+    '(sw=' + estyle.width + ', sh=' + estyle.height + '):' +
+    '(cw=' + cstyle.width + ', ch=' + cstyle.height + '), ',
+     elem);
+};
+
+var dumpFrame = function(frame) {
+
+  var dumpView = function(view, indent) {
+    dumpElementSize(view, indent);
+  };
+
+  var dumpContainer = function(container, indent) {
+    dumpElementSize(container, indent);
+    for (var i = 0; i < container.children.length; i++) {
+      var child = container.children[i];
+      dumpElement(child, indent + '  ');
+    }
+  };
+
+  var dumpElement = function(elem, indent) {
+    if (elem.tagName === AXIOM_CONTAINER) {
+      dumpContainer(elem, indent + '  ');
+    } else if (elem.tagName === AXIOM_VIEW) {
+      dumpView(elem, indent + '  ');
+    }
+  };
+
+  dumpElementSize(frame, '');
+  var child = frame.firstElementChild;
+  if (child !== null) {
+    dumpElement(child, '  ');
+  }
+};
+
 /*
  * Calls a function on each view contained in a frame.
  * @param {Element} frame
@@ -465,6 +503,7 @@ ViewManager.prototype.moveView = function(view, target, position) {
   if (!frame)
     return;
 
+  dumpFrame(frame);
   // If the parent of the view is a container, the container may disappear
   // during the call to "detach" below. Pick a backup target that we know
   // won't disappear to use later at the new target.
@@ -504,6 +543,7 @@ ViewManager.prototype.moveView = function(view, target, position) {
     this.moveViewNextToView(view, target, position);
   }
   checkValidFrame(frame);
+  dumpFrame(frame);
 };
 
 /*
@@ -843,6 +883,8 @@ ViewManager.prototype.groutContainer = function(container) {
   }
 
   function removeExplicitSize(element, parentLayout) {
+    console.log('removeExplicitSize', element);
+    dumpElementSize(element, '  ');
     if (element.hasAttribute('flex')) {
       element.style.removeProperty('width');
       element.style.removeProperty('height');
@@ -855,12 +897,12 @@ ViewManager.prototype.groutContainer = function(container) {
     if (element.tagName !== AXIOM_SPLITTER) {
       if (parentLayout === 'vertical') {
         element.style.removeProperty('width');
-        if (window.getComputedStyle(element).height === '0px') {
+        if (!element.style.height || element.style.height === '0px') {
           element.style.height = '200px';
         }
       } else {
         element.style.removeProperty('height');
-        if (window.getComputedStyle(element).width === '0px') {
+        if (!element.style.width || element.style.width === '0px') {
           element.style.width = '200px';
         }
       }
