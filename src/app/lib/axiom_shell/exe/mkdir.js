@@ -18,12 +18,16 @@ import Path from 'axiom/fs/path';
 import environment from 'axiom_shell/environment';
 import util from 'axiom_shell/util';
 
+var MKDIR_CMD_USAGE_STRING = 'usage: directory ...';
+
 export var main = function(executeContext) {
   executeContext.ready();
 
   var arg = executeContext.arg;
-  if (!arg._ && arg._.length)
-    return Promise.reject(new AxiomError.Missing('path'));
+  if (!arg._ || (arg._.length === 0) || arg.h || arg.help) {
+    executeContext.stdout(MKDIR_CMD_USAGE_STRING + '\n');
+    return Promise.resolve(null);
+  }
 
   var fileSystem = environment.getServiceBinding('filesystems@axiom');
 
