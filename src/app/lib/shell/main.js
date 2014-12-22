@@ -14,12 +14,12 @@
 
 import axiomMain from 'axiom/main';
 
-import shellDescriptor from 'axiom_shell/descriptor';
-import environment from 'axiom_shell/environment';
+import shellDescriptor from 'shell/descriptor';
+import environment from 'shell/environment';
 
-import ShellCommands from 'axiom_shell/commands';
-import ShellFS from 'axiom_shell/file_system';
-import ShellWindows from 'axiom_shell/windows';
+import ShellCommands from 'shell/commands';
+import ShellFS from 'shell/file_system';
+import ShellWindows from 'shell/windows';
 
 var initShell = function() {
   return axiomMain().then(function(moduleManager) {

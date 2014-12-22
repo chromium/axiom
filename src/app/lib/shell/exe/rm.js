@@ -15,50 +15,48 @@
 import AxiomError from 'axiom/core/error';
 import Path from 'axiom/fs/path';
 
-import environment from 'axiom_shell/environment';
-import util from 'axiom_shell/util';
+import environment from 'shell/environment';
+import util from 'shell/util';
 
-var CAT_CMD_USAGE_STRING = 'usage: cat [file...]';
+var RM_CMD_USAGE_STRING = 'usage: rm file ...';
 
 export var main = function(executeContext) {
   executeContext.ready();
 
   var arg = executeContext.arg;
-  if (!arg._ || (arg._.length === 0) || arg.h || arg.help) {
-    executeContext.stdout(CAT_CMD_USAGE_STRING + '\n');
+  if (!arg._ || (arg._.length === 0)  || arg.h || arg.help) {
+    executeContext.stdout(RM_CMD_USAGE_STRING + '\n');
     return Promise.resolve(null);
   }
 
   var fileSystem = environment.getServiceBinding('filesystems@axiom');
 
-  var catNext = function() {
+  var rmNext = function() {
     if (!arg._.length)
       return Promise.resolve(null);
 
     var pathSpec = arg._.shift();
     pathSpec = Path.abs(executeContext.getEnv('$PWD', '/'), pathSpec);
 
-    return fileSystem.readFile(pathSpec, {read: true}).then(
-      function(data) {
-        executeContext.stdout(data.data);
-        return catNext();
+    return fileSystem.unlink(pathSpec).then(
+      function() {
+        return rmNext();
       }
     ).catch(function(e) {
-        var errorString;
+      var errorString;
 
-        if (e instanceof AxiomError) {
-          errorString = e.errorName;
-        } else {
-          errorString = e.toString();
-        }
-
-        executeContext.stdout('cat: ' + pathSpec + ': ' + errorString + '\n');
-        return catNext();
+      if (e instanceof AxiomError) {
+        errorString = e.errorName;
+      } else {
+        errorString = e.toString();
       }
-    );
+
+      executeContext.stdout('rm: ' + pathSpec + ': ' + errorString + '\n');
+      return rmNext();
+    });
   };
 
-  return catNext();
+  return rmNext();
 };
 
 export default main;

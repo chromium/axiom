@@ -15,8 +15,8 @@
 import AxiomError from 'axiom/core/error';
 import Path from 'axiom/fs/path';
 
-import environment from 'axiom_shell/environment';
-import util from 'axiom_shell/util';
+import environment from 'shell/environment';
+import util from 'shell/util';
 
 var CP_CMD_USAGE_STRING = 'usage: cp sourceFile targetFile';
 

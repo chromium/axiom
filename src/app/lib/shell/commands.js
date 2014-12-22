@@ -14,8 +14,8 @@
 
 import AxiomError from 'axiom/core/error';
 
-import environment from 'axiom_shell/environment';
-import TerminalView from 'axiom_shell/views/terminal';
+import environment from 'shell/environment';
+import TerminalView from 'shell/views/terminal';
 
 export var ShellCommands = function(moduleManager) {
   this.moduleManager = moduleManager;
@@ -43,7 +43,7 @@ ShellCommands.commands = {
     var fs = environment.getServiceBinding('filesystems@axiom');
     fs.whenLoadedAndReady().then(
       function() {
-        fs.createContext('execute', '/addon/axiom_shell/exe/hterm', {}).then(
+        fs.createContext('execute', '/addon/shell/exe/hterm', {}).then(
             function(cx) {
               cx.execute();
             });

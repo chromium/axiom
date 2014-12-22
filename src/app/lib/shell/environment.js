@@ -13,9 +13,9 @@
 // limitations under the License.
 
 /**
- * Global axiom_shell environment.
+ * Global shell environment.
  *
- * After axiom_shell is initialized, other modules can use this to get at
+ * After shell is initialized, other modules can use this to get at
  * global state.
  */
 var axiomModuleManager;

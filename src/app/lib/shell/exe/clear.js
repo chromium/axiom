@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Termcap from 'axiom_shell/util/termcap';
+import Termcap from 'shell/util/termcap';
 
 /**
  * Clear the terminal screen and return the cursor to the home position.

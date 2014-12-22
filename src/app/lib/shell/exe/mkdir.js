@@ -15,32 +15,33 @@
 import AxiomError from 'axiom/core/error';
 import Path from 'axiom/fs/path';
 
-import environment from 'axiom_shell/environment';
-import util from 'axiom_shell/util';
+import environment from 'shell/environment';
+import util from 'shell/util';
 
-var RM_CMD_USAGE_STRING = 'usage: rm file ...';
+var MKDIR_CMD_USAGE_STRING = 'usage: mkdir directory ...';
 
 export var main = function(executeContext) {
   executeContext.ready();
 
   var arg = executeContext.arg;
-  if (!arg._ || (arg._.length === 0)  || arg.h || arg.help) {
-    executeContext.stdout(RM_CMD_USAGE_STRING + '\n');
+  if (!arg._ || (arg._.length === 0) || arg.h || arg.help) {
+    executeContext.stdout(MKDIR_CMD_USAGE_STRING + '\n');
     return Promise.resolve(null);
   }
 
   var fileSystem = environment.getServiceBinding('filesystems@axiom');
 
-  var rmNext = function() {
+  var pathSpec;
+  var mkdirNext = function() {
     if (!arg._.length)
       return Promise.resolve(null);
 
     var pathSpec = arg._.shift();
     pathSpec = Path.abs(executeContext.getEnv('$PWD', '/'), pathSpec);
 
-    return fileSystem.unlink(pathSpec).then(
+    return fileSystem.mkdir(pathSpec).then(
       function() {
-        return rmNext();
+        return mkdirNext();
       }
     ).catch(function(e) {
       var errorString;
@@ -51,12 +52,12 @@ export var main = function(executeContext) {
         errorString = e.toString();
       }
 
-      executeContext.stdout('rm: ' + pathSpec + ': ' + errorString + '\n');
-      return rmNext();
+      executeContext.stdout('mkdir: ' + pathSpec + ': ' + errorString + '\n');
+      return mkdirNext();
     });
   };
 
-  return rmNext();
+  return mkdirNext();
 };
 
 export default main;

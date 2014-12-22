@@ -12,27 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import TerminalView from 'axiom_shell/views/terminal';
+import string from 'shell/util/string';
+import Termcap from 'shell/util/termcap';
 
-/**
- * Simple callback for a JsExecutable which echos the argument list to stdout
- * and exits.
- */
-export var main = function(cx) {
-  cx.ready();
-  var tv = new TerminalView(this.moduleManager);
-  var command = cx.arg['command'] || '/addon/axiom_shell/exe/wash';
-  var env = cx.arg['env'] || {
-    '@PATH': ['/addon/axiom_shell/exe/'],
-    '$TERM': 'xterm-256color'
-  };
-  tv.execute(command, {}, env);
-  return Promise.resolve(null);
+export var util = {
+  string: string,
+  Termcap: Termcap
 };
 
-export default main;
-
-/**
- * Accept any value for the execute context arg.
- */
-main.argSigil = '%';
+export default util;

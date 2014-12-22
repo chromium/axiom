@@ -12,21 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import shellMain from 'axiom_shell/main';
+import TerminalView from 'shell/views/terminal';
 
-// Generic logger of failed promises.
-var logCatch = function(err) {
-  console.log('logCatch: ' + err.toString(), err);
-  if ('stack' in err)
-    console.log(err.stack);
+/**
+ * Simple callback for a JsExecutable which echos the argument list to stdout
+ * and exits.
+ */
+export var main = function(cx) {
+  cx.ready();
+  var tv = new TerminalView(this.moduleManager);
+  var command = cx.arg['command'] || '/addon/shell/exe/wash';
+  var env = cx.arg['env'] || {
+    '@PATH': ['/addon/shell/exe/'],
+    '$TERM': 'xterm-256color'
+  };
+  tv.execute(command, {}, env);
+  return Promise.resolve(null);
 };
 
-// Start initialization...
-shellMain().then(
-  function(moduleManager) {
-    var axiomCommands = moduleManager.getServiceBinding('commands@axiom');
-    return axiomCommands.whenReady().then(
-      function() {
-        axiomCommands.dispatch('launch-app').catch(logCatch);
-      });
-  }).catch(logCatch);
+export default main;
+
+/**
+ * Accept any value for the execute context arg.
+ */
+main.argSigil = '%';
