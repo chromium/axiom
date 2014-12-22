@@ -855,12 +855,12 @@ ViewManager.prototype.groutContainer = function(container) {
     if (element.tagName !== AXIOM_SPLITTER) {
       if (parentLayout === 'vertical') {
         element.style.removeProperty('width');
-        if (window.getComputedStyle(element).height === '0px') {
+        if (!element.style.height) {
           element.style.height = '200px';
         }
       } else {
         element.style.removeProperty('height');
-        if (window.getComputedStyle(element).width === '0px') {
+        if (!element.style.width) {
           element.style.width = '200px';
         }
       }
