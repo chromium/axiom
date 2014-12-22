@@ -1,0 +1,84 @@
+<!--
+  -- Copyright 2014 Google Inc. All rights reserved.
+  --
+  -- Licensed under the Apache License, Version 2.0 (the "License");
+  -- you may not use this file except in compliance with the License.
+  -- You may obtain a copy of the License at
+  --
+  --     http://www.apache.org/licenses/LICENSE-2.0
+  --
+  -- Unless required by applicable law or agreed to in writing, software
+  -- distributed under the License is distributed on an \"AS IS\" BASIS,
+  -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  -- See the License for the specific language governing permissions and
+  -- limitations under the License.
+  -->
+
+<html>
+<head>
+  <link rel="import" href="bower_components/polymer/polymer.html">
+  <!-- core-icons loads the default icon set and the core-icon element -->
+  <link rel="import" href="bower_components/core-icons/core-icons.html">
+  <link rel="import" href="bower_components/paper-fab/paper-fab.html">
+</head>
+<body>
+  <polymer-element name="axiom-drop-zone" attributes="position active">
+    <template>
+      <style>
+        :host {
+          position: absolute;
+          padding: 0;
+          margin: 0;
+          opacity: 1.0;
+          z-index: 300;
+          width: 56px;
+          height: 56px;
+        }
+        :host([position="top"]) {
+          top: 0;
+          left: 50%;
+          transform: translate(-50%, 0);
+        }
+        :host([position="bottom"]) {
+          bottom: 0;
+          left: 50%;
+          transform: translate(-50%, 0);
+        }
+        :host([position="left"]) {
+          left: 0;
+          top: 50%;
+          transform: translate(0, -50%) rotate(90deg);
+        }
+        :host([position="right"]) {
+          right: 0;
+          top: 50%;
+          transform: translate(0, -50%) rotate(90deg);
+        }
+        :host([highlight=""]) {
+          /*background: blue;*/
+          opacity: 1.0;
+        }
+        .icon {
+          position: absolute;
+          top: 50%;
+          bottom: 0;
+          left: 50%;
+          right: 0;
+          transform: translate(-50%, -50%); /* center */
+        }
+        .active {
+          background: ForestGreen;
+        }
+        /* Set this on children elements to prevent drag-drop events on these
+           children to be fired by the browser. */
+        .no-pointer-events {
+          pointer-events: none;
+        }
+      </style>
+      <content></content>
+      <paper-fab id="icon" icon="arrow-drop-{{arrowtype}}" class="no-pointer-events"></paper-fab>
+    </template>
+    <script src="axiom_drop_zone.js"></script>
+  </polymer-element>
+</body>
+</html>

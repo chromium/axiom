@@ -18,6 +18,7 @@
 <head>
   <link rel="import" href="bower_components/polymer/polymer.html">
   <link rel="import" href="axiom_anchors.html">
+  <link rel="import" href="axiom_drop_zones.html">
 </head>
 <body>
   <polymer-element name="axiom-container">
@@ -37,11 +38,9 @@
           border-style: dotted;
           border-color: darkred;
         }
-        #anchors {
-          background: rgba(0,100,0,0.5);
-        }
       </style>
       <axiom-anchors id="anchors"></axiom-anchors>
+      <axiom-drop-zones id="drop-zones" hidden></axiom-drop-zones>
       <content></content>
     </template>
     <script src="axiom_container.js"></script>

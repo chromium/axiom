@@ -12,18 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-Polymer('axiom-frame', {
+Polymer('axiom-drop-zones', {
   created: function () {
-    this.anchorsElement = this.anchorsElement.bind(this);
-    this.dropZones = this.dropZones.bind(this);
-    this.setAttribute('relative', '');
+    this.zone = this.zone.bind(this);
   },
-  // Used by drag-drop to track active drop anchor
-  anchorsElement: function () {
-    return this.$.anchors;
-  },
-  // Used by drag-drop to access the drop zones
-  dropZones: function () {
-    return this.$['drop-zones'];
-  },
+  zone: function (position) {
+    return this.$[position];
+  }
 });

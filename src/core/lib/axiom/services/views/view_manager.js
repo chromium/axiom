@@ -14,6 +14,7 @@
 
 import AxiomError from 'axiom/core/error';
 import Check from 'axiom/util/check';
+import DragDropManager from 'axiom/services/views/drag_drop_manager';
 
 
 // Invariants of the ViewManager, Containers and Views:
@@ -347,6 +348,10 @@ ViewManager.prototype.createRootFrame = function(document) {
     frame.addEventListener('drag-end', function(e) {
       this.trackEnd(frame);
     }.bind(this));
+
+    var dragDropManager = new DragDropManager(frame);
+    dragDropManager.activate();
+
     return frame;
   }.bind(this);
 
@@ -392,10 +397,10 @@ ViewManager.prototype.createViewElement = function(document, tagName) {
 ViewManager.prototype.createSplitter = function(document) {
   var frame = document.querySelector(AXIOM_FRAME);
   var splitter = document.createElement(AXIOM_SPLITTER);
-  splitter.addEventListener('trackstart', function(e) {
+  splitter.addEventListener('down', function(e) {
     this.trackStart(frame);
   }.bind(this));
-  splitter.addEventListener('trackend', function(e) {
+  splitter.addEventListener('up', function(e) {
     this.trackEnd(frame);
   }.bind(this));
   return splitter;
@@ -460,9 +465,33 @@ ViewManager.prototype.moveView = function(view, target, position) {
   if (!frame)
     return;
 
+  // If the parent of the view is a container, the container may disappear
+  // during the call to "detach" below. Pick a backup target that we know
+  // won't disappear to use later at the new target.
+  var backupTarget = null;
+  if (view.parentElement.tagName === AXIOM_CONTAINER) {
+    for (var elem = view.parentElement.firstElementChild;
+         elem !== null;
+         elem = elem.nextElementSibling) {
+      if (elem !== view) {
+        if (elem.tagName === AXIOM_CONTAINER || elem.tagName === AXIOM_VIEW) {
+          backupTarget = elem;
+        }
+      }
+    }
+  }
+
   // Remove the view and re-grunt. Note this may remove the container from
   // the frame.
   this.detachView(view);
+
+  // See comment above...
+  if (target.parentElement === null) {
+    if (backupTarget.parentElement !== null)
+      target = backupTarget;
+    else
+      target = frame; // last resort.
+  }
 
   // Insertion into the main frame is a special case, as the main frame
   // is neither horizontal or vertical.

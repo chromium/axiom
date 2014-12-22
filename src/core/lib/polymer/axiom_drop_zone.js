@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-Polymer('axiom-frame', {
-  created: function () {
-    this.anchorsElement = this.anchorsElement.bind(this);
-    this.dropZones = this.dropZones.bind(this);
-    this.setAttribute('relative', '');
+Polymer('axiom-drop-zone', {
+  computed: {
+    // Compute [arrowtype] and [orientation] so that they can be used
+    // in template binding.
+    arrowtype: '(position == "top" || position == "right") ? "up" : "down"',
+    orientation: '(position == "top" || position == "bottom") ? "horizontal" : "vertical"',
   },
-  // Used by drag-drop to track active drop anchor
-  anchorsElement: function () {
-    return this.$.anchors;
-  },
-  // Used by drag-drop to access the drop zones
-  dropZones: function () {
-    return this.$['drop-zones'];
-  },
+  active: '',
+  activeChanged: function(oldValue, newValue) {
+    if (newValue || newValue === "") {
+      this.$.icon.classList.add("active");
+    } else {
+      this.$.icon.classList.remove("active");
+    }
+  }
 });
