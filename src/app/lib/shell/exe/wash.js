@@ -68,6 +68,7 @@ Shell.main = function(executeContext) {
     return shell.loadWashHistory().then(repl).catch(repl);
   };
 
+  // TODO(rginda): --init is a hack for the first-run wash.  See loadAxiomJson.
   if (executeContext.arg['init']) {
     return shell.loadAxiomJson().then(start).catch(
       function(err) {
@@ -84,28 +85,34 @@ Shell.main.argSigil = '%';
 export default Shell.main;
 
 Shell.prototype.loadAxiomJson = function() {
-  // Process the axiom.json modules
-  return this.fileSystem.readFile(
-      '/mnt/html5/home/.axiom.json', {}, {dataType: 'utf8-string'}).then(
-      function(result) {
-        try {
-          var value = JSON.parse(result.data);
-          if (typeof value != 'object') {
-            return Promise.reject(
-                new AxiomError.TypeMismatch('object', '.axiom.json'));
-          }
+  // Process the axiom.json modules.
+  // TODO(rginda): This should be part of core axiom so you don't have to start
+  // a shell just to get the default modules loaded.
+  var axiomJson = '/mnt/html5/home/.axiom.json';
 
-          var importList  = value['import'];
-          if (importList && importList instanceof Array) {
-            return this.executeContext.callPromise(
-                this.fileSystem,
-                '/addon/axiom_shell/exe/import',
-                {'_': importList});
-          }
-        } catch (ex) {
-          return Promise.reject(ex);
-        }
-      }.bind(this)
+  return this.fileSystem.readFile(
+    axiomJson, {}, {dataType: 'utf8-string'}).then(
+    function(result) {
+      var value;
+
+      try {
+        value = JSON.parse(result.data);
+        if (typeof value != 'object')
+          throw new AxiomError.TypeMismatch('object', typeof value);
+      } catch (ex) {
+        this.errorln('Error loading: ' + axiomJson);
+        this.printErrorValue(ex);
+        return Promise.resolve(null);
+      }
+
+      var importList  = value['import'];
+      if (importList && importList instanceof Array) {
+        return this.executeContext.callPromise(
+            this.fileSystem,
+            '/addon/axiom_shell/exe/import',
+            {'_': importList});
+      }
+    }.bind(this)
   ).catch(
     function(err) {
       if (AxiomError.NotFound.test(err))
@@ -119,17 +126,24 @@ Shell.prototype.loadWashHistory = function() {
   return this.fileSystem.readFile(
       this.historyFile, {}, {dataType: 'utf8-string'}).then(
     function(result) {
-      var history = JSON.parse(result.data);
-      if (history instanceof Array)
-        this.inputHistory = history;
+      try {
+        var history = JSON.parse(result.data);
+        if (history instanceof Array)
+          this.inputHistory = history;
+      } catch (ex) {
+        this.errorln('Error loading: ' + this.historyFile);
+        this.pringErrorValue(ex);
+      }
 
       return Promise.resolve(null);
     }.bind(this)
   ).catch(
     function(err) {
-      console.log(err);
+      if (!AxiomError.NotFound.test(err))
+        this.printErrorValue(err);
+
       return Promise.reject(err);
-    }
+    }.bind(this)
   );
 };
 
@@ -390,7 +404,7 @@ Shell.prototype.exit = function() {
       this.historyFile,
       { create: true, truncate: true },
       { dataType: 'utf8-string',
-        data: JSON.stringify(this.inputHistory)
+            data: JSON.stringify(this.inputHistory, null, '  ') + '\n'
       }
   ).then(
       function() {

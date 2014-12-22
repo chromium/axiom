@@ -15,95 +15,28 @@
 import AxiomError from 'axiom/core/error';
 import environment from 'shell/environment';
 
-export var main = function(cx) {
+var import_ = {};
+
+import_.main = function(cx) {
   var onImportLoaded = function(url, resolve, reject, e) {
-    if (!cx.arg['save'])
-      return processPlugins(resolve, reject, e);
+    var document = e.target.import;
 
-  };
-
-  var processPlugins(resolve, reject, e) {
-    var pluginList = [];
-
-    // There could be multiple x-axiom-plugin nodes in this import.
-    var plugins = e.target.import.querySelectorAll('x-axiom-plugin');
-
-    // Find them all, sanity check them, and add to a list of plugins to
-    // process.
-    for (var i = 0; i < plugins.length; i++) {
-      var plugin = plugins[i];
-      var desc = plugin.getAttribute('x-descriptor-module');
-      if (!desc)
-        console.stderr('Missing x-descriptor-module');
-
-      var main = plugin.getAttribute('x-main-module');
-      if (!main)
-        console.stderr('Missing x-main-module');
-
-      if (desc && main)
-        pluginList.push([desc, main]);
-    }
-
-    // Bail out if we don't find any valid plugins.
-    if (!pluginList.length)
-      return reject(null);
-
-    var nextPlugin = function() {
-      if (!pluginList.length)
-        return nextImportUrl(resolve, reject);
-
-      var plugin = pluginList.shift();
-      var descriptor;
-      try {
-        descriptor = environment.requireModule(plugin[0])['default'];
-      } catch (ex) {
-        return reject(ex);
-      }
-
-      if (!descriptor) {
-        return reject(new AxiomError.Runtime(
-            'No descriptor exported by: ' + plugin[0]));
-      }
-
-      var main;
-      try {
-        main = environment.requireModule(plugin[1])['default'];
-      } catch (ex) {
-        return reject(ex);
-      }
-
-      if (!main) {
-        return reject(new AxiomError.Runtime(
-            'No main exported by: ' + plugin[1]));
-      }
-
-      var module;
-      try {
-        module = environment.defineModule(descriptor);
-        cx.stdout('New module: ' + module.moduleId + '\n');
-      } catch(ex) {
-        reject(ex);
-      }
-
-      try {
-        return main(module, { sourceUrl: e.target.import.URL }).then(
-            function() {
-              cx.stdout('Module ready.\n');
-              return nextPlugin();
-            }).catch(function(err) {
-              return reject(err);
-            });
-      } catch(ex) {
-        return reject(ex);
-      }
+    var process = function() {
+      return import_.processAddonNodes(cx, url, document).then(
+        function() {
+          nextImportUrl(resolve, reject);
+        }).catch(reject);
     };
 
-    return nextPlugin();
+    if (cx.arg['save'])
+      return import_.saveImport(url).then(process).catch(process);
+
+    return process();
   };
 
   var nextImportUrl = function(resolve, reject) {
     if (!cx.arg._.length)
-      resolve(null);
+    resolve(null);
 
     var url = cx.arg._.shift();
     if (!url)
@@ -134,19 +67,133 @@ export var main = function(cx) {
   });
 };
 
-export default main;
+export default import_.main;
 
-main.argSigil = '%';
+import_.main.argSigil = '%';
 
-var saveImport = function(url) {
-  var fs = enviornment.getServiceBinding('filsystems@axiom');
-  return fs.readFile('/mnt/html5/home/.axiom.json', {}, {}).then(
-    function(result) {
-      var value = JSON.parse(result.data);
-      if (typeof value != 'object')
-        return Promise.resolve(null);
+import_.processAddonNodes = function(cx, sourceUrl, document) {
+  // There could be multiple x-axiom-plugin nodes in this import.
+  var addonNodes = document.querySelectorAll('x-axiom-addon');
 
-      var importList = value['import'];
+  var addonList = [];
+  // Find them all, sanity check them, and add to a list of plugins to
+  // process.
+  for (var i = 0; i < addonNodes.length; i++) {
+    var addonNode = addonNodes[i];
+    var desc = addonNode.getAttribute('x-descriptor-module');
+    if (!desc)
+    console.stderr('Missing x-descriptor-module');
 
-    });
+    var main = addonNode.getAttribute('x-main-module');
+    if (!main)
+    console.stderr('Missing x-main-module');
+
+    if (desc && main)
+    addonList.push([desc, main]);
+  }
+
+  var nextAddon = function() {
+    if (!addonList.length)
+    return Promise.resolve(null);
+
+    var ary = addonList.shift();
+    return import_.initializeAddon(sourceUrl, ary[0], ary[1]).then(
+      function(module) {
+        cx.stdout('New addon: ' + module.moduleId + '\n');
+        return nextAddon();
+      });
+  };
+
+  return nextAddon();
+};
+
+import_.initializeAddon = function(
+    sourceUrl, descriptorModuleName, mainModuleName) {
+  var descriptor;
+  try {
+    descriptor = environment.requireModule(descriptorModuleName)['default'];
+  } catch (ex) {
+    return Promise.reject(ex);
+  }
+
+  if (!descriptor) {
+    return Promise.reject(new AxiomError.Runtime(
+        'No descriptor exported by: ' + descriptorModuleName));
+  }
+
+  var main;
+  try {
+    main = environment.requireModule(mainModuleName)['default'];
+  } catch (ex) {
+    return Promise.reject(ex);
+  }
+
+  if (!main) {
+    return Promise.reject(new AxiomError.Runtime(
+        'No main exported by: ' + mainModuleName));
+  }
+
+  var module;
+  try {
+    module = environment.defineModule(descriptor);
+  } catch(ex) {
+    Promise.reject(ex);
+  }
+
+  try {
+    return main(module, { sourceUrl: sourceUrl }).then(
+      function() {
+        return Promise.resolve(module);
+      }).catch(function(err) {
+        return Promise.reject(err);
+      });
+  } catch(ex) {
+    return Promise.reject(ex);
+  }
+
+  // Should not be reachable.
+  return Promise.reject(null);
+};
+
+import_.saveImport = function(url) {
+  var axiomJson = '/mnt/html5/home/.axiom.json';
+  var fs = environment.getServiceBinding('filesystems@axiom');
+
+  var overwrite = function(value) {
+    if (value['import'] instanceof Array) {
+      value['import'].push(url);
+    } else {
+      value['import'] = [url];
+    }
+
+    return fs.writeFile(axiomJson, {truncate: true, create: true},
+                        {dataType: 'utf8-string',
+                         data: JSON.stringify(value, null, '  ') + '\n'
+                        });
+  };
+
+  var read = function() {
+    return fs.readFile(axiomJson, {}, {}).then(
+      function(result) {
+        var value;
+
+        try {
+          value = JSON.parse(result.data);
+        } catch (ex) {
+          value = {};
+        }
+
+        if (typeof value != 'object' || value instanceof Array)
+          return Promise.resolve({});
+
+        return Promise.resolve(value);
+      }
+    ).catch(
+      function(err) {
+        return Promise.resolve({});
+      }
+    );
+  };
+
+  return read().then(overwrite).catch(overwrite);
 };

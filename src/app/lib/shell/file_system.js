@@ -56,6 +56,4 @@ ShellFS.prototype.bind = function(fileSystemExtensionBinding) {
           'wash': washMain,
         });
       });
-
-  this.jsfs.mkdir('proc');
 };
