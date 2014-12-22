@@ -12,12 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import string from 'axiom_shell/util/string';
-import Termcap from 'axiom_shell/util/termcap';
+import shellMain from 'shell/main';
 
-export var util = {
-  string: string,
-  Termcap: Termcap
+// Generic logger of failed promises.
+var logCatch = function(err) {
+  console.log('logCatch: ' + err.toString(), err);
+  if ('stack' in err)
+    console.log(err.stack);
 };
 
-export default util;
+// Start initialization...
+shellMain().then(
+  function(moduleManager) {
+    var axiomCommands = moduleManager.getServiceBinding('commands@axiom');
+    return axiomCommands.whenReady().then(
+      function() {
+        axiomCommands.dispatch('launch-app').catch(logCatch);
+      });
+  }).catch(logCatch);

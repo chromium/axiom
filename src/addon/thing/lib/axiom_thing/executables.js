@@ -14,7 +14,7 @@
 
 import AxiomError from 'axiom/core/error';
 
-import environment from 'axiom_shell/environment';
+import environment from 'shell/environment';
 
 // @note ExecuteContext from 'axiom/bindings/fs/execute_context'
 
@@ -88,13 +88,13 @@ export var executables = {
     return new Promise(function(resolve, reject) {
       cx.ready();
 
-      // This is the global axiom_shell filesystem.
+      // This is the global shell filesystem.
       var fileSystem = environment.getServiceBinding('filesystems@axiom');
 
       // TODO(rginda): Path searching is stuck in wash.js/findExecutable(), we
       // should move it somewhere where other apps can get to it.  For now we
       // hardcode the path to readline.
-      return cx.callPromise(fileSystem, '/axiom_shell/exe/readline',
+      return cx.callPromise(fileSystem, '/shell/exe/readline',
                             {'promptString': 'What is your name? '}).then(
         function(value) {
           if (value) {

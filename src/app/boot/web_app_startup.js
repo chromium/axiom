@@ -12,4 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-__axiomRequire__('axiom_shell/web/main');
+__axiomRequire__('shell/web/main');

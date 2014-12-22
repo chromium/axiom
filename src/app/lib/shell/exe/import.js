@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import AxiomError from 'axiom/core/error';
-import environment from 'axiom_shell/environment';
+import environment from 'shell/environment';
 
 export var main = function(cx) {
   var onImportLoaded = function(resolve, reject, e) {

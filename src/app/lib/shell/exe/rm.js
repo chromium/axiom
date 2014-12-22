@@ -15,25 +15,44 @@
 import AxiomError from 'axiom/core/error';
 import Path from 'axiom/fs/path';
 
-import environment from 'axiom_shell/environment';
-import util from 'axiom_shell/util';
+import environment from 'shell/environment';
+import util from 'shell/util';
 
 export var main = function(executeContext) {
   executeContext.ready();
 
   var arg = executeContext.arg;
-
-  var fromPathSpec = arg.src;
-  var toPathSpec = arg.dst;
-  fromPathSpec = Path.abs(executeContext.getEnv('$PWD', '/'), fromPathSpec);
-  toPathSpec = Path.abs(executeContext.getEnv('$PWD', '/'), toPathSpec);
+  if (!arg._ && arg._.length)
+    return Promise.reject(new AxiomError.Missing('path'));
 
   var fileSystem = environment.getServiceBinding('filesystems@axiom');
 
-  return fileSystem.readFile(fromPathSpec, {read: true}).then(
-    function(result) {
-      return fileSystem.writeFile(toPathSpec, {write: true}, {data: result.data});
+  var rmNext = function() {
+    if (!arg._.length)
+      return Promise.resolve(null);
+
+    var pathSpec = arg._.shift();
+    pathSpec = Path.abs(executeContext.getEnv('$PWD', '/'), pathSpec);
+
+    return fileSystem.unlink(pathSpec).then(
+      function() {
+        return rmNext();
+      }
+    ).catch(function(e) {
+      var errorString;
+
+      if (e instanceof AxiomError) {
+        errorString = e.errorName;
+      } else {
+        errorString = e.toString();
+      }
+
+      executeContext.stdout('rm: ' + pathSpec + ': ' + errorString + '\n');
+      return rmNext();
     });
+  };
+
+  return rmNext();
 };
 
 export default main;

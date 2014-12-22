@@ -19,10 +19,10 @@ import JsEntry from 'axiom/fs/js_entry';
 import Path from 'axiom/fs/path';
 import domfsUtil from 'axiom/fs/domfs_util';
 
-import Termcap from 'axiom_shell/util/termcap';
-import WashBuiltins from 'axiom_shell/exe/wash_builtins';
-import environment from 'axiom_shell/environment';
 import minimist from 'minimist';
+import Termcap from 'shell/util/termcap';
+import WashBuiltins from 'shell/exe/wash_builtins';
+import environment from 'shell/environment';
 
 /**
  * The shell read-eval-print loop.
