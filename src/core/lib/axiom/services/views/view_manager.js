@@ -35,7 +35,7 @@ import DragDropManager from 'axiom/services/views/drag_drop_manager';
 //   frame with a single view).
 var AXIOM_CONTAINER = 'AXIOM-CONTAINER';
 var AXIOM_FRAME = 'AXIOM-FRAME';
-var AXIOM_SPLITTER = 'CORE-SPLITTER';
+var AXIOM_SPLITTER = 'AXIOM-SPLITTER';
 var AXIOM_VIEW = 'AXIOM-VIEW';
 
 /*
