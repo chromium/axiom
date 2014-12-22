@@ -18,7 +18,7 @@ import Path from 'axiom/fs/path';
 import environment from 'axiom_shell/environment';
 import util from 'axiom_shell/util';
 
-var MKDIR_CMD_USAGE_STRING = 'usage: directory ...';
+var MKDIR_CMD_USAGE_STRING = 'usage: mkdir directory ...';
 
 export var main = function(executeContext) {
   executeContext.ready();
