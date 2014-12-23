@@ -21,7 +21,6 @@ import catMain from 'axiom_shell/exe/cat';
 import clearMain from 'axiom_shell/exe/clear';
 import cpMain from 'axiom_shell/exe/cp';
 import echoMain from 'axiom_shell/exe/echo';
-import editMain from 'axiom_shell/exe/edit';
 import htermMain from 'axiom_shell/exe/hterm';
 import importMain from 'axiom_shell/exe/import';
 import lsMain from 'axiom_shell/exe/ls';
@@ -49,7 +48,6 @@ ShellFS.prototype.bind = function(fileSystemExtensionBinding) {
           'clear': clearMain,
           'cp': cpMain,
           'echo': echoMain,
-          'edit': editMain,
           'hterm': htermMain,
           'import': importMain,
           'ls': lsMain,
