@@ -12,21 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import shellMain from 'axiom_shell/main';
+import Termcap from 'shell/util/termcap';
 
-// Generic logger of failed promises.
-var logCatch = function(err) {
-  console.log('logCatch: ' + err.toString(), err);
-  if ('stack' in err)
-    console.log(err.stack);
+/**
+ * Clear the terminal screen and return the cursor to the home position.
+ */
+export var main = function(cx) {
+  cx.ready();
+  var tc = new Termcap();
+  var output = tc.output('%clear-terminal()%set-row-column(row, column)',
+                         {row: 1, column: 1});
+  cx.stdout(output);
+  return Promise.resolve(null);
 };
 
-// Start initialization...
-shellMain().then(
-  function(moduleManager) {
-    var axiomCommands = moduleManager.getServiceBinding('commands@axiom');
-    return axiomCommands.whenReady().then(
-      function() {
-        axiomCommands.dispatch('launch-app').catch(logCatch);
-      });
-  }).catch(logCatch);
+export default main;
+
+main.argSigil = '';

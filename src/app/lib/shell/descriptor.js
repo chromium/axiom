@@ -13,7 +13,7 @@
 // limitations under the License.
 
 export var descriptor = {
-  'id': 'axiom_shell',
+  'id': 'shell',
   'version': '1.0.0',
   'requires': ['axiom^1.0.0'],
   'extends': {

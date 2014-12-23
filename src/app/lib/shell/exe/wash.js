@@ -19,10 +19,10 @@ import JsEntry from 'axiom/fs/js_entry';
 import Path from 'axiom/fs/path';
 import domfsUtil from 'axiom/fs/domfs_util';
 
-import Termcap from 'axiom_shell/util/termcap';
-import WashBuiltins from 'axiom_shell/exe/wash_builtins';
-import environment from 'axiom_shell/environment';
 import minimist from 'minimist';
+import Termcap from 'shell/util/termcap';
+import WashBuiltins from 'shell/exe/wash_builtins';
+import environment from 'shell/environment';
 
 /**
  * The shell read-eval-print loop.
@@ -63,24 +63,89 @@ Shell.main = function(executeContext) {
   window.wash_ = shell;  // Console debugging aid.
   executeContext.ready();
 
-  return shell.fileSystem.readFile(
-      shell.historyFile, {read: true}, {dataType: 'utf8-string'}).then(
-    function(data) {
-      var history = JSON.parse(data.data);
-      if (history instanceof Array)
-        shell.inputHistory = history;
+  var repl = shell.readEvalPrintLoop.bind(shell);
+  var start = function() {
+    return shell.loadWashHistory().then(repl).catch(repl);
+  };
 
-      return shell.readEvalPrintLoop();
-    }
-  ).catch(
-    function(err) {
-      console.log(err);
-      return shell.readEvalPrintLoop();
-    }
-  );
+  // TODO(rginda): --init is a hack for the first-run wash.  See loadAxiomJson.
+  if (executeContext.arg['init']) {
+    return shell.loadAxiomJson().then(start).catch(
+      function(err) {
+        shell.printErrorValue(err);
+        return start();
+      });
+  }
+
+  return start();
 };
 
+Shell.main.argSigil = '%';
+
 export default Shell.main;
+
+Shell.prototype.loadAxiomJson = function() {
+  // Process the axiom.json modules.
+  // TODO(rginda): This should be part of core axiom so you don't have to start
+  // a shell just to get the default modules loaded.
+  var axiomJson = '/mnt/html5/home/.axiom.json';
+
+  return this.fileSystem.readFile(
+    axiomJson, {}, {dataType: 'utf8-string'}).then(
+    function(result) {
+      var value;
+
+      try {
+        value = JSON.parse(result.data);
+        if (typeof value != 'object')
+          throw new AxiomError.TypeMismatch('object', typeof value);
+      } catch (ex) {
+        this.errorln('Error loading: ' + axiomJson);
+        this.printErrorValue(ex);
+        return Promise.resolve(null);
+      }
+
+      var importList  = value['import'];
+      if (importList && importList instanceof Array) {
+        return this.executeContext.callPromise(
+            this.fileSystem,
+            '/addon/shell/exe/import',
+            {'_': importList});
+      }
+    }.bind(this)
+  ).catch(
+    function(err) {
+      if (AxiomError.NotFound.test(err))
+        return Promise.resolve(null);
+
+      return Promise.reject(err);
+    });
+};
+
+Shell.prototype.loadWashHistory = function() {
+  return this.fileSystem.readFile(
+      this.historyFile, {}, {dataType: 'utf8-string'}).then(
+    function(result) {
+      try {
+        var history = JSON.parse(result.data);
+        if (history instanceof Array)
+          this.inputHistory = history;
+      } catch (ex) {
+        this.errorln('Error loading: ' + this.historyFile);
+        this.pringErrorValue(ex);
+      }
+
+      return Promise.resolve(null);
+    }.bind(this)
+  ).catch(
+    function(err) {
+      if (!AxiomError.NotFound.test(err))
+        this.printErrorValue(err);
+
+      return Promise.reject(err);
+    }.bind(this)
+  );
+};
 
 Shell.prototype.absPath = function(path) {
   return Path.abs(this.executeContext.getEnv('$PWD', '/'), path);
@@ -88,13 +153,6 @@ Shell.prototype.absPath = function(path) {
 
 Shell.prototype.findExecutable = function(path) {
   var searchList;
-
-  var envPath = this.executeContext.getEnv('@PATH', []);
-  if (path.substr(0, 1) == '/') {
-    searchList = [path];
-  } else {
-    searchList = envPath.map(function(p) { return p + '/' + path });
-  }
 
   var searchNextPath = function() {
     if (!searchList.length)
@@ -116,7 +174,24 @@ Shell.prototype.findExecutable = function(path) {
     });
   }.bind(this);
 
-  return searchNextPath();
+  return this.findExeDirs('/addon').then((function(result) {
+    var envPath = this.executeContext.getEnv('@PATH', []);
+    if (path.substr(0, 1) == '/') {
+      searchList = [path];
+    } else {
+      searchList = envPath.map(function(p) { return p + '/' + path });
+    }
+
+   for (var i in result) {
+     if (envPath.indexOf(result[i]) == -1) {
+       envPath.push(result[i]);
+     }
+   }
+
+   // Set the new path with added new executables path.
+   this.executeContext.setEnv('@PATH', envPath);
+    return searchNextPath();
+  }.bind(this)));
 };
 
 Shell.prototype.read = function() {
@@ -218,6 +293,31 @@ Shell.prototype.parseShellInput = function(str) {
   return [path, argv];
 };
 
+
+/**
+ * Looks into path/([^/])* /exe to find executables.
+ * @returns a promise with list of executable paths.
+ */
+Shell.prototype.findExeDirs = function(path) {
+  return new Promise(function(resolve, reject) {
+    var execs = [];
+    this.fileSystem.list(path).then(function(result) {
+      var promises = [];
+      var names = Object.keys(result);
+      names.forEach(function(name) {
+        promises.push(this.fileSystem.list(path + '/' + name).then(function(r) {
+          if (r && r['exe']) {
+            execs.push(path + '/' + name + '/' + 'exe' + '/');
+          }
+        }));
+      }.bind(this));
+      Promise.all(promises).then(function() {
+        resolve(execs);
+      });
+    }.bind(this));
+  }.bind(this));
+};
+
 Shell.prototype.dispatch = function(path, argv) {
   return this.builtinsFS.stat(path).then(
     function(statResult) {
@@ -302,9 +402,9 @@ Shell.prototype.printErrorValue = function(value) {
 Shell.prototype.exit = function() {
   return this.fileSystem.writeFile(
       this.historyFile,
-      { create: true, truncate: true, write: true },
+      { create: true, truncate: true },
       { dataType: 'utf8-string',
-        data: JSON.stringify(this.inputHistory)
+            data: JSON.stringify(this.inputHistory, null, '  ') + '\n'
       }
   ).then(
       function() {

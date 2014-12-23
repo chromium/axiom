@@ -17,17 +17,17 @@ import AxiomError from 'axiom/core/error';
 import JsFileSystem from 'axiom/fs/js_file_system';
 import DomFileSystem from 'axiom/fs/dom_file_system';
 
-import catMain from 'axiom_shell/exe/cat';
-import clearMain from 'axiom_shell/exe/clear';
-import cpMain from 'axiom_shell/exe/cp';
-import echoMain from 'axiom_shell/exe/echo';
-import htermMain from 'axiom_shell/exe/hterm';
-import importMain from 'axiom_shell/exe/import';
-import lsMain from 'axiom_shell/exe/ls';
-import mkdirMain from 'axiom_shell/exe/mkdir';
-import readlineMain from 'axiom_shell/exe/readline';
-import rmMain from 'axiom_shell/exe/rm';
-import washMain from 'axiom_shell/exe/wash';
+import catMain from 'shell/exe/cat';
+import clearMain from 'shell/exe/clear';
+import cpMain from 'shell/exe/cp';
+import echoMain from 'shell/exe/echo';
+import htermMain from 'shell/exe/hterm';
+import importMain from 'shell/exe/import';
+import lsMain from 'shell/exe/ls';
+import mkdirMain from 'shell/exe/mkdir';
+import readlineMain from 'shell/exe/readline';
+import rmMain from 'shell/exe/rm';
+import washMain from 'shell/exe/wash';
 
 export var ShellFS = function(moduleManager) {
   this.moduleManager = moduleManager;
@@ -39,7 +39,6 @@ export default ShellFS;
 
 ShellFS.prototype.bind = function(fileSystemExtensionBinding) {
   this.fileSystemExtensionBinding = fileSystemExtensionBinding;
-
   this.jsfs = new JsFileSystem(null, fileSystemExtensionBinding);
   this.jsfs.mkdir('exe').then(
       function(jsdir) {
@@ -57,6 +56,4 @@ ShellFS.prototype.bind = function(fileSystemExtensionBinding) {
           'wash': washMain,
         });
       });
-
-  this.jsfs.mkdir('proc');
 };

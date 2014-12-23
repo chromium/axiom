@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import TerminalView from 'axiom_shell/views/terminal';
+import TerminalView from 'shell/views/terminal';
 
 /**
  * Simple callback for a JsExecutable which echos the argument list to stdout
@@ -21,12 +21,13 @@ import TerminalView from 'axiom_shell/views/terminal';
 export var main = function(cx) {
   cx.ready();
   var tv = new TerminalView(this.moduleManager);
-  var command = cx.arg['command'] || '/axiom_shell/exe/wash';
+  var command = cx.arg['command'] || '/addon/shell/exe/wash';
+  var arg = cx.arg['arg'] || {};
   var env = cx.arg['env'] || {
-    '@PATH': ['/axiom_shell/exe/'],
+    '@PATH': ['/addon/shell/exe/'],
     '$TERM': 'xterm-256color'
   };
-  tv.execute(command, {}, env);
+  tv.execute(command, arg, env);
   return Promise.resolve(null);
 };
 

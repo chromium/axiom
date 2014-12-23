@@ -12,9 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO (rpaquay): Due to the fact axiom-splitter extends core-splitter
-// and that we vulcanize core-splitter, we need to register the axiom-splitter
-// element in the html file script section instead than in a separate file.
-// (This is so that axiom-splitter is registerd to Polymer *after*
-// core-splitter)
-//Polymer('axiom-splitter', {});
+Polymer('axiom-drop-zone', {
+  computed: {
+    // Compute [arrowtype] and [orientation] so that they can be used
+    // in template binding.
+    arrowtype: '(position == "top" || position == "right") ? "up" : "down"',
+    orientation: '(position == "top" || position == "bottom") ? "horizontal" : "vertical"',
+  },
+  active: '',
+  activeChanged: function(oldValue, newValue) {
+    if (newValue || newValue === "") {
+      this.$.icon.classList.add("active");
+    } else {
+      this.$.icon.classList.remove("active");
+    }
+  }
+});

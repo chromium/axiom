@@ -14,7 +14,7 @@
 
 import AxiomError from 'axiom/core/error';
 
-import Termcap from 'axiom_shell/util/termcap';
+import Termcap from 'shell/util/termcap';
 
 /**
  * A partial clone of GNU readline.

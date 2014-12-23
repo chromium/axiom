@@ -15,24 +15,30 @@
 import AxiomError from 'axiom/core/error';
 import Path from 'axiom/fs/path';
 
-import environment from 'axiom_shell/environment';
-import util from 'axiom_shell/util';
+import environment from 'shell/environment';
+import util from 'shell/util';
+
+var CP_CMD_USAGE_STRING = 'usage: cp sourceFile targetFile';
 
 export var main = function(executeContext) {
   executeContext.ready();
 
   var arg = executeContext.arg;
+  if (!arg._ || (arg._.length != 2) || arg.h || arg.help) {
+    executeContext.stdout(CP_CMD_USAGE_STRING + '\n');
+    return Promise.resolve(null);
+  }
 
-  var fromPathSpec = arg.src;
-  var toPathSpec = arg.dst;
+  var fromPathSpec = arg._[0];
+  var toPathSpec = arg._[1];
   fromPathSpec = Path.abs(executeContext.getEnv('$PWD', '/'), fromPathSpec);
   toPathSpec = Path.abs(executeContext.getEnv('$PWD', '/'), toPathSpec);
 
   var fileSystem = environment.getServiceBinding('filesystems@axiom');
 
-  return fileSystem.readFile(fromPathSpec, {read: true}).then(
+  return fileSystem.readFile(fromPathSpec, {}).then(
     function(result) {
-      return fileSystem.writeFile(toPathSpec, {write: true}, {data: result.data});
+      return fileSystem.writeFile(toPathSpec, {}, {data: result.data});
     });
 };
 

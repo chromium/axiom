@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import string from 'axiom_shell/util/string';
-import Termcap from 'axiom_shell/util/termcap';
+import string from 'shell/util/string';
+import Termcap from 'shell/util/termcap';
 
 export var util = {
   string: string,

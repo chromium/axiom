@@ -105,7 +105,6 @@ JsFileSystem.prototype.mkdir = function(pathSpec) {
   var parentPath = path.getParentPath();
   var targetName = path.getBaseName();
 
-
   var rv = this.resolve(parentPath);
 
   if (rv.entry instanceof FileSystemBinding)

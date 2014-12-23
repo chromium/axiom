@@ -17,28 +17,21 @@
 <html>
 <head>
   <link rel="import" href="bower_components/polymer/polymer.html">
-  <link rel="import" href="axiom_container.html">
-  <link rel="import" href="axiom_view.html">
-  <link rel="import" href="axiom_splitter.html">
-  <link rel="import" href="axiom_anchors.html">
-  <link rel="import" href="axiom_drop_zones.html">
+  <link rel="import" href="bower_components/core-icon-button/core-icon-button.html">
+  <link rel="import" href="axiom_drop_zone.html">
 </head>
 <body>
-  <polymer-element name="axiom-frame">
+  <polymer-element name="axiom-drop-zones">
     <template>
       <style>
-        :host([debug]) {
-          /* TODO(rpaquay): debug only */
-          border-width: 4px;
-          border-style: solid;
-          border-color: bisque;
-        }
       </style>
       <content></content>
-      <axiom-anchors id="anchors"></axiom-anchors>
-      <axiom-drop-zones id="drop-zones" hidden></axiom-drop-zones>
+      <axiom-drop-zone id="top" position="top"></axiom-drop-zone>
+      <axiom-drop-zone id="bottom" position="bottom"></axiom-drop-zone>
+      <axiom-drop-zone id="left" position="left"></axiom-drop-zone>
+      <axiom-drop-zone id="right" position="right"></axiom-drop-zone>
     </template>
-    <script src="axiom_frame.js"></script>
+    <script src="axiom_drop_zones.js"></script>
   </polymer-element>
 </body>
 </html>

@@ -14,7 +14,7 @@
 
 import AxiomError from 'axiom/core/error';
 
-import environment from 'axiom_shell/environment';
+import environment from 'shell/environment';
 
 import PnaclCommand from 'axiom_pnacl/pnacl_command';
 

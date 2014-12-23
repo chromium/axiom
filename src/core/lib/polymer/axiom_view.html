@@ -24,14 +24,15 @@ Fired when the "close" button of the view is clicked.
   <link rel="import" href="bower_components/polymer/polymer.html">
   <link rel="import" href="bower_components/core-icon-button/core-icon-button.html">
   <link rel="import" href="axiom_anchors.html">
+  <link rel="import" href="axiom_drop_zones.html">
 </head>
 <body>
-  <polymer-element name="axiom-view">
+  <polymer-element name="axiom-view" attributes="dragged">
     <template>
       <style>
         .outerContainer {
           padding: 0;
-          background: linear-gradient(rgb(214, 227, 231), lightblue);
+          background-color: transparent;
         }
         .header {
           font-size: 14px;
@@ -54,9 +55,14 @@ Fired when the "close" button of the view is clicked.
           display: block;
           font-size: 14px;
         }
+        .dragged {
+          background-color: gray;
+          opacity: 0.5;
+        }
       </style>
       <axiom-anchors id="anchors"></axiom-anchors>
-      <div class="outerContainer" layout vertical fit relative>
+      <axiom-drop-zones id="drop-zones" hidden></axiom-drop-zones>
+      <div class="outerContainer" id="container" layout vertical fit relative>
         <div class="header" id="header" draggable="true" layout horizontal relative>
           <div class="title" flex>{{id}}</div>
           <core-icon-button class="icon" icon="close" id="closeicon"></core-icon-button>

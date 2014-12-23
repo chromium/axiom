@@ -15,6 +15,7 @@
 Polymer('axiom-container', {
   created: function () {
     this.anchorsElement = this.anchorsElement.bind(this);
+    this.dropZones = this.dropZones.bind(this);
     this.setAttribute("relative", "");
   },
   attached: function() {
@@ -24,7 +25,12 @@ Polymer('axiom-container', {
       }
     }
   },
+  // Used by drag-drop to track active drop anchor
   anchorsElement: function () {
     return this.$.anchors;
+  },
+  // Used by drag-drop to access the drop zones
+  dropZones: function() {
+    return this.$['drop-zones'];
   },
 });

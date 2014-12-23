@@ -76,12 +76,7 @@ module.exports = function(grunt) {
           },
           { expand: true,
             cwd: 'out/polymer',
-            src: ['axiom_vulcanized.html',
-                  '*.js',
-                  'bower_components/platform/platform.js',
-                  'bower_components/platform/platform.js.map',
-                  'bower_components/polymer/polymer.js',
-                  'bower_components/polymer/polymer.js.map'],
+            src: ['**'],
             dest: 'dist/polymer/'
           }
         ]
@@ -95,7 +90,11 @@ module.exports = function(grunt) {
                   'bower_components/platform/platform.js',
                   'bower_components/platform/platform.js.map',
                   'bower_components/polymer/polymer.js',
-                  'bower_components/polymer/polymer.js.map'],
+                  'bower_components/polymer/polymer.js.map',
+                  // Special case: splitter contains embedded url images.
+                  'bower_components/core-splitter/handle.svg ',
+                  'bower_components/core-splitter/handle-h.svg ',
+                  ],
             dest: 'out/polymer/'
           }
         ]

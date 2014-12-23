@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO (rpaquay): Due to the fact axiom-splitter extends core-splitter
-// and that we vulcanize core-splitter, we need to register the axiom-splitter
-// element in the html file script section instead than in a separate file.
-// (This is so that axiom-splitter is registerd to Polymer *after*
-// core-splitter)
-//Polymer('axiom-splitter', {});
+Polymer('axiom-drop-zones', {
+  created: function () {
+    this.zone = this.zone.bind(this);
+  },
+  zone: function (position) {
+    return this.$[position];
+  }
+});
