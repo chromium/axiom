@@ -32,6 +32,14 @@ Polymer('axiom-view', {
       this.fire("close");
     }.bind(this));
   },
+  dragged: '',
+  draggedChanged: function(oldValue, newValue) {
+    if (newValue || newValue === "") {
+      this.$.container.classList.add("dragged");
+    } else {
+      this.$.container.classList.remove("dragged");
+    }
+  },
   // Used by drag-drop to track active drop anchor
   anchorsElement: function() {
     return this.$.anchors;

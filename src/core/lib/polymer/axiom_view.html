@@ -27,13 +27,12 @@ Fired when the "close" button of the view is clicked.
   <link rel="import" href="axiom_drop_zones.html">
 </head>
 <body>
-  <polymer-element name="axiom-view">
+  <polymer-element name="axiom-view" attributes="dragged">
     <template>
       <style>
         .outerContainer {
           padding: 0;
           background-color: transparent;
-          /*background: linear-gradient(rgb(214, 227, 231), lightblue);*/
         }
         .header {
           font-size: 14px;
@@ -49,13 +48,16 @@ Fired when the "close" button of the view is clicked.
         .content {
           overflow: auto;
           position: relative;
-          background-color: transparent;
         }
         .icon {
           margin: 0;
           padding: 0;
           display: block;
           font-size: 14px;
+        }
+        .dragged {
+          background-color: gray;
+          opacity: 0.5;
         }
       </style>
       <axiom-anchors id="anchors"></axiom-anchors>

@@ -84,8 +84,9 @@ DragDropManager.prototype.dragStart = function (event) {
   this.dragDropState = new DragDropState(this, view);
   this.dragDropState.dragStart(event.path);
 
-  // make the view half transparent
-  view.style.opacity = 0.5;
+  // Make the view topmost if at all possible, and set style to "drag" mode
+  view.style.zIndex = 200;
+  view.setAttribute('dragged', '1');
 
   // This causes the drag-drop operation to be canceled.
   //this['view-manager'].detachView(event.target, window.document.body);
@@ -95,8 +96,13 @@ DragDropManager.prototype.dragStart = function (event) {
 };
 
 DragDropManager.prototype.dragEnd = function (event) {
+  var view = event.target;
+
   this.dragLeave(event);
-  event.target.style.opacity = '';
+
+  // Reset view style and z-index.
+  view.style.zIndex = '';
+  view.removeAttribute('dragged');
 
   // Done with this operation.
   if (this.dragDropState) {
@@ -105,7 +111,6 @@ DragDropManager.prototype.dragEnd = function (event) {
   }
 
   // Fire custom 'drag-end' event
-  var view = event.target;
   this.fire('drag-end', { view: view });
 };
 
