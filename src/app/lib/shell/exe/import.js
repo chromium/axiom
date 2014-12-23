@@ -137,7 +137,7 @@ import_.initializeAddon = function(
   try {
     module = environment.defineModule(descriptor);
   } catch(ex) {
-    Promise.reject(ex);
+    return Promise.reject(ex);
   }
 
   try {
@@ -161,6 +161,9 @@ import_.saveImport = function(url) {
 
   var overwrite = function(value) {
     if (value['import'] instanceof Array) {
+      if (value['import'].indexOf(url) != -1)
+        return Promise.resolve();
+
       value['import'].push(url);
     } else {
       value['import'] = [url];
