@@ -89,17 +89,6 @@ Shell.prototype.absPath = function(path) {
 Shell.prototype.findExecutable = function(path) {
   var searchList;
 
-  var envPath = this.executeContext.getEnv('@PATH', []);
-  if (path.substr(0, 1) == '/') {
-    searchList = [path];
-  } else {
-    searchList = envPath.map(function(p) { return p + '/' + path });
-  }
-
-
-  /*this.findExecsInPath('addon/').then((function(result) {
-    console.log(result);
-  }));*/
   var searchNextPath = function() {
     if (!searchList.length)
       return Promise.reject(new AxiomError.NotFound('path', path));
@@ -120,7 +109,24 @@ Shell.prototype.findExecutable = function(path) {
     });
   }.bind(this);
 
-  return searchNextPath();
+  return this.findExecInPath('/addon').then((function(result) {
+    var envPath = this.executeContext.getEnv('@PATH', []);
+    if (path.substr(0, 1) == '/') {
+      searchList = [path];
+    } else {
+      searchList = envPath.map(function(p) { return p + '/' + path });
+    }
+
+   for (var i in result) {
+     if (envPath.indexOf(result[i]) == -1) {
+       envPath.push(result[i]);
+     }
+   }
+
+   // Set the new path with added new executables path.
+   this.executeContext.setEnv('@PATH', envPath);
+    return searchNextPath();
+  }.bind(this)));
 };
 
 Shell.prototype.read = function() {
@@ -222,32 +228,27 @@ Shell.prototype.parseShellInput = function(str) {
   return [path, argv];
 };
 
-Shell.prototype.findExecsInPath = function(path) {
+
+/**
+ * Looks into path/* /exe to find executables.
+ * @returns a promise with list of executable paths.
+ */
+Shell.prototype.findExecInPath = function(path) {
   return new Promise(function(resolve, reject) {
     var execs = [];
-    this.fileSystem.stat(path).then(function(statResult) {
-      if (statResult.mode & Path.mode.x) {
-        resolve({absPath: path, stat: statResult});
-        return;
-      } else if (statResult.mode & Path.mode.d) {
-        this.fileSystem.list(path).then(function(listResult) {
-          var promises = [];
-          var names = Object.keys(listResult);
-          names.forEach(function(name) {
-            promises.push(this.findExecsInPath(path + '/' + name).then(
-                function(result) {
-                  execs = execs.concat(result);
-                }
-            ));
-
-            Promise.all(promises).then(function() {
-              resolve(execs);
-            });
-          }.bind(this));
-        }.bind(this));
-      } else {
-        resolve([]);
-      }
+    this.fileSystem.list(path).then(function(result) {
+      var promises = [];
+      var names = Object.keys(result);
+      names.forEach(function(name) {
+        promises.push(this.fileSystem.list(path + '/' + name).then(function(r) {
+          if (r && r['exe']) {
+            execs.push(path + '/' + name + '/' + 'exe' + '/');
+          }
+        }));
+      }.bind(this));
+      Promise.all(promises).then(function() {
+        resolve(execs);
+      });
     }.bind(this));
   }.bind(this));
 };
