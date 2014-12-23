@@ -46,7 +46,7 @@ ShellCommands.commands = {
         fs.createContext(
           'execute',
           '/addon/shell/exe/hterm',
-          {command: '/addon/axiom_shell/exe/wash',
+          {command: '/addon/shell/exe/wash',
            arg: {init: true}
           }
         ).then(
