@@ -73,7 +73,7 @@ Shell.main = function(executeContext) {
     return shell.loadAxiomJson().then(start).catch(
       function(err) {
         shell.printErrorValue(err);
-        start();
+        return start();
       });
   }
 
@@ -109,7 +109,7 @@ Shell.prototype.loadAxiomJson = function() {
       if (importList && importList instanceof Array) {
         return this.executeContext.callPromise(
             this.fileSystem,
-            '/addon/axiom_shell/exe/import',
+            '/addon/shell/exe/import',
             {'_': importList});
       }
     }.bind(this)
