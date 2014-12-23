@@ -3,8 +3,14 @@
 This document is formatted with Markdown. You're free to use any Markdown
 generator you want, but here's what miket uses:
 
-  - first-time setup: sudo npm install -g markdown-styles
-  - generate-md --layout mixu-radar --input index.md --output your-webserver/getting_started
+First-time setup
+
+  - sudo npm install -g markdown-styles
+  - pushd var/www/html && ln -s path/to/index.md && popd
+
+Each build
+
+  - pushd /var/www/html && generate-md --layout mixu-radar --input index.md --output gs/ && popd && chmod -R 755 /var/www/html/gs
 
 -->
 
@@ -52,12 +58,18 @@ lonely! Let's fix that.
 
 Type `import addon/pnacl`. After a short pause, you should have some new
 modules available. Confirm by listing directories once again. Did you find
-nethack? Run it with `/axiom_pnacl/exe/nethack`. See you in an hour or two.
+nethack? Run it with `nethack`. See you in an hour or two.
 
-Now let's get some work done! `/axiom_pnacl/exe/nano /mnt/html5/hello.txt`
-should open nano, and if you type something and save your work, it'll write the
-results to hello.txt. If you prefer vim, go ahead and use that instead of nano.
-When you exit the app, confirm it worked with `cat /mnt/html5/hello.txt`.
+If you poked around after the `import` command, you will have noticed a new
+directory in /addon/ that contained various pnacl-related files. Axiom
+automatically searches /addon/*/exe/ for executables, which is why simply
+typing `nethack` works, rather than having to type
+`/addon/axiom_pnacl/exe/nethack`, which also would have worked.
+
+Now let's get some work done! `nano /mnt/html5/hello.txt` should open nano, and
+if you type something and save your work, it'll write the results to hello.txt.
+If you prefer vim, go ahead and use that instead of nano. When you exit the
+app, confirm it worked with `cat /mnt/html5/hello.txt`.
 
 (Note that you can paste into wash with control-shift-v.) 
 
@@ -123,12 +135,19 @@ origin into Axiom. (As we said earlier, in this example it's technically the
 same origin, but it could have been somewhere else if you'd used a different
 webserver.)
 
-Type `/my_module/echo hello world`. Congratulations, your new Axiom module is
-live!
+Type `echo hello world`. Congratulations, your new Axiom module is live!
 
 What's next?
 ---
 
   * Join our [discussion list](https://groups.google.com/a/google.com/forum/#!forum/chrome-axiom-discuss).
-  * See the source for Axiom Core at [https://user.git.corp.google.com/rginda/axiom/]. In particular, the [Core README](https://user.git.corp.google.com/rginda/axiom/+/master/src/core/README.md) explains the basic Axiom concepts of Modules, Services, Extensions, and Bindings.
-  * We don't recommend trying to develop on x20. It's not designed for rapid edit-refresh cycles, and the permissions system will make you unhappy. If you proceed past this guide, use your own static web server.
+
+  * See the source for Axiom Core at
+    [https://user.git.corp.google.com/rginda/axiom/]. In particular, the [Core
+    README](https://user.git.corp.google.com/rginda/axiom/+/master/src/core/README.md)
+    explains the basic Axiom concepts of Modules, Services, Extensions, and
+    Bindings.
+
+  * We don't recommend trying to develop on x20. It's not designed for rapid
+    edit-refresh cycles, and the permissions system will make you unhappy. If
+    you proceed past this guide, use your own static web server.
