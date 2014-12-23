@@ -89,13 +89,6 @@ Shell.prototype.absPath = function(path) {
 Shell.prototype.findExecutable = function(path) {
   var searchList;
 
-  var envPath = this.executeContext.getEnv('@PATH', []);
-  if (path.substr(0, 1) == '/') {
-    searchList = [path];
-  } else {
-    searchList = envPath.map(function(p) { return p + '/' + path });
-  }
-
   var searchNextPath = function() {
     if (!searchList.length)
       return Promise.reject(new AxiomError.NotFound('path', path));
@@ -116,7 +109,24 @@ Shell.prototype.findExecutable = function(path) {
     });
   }.bind(this);
 
-  return searchNextPath();
+  return this.findExecInPath('/addon').then((function(result) {
+    var envPath = this.executeContext.getEnv('@PATH', []);
+    if (path.substr(0, 1) == '/') {
+      searchList = [path];
+    } else {
+      searchList = envPath.map(function(p) { return p + '/' + path });
+    }
+
+   for (var i in result) {
+     if (envPath.indexOf(result[i]) == -1) {
+       envPath.push(result[i]);
+     }
+   }
+
+   // Set the new path with added new executables path.
+   this.executeContext.setEnv('@PATH', envPath);
+    return searchNextPath();
+  }.bind(this)));
 };
 
 Shell.prototype.read = function() {
@@ -216,6 +226,31 @@ Shell.prototype.parseShellInput = function(str) {
     path = this.executeContext.getEnv('$PWD', '/') + path.substr(2);
 
   return [path, argv];
+};
+
+
+/**
+ * Looks into path/* /exe to find executables.
+ * @returns a promise with list of executable paths.
+ */
+Shell.prototype.findExecInPath = function(path) {
+  return new Promise(function(resolve, reject) {
+    var execs = [];
+    this.fileSystem.list(path).then(function(result) {
+      var promises = [];
+      var names = Object.keys(result);
+      names.forEach(function(name) {
+        promises.push(this.fileSystem.list(path + '/' + name).then(function(r) {
+          if (r && r['exe']) {
+            execs.push(path + '/' + name + '/' + 'exe' + '/');
+          }
+        }));
+      }.bind(this));
+      Promise.all(promises).then(function() {
+        resolve(execs);
+      });
+    }.bind(this));
+  }.bind(this));
 };
 
 Shell.prototype.dispatch = function(path, argv) {

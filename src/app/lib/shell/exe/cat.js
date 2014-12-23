@@ -15,10 +15,9 @@
 import AxiomError from 'axiom/core/error';
 import Path from 'axiom/fs/path';
 
+var CAT_CMD_USAGE_STRING = 'usage: cat [file...]';
 import environment from 'shell/environment';
 import util from 'shell/util';
-
-var CAT_CMD_USAGE_STRING = 'usage: cat [file...]';
 
 export var main = function(executeContext) {
   executeContext.ready();

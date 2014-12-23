@@ -36,9 +36,9 @@ export var main = function(executeContext) {
 
   var fileSystem = environment.getServiceBinding('filesystems@axiom');
 
-  return fileSystem.readFile(fromPathSpec, {read: true}).then(
+  return fileSystem.readFile(fromPathSpec, {}).then(
     function(result) {
-      return fileSystem.writeFile(toPathSpec, {write: true}, {data: result.data});
+      return fileSystem.writeFile(toPathSpec, {}, {data: result.data});
     });
 };
 
