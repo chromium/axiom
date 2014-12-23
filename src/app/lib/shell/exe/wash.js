@@ -96,6 +96,10 @@ Shell.prototype.findExecutable = function(path) {
     searchList = envPath.map(function(p) { return p + '/' + path });
   }
 
+
+  /*this.findExecsInPath('addon/').then((function(result) {
+    console.log(result);
+  }));*/
   var searchNextPath = function() {
     if (!searchList.length)
       return Promise.reject(new AxiomError.NotFound('path', path));
@@ -216,6 +220,36 @@ Shell.prototype.parseShellInput = function(str) {
     path = this.executeContext.getEnv('$PWD', '/') + path.substr(2);
 
   return [path, argv];
+};
+
+Shell.prototype.findExecsInPath = function(path) {
+  return new Promise(function(resolve, reject) {
+    var execs = [];
+    this.fileSystem.stat(path).then(function(statResult) {
+      if (statResult.mode & Path.mode.x) {
+        resolve({absPath: path, stat: statResult});
+        return;
+      } else if (statResult.mode & Path.mode.d) {
+        this.fileSystem.list(path).then(function(listResult) {
+          var promises = [];
+          var names = Object.keys(listResult);
+          names.forEach(function(name) {
+            promises.push(this.findExecsInPath(path + '/' + name).then(
+                function(result) {
+                  execs = execs.concat(result);
+                }
+            ));
+
+            Promise.all(promises).then(function() {
+              resolve(execs);
+            });
+          }.bind(this));
+        }.bind(this));
+      } else {
+        resolve([]);
+      }
+    }.bind(this));
+  }.bind(this));
 };
 
 Shell.prototype.dispatch = function(path, argv) {
