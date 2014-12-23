@@ -109,7 +109,7 @@ Shell.prototype.findExecutable = function(path) {
     });
   }.bind(this);
 
-  return this.findExecInPath('/addon').then((function(result) {
+  return this.findExeDirs('/addon').then((function(result) {
     var envPath = this.executeContext.getEnv('@PATH', []);
     if (path.substr(0, 1) == '/') {
       searchList = [path];
@@ -230,10 +230,10 @@ Shell.prototype.parseShellInput = function(str) {
 
 
 /**
- * Looks into path/* /exe to find executables.
+ * Looks into path/([^/])* /exe to find executables.
  * @returns a promise with list of executable paths.
  */
-Shell.prototype.findExecInPath = function(path) {
+Shell.prototype.findExeDirs = function(path) {
   return new Promise(function(resolve, reject) {
     var execs = [];
     this.fileSystem.list(path).then(function(result) {
