@@ -82,8 +82,7 @@ DragDropManager.prototype.dragStart = function (event) {
   this.dragDropState = new DragDropState(this, view);
   this.dragDropState.dragStart(event.path);
 
-  // Make the view topmost if at all possible, and set style to "drag" mode
-  view.style.zIndex = 200;
+  // Set style to "drag" mode
   view.setAttribute('dragged', '1');
 
   // This causes the drag-drop operation to be canceled.
@@ -98,8 +97,7 @@ DragDropManager.prototype.dragEnd = function (event) {
 
   this.dragLeave(event);
 
-  // Reset view style and z-index.
-  view.style.zIndex = '';
+  // Reset view style to regular non-drag mode.
   view.removeAttribute('dragged');
 
   // Done with this operation.
@@ -116,7 +114,6 @@ DragDropManager.prototype.drag = function (event) {
 };
 
 DragDropManager.prototype.dragEnter = function (event) {
-  console.log('dragEnter', event);
   if (this.dragDropState) {
     this.dragDropState.dragEnter(event.path);
     if (this.dragDropState.activeDropTarget) {
@@ -127,14 +124,9 @@ DragDropManager.prototype.dragEnter = function (event) {
 };
 
 DragDropManager.prototype.dragLeave = function (event) {
-  console.log('dragLeave', event);
 };
 
 DragDropManager.prototype.dragOver = function (event) {
-  if (this.lastDragOverTarget !== event.toElement) {
-    this.lastDragOverTarget = event.toElement;
-    console.log('dragOver', event);
-  }
   if (this.dragDropState) {
     this.dragDropState.dragOver(event.path);
     if (this.dragDropState.activeDropTarget) {

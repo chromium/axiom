@@ -50,16 +50,21 @@ Polymer('axiom-view', {
   },
   // Called by view manager when entering drag mode.
   enterDragMode: function() {
-    this.$.container.style.zIndex = '200';
-    //for(var child = this.firstElementChild; child !== null; child = child.nextElementSibling) {
-    //  child.style.pointerEvents = 'none';
-    //}
+    // Make view top-most so that we receive all mouse events. We need this in
+    // case our element is overlayed by some other element (e.g. a iframe).
+    this.style.zIndex = '200';
+
+    // Prevent children from receiving mouse events to ensure mouse events
+    // are realiably dispatched to us (and our parents).
+    for(var child = this.firstElementChild; child !== null; child = child.nextElementSibling) {
+      child.style.pointerEvents = 'none';
+    }
   },
   // Called by view manager when leaving drag mode.
   leaveDragMode: function() {
-    this.$.container.style.zIndex = '0';
-    //for(var child = this.firstElementChild; child !== null; child = child.nextElementSibling) {
-    //  child.style.pointerEvents = '';
-    //}
+    this.style.zIndex = '';
+    for(var child = this.firstElementChild; child !== null; child = child.nextElementSibling) {
+      child.style.pointerEvents = '';
+    }
   },
 });
