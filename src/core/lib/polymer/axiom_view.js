@@ -18,26 +18,26 @@ Polymer('axiom-view', {
     this.dropZones = this.dropZones.bind(this);
     this.enterDragMode = this.enterDragMode.bind(this);
     this.leaveDragMode = this.leaveDragMode.bind(this);
-    this.setAttribute("relative", "");
+    this.setAttribute('relative', '');
   },
   attached: function () {
     if (this.parentElement) {
-      if (this.parentElement.hasAttribute("DEBUG")) {
-        this.setAttribute("DEBUG", "");
+      if (this.parentElement.hasAttribute('DEBUG')) {
+        this.setAttribute('DEBUG', '');
       }
     }
   },
   ready: function() {
     this.$.closeicon.addEventListener('click', function() {
-      this.fire("close");
+      this.fire('close');
     }.bind(this));
   },
   dragged: '',
   draggedChanged: function(oldValue, newValue) {
-    if (newValue || newValue === "") {
-      this.$.container.classList.add("dragged");
+    if (newValue || newValue === '') {
+      this.$.container.classList.add('dragged');
     } else {
-      this.$.container.classList.remove("dragged");
+      this.$.container.classList.remove('dragged');
     }
   },
   // Used by drag-drop to track active drop anchor
@@ -50,10 +50,16 @@ Polymer('axiom-view', {
   },
   // Called by view manager when entering drag mode.
   enterDragMode: function() {
-    this.$.container.style.zIndex = "200";
+    this.$.container.style.zIndex = '200';
+    //for(var child = this.firstElementChild; child !== null; child = child.nextElementSibling) {
+    //  child.style.pointerEvents = 'none';
+    //}
   },
   // Called by view manager when leaving drag mode.
   leaveDragMode: function() {
-    this.$.container.style.zIndex = "0";
+    this.$.container.style.zIndex = '0';
+    //for(var child = this.firstElementChild; child !== null; child = child.nextElementSibling) {
+    //  child.style.pointerEvents = '';
+    //}
   },
 });

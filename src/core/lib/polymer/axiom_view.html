@@ -55,10 +55,17 @@ Fired when the "close" button of the view is clicked.
           display: block;
           font-size: 14px;
         }
+        /* Style applied to the outer container div to gray out the view while
+           it is being dragged around. */
         .dragged {
           background-color: gray;
           opacity: 0.5;
+          /*z-index: 200;*/
         }
+        /*
+        :host([dragged]) {
+        }
+        */
       </style>
       <axiom-anchors id="anchors"></axiom-anchors>
       <axiom-drop-zones id="drop-zones" hidden></axiom-drop-zones>

@@ -53,14 +53,12 @@ DragDropManager.prototype.registerEventListeners = function() {
   // Note: dragover, dragenter, dragleave and drop are fired on the *destination*
   // target
   document.addEventListener('dragover', function (event) {
-  // prevent default to allow drop
-    event.preventDefault();
+    // prevent default to allow drop
+    //event.preventDefault();
     this.dragOver(event);
   }.bind(this), false);
 
   document.addEventListener('dragenter', function (event) {
-    // prevent default to allow drop
-    event.preventDefault();
     this.dragEnter(event);
   }.bind(this), false);
 
@@ -118,17 +116,31 @@ DragDropManager.prototype.drag = function (event) {
 };
 
 DragDropManager.prototype.dragEnter = function (event) {
+  console.log('dragEnter', event);
   if (this.dragDropState) {
     this.dragDropState.dragEnter(event.path);
+    if (this.dragDropState.activeDropTarget) {
+      // prevent default to allow drop
+      event.preventDefault();
+    }
   }
 };
 
 DragDropManager.prototype.dragLeave = function (event) {
+  console.log('dragLeave', event);
 };
 
 DragDropManager.prototype.dragOver = function (event) {
+  if (this.lastDragOverTarget !== event.toElement) {
+    this.lastDragOverTarget = event.toElement;
+    console.log('dragOver', event);
+  }
   if (this.dragDropState) {
     this.dragDropState.dragOver(event.path);
+    if (this.dragDropState.activeDropTarget) {
+      // prevent default to allow drop
+      event.preventDefault();
+    }
   }
 };
 
