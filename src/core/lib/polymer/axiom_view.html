@@ -64,8 +64,8 @@ Fired when the "close" button of the view is clicked.
       <axiom-anchors id="anchors"></axiom-anchors>
       <axiom-drop-zones id="drop-zones" hidden></axiom-drop-zones>
       <div class="outerContainer" id="container" layout vertical fit relative>
-        <div class="header" id="header" draggable="true" layout horizontal relative>
-          <div class="title" flex>{{id}}</div>
+        <div class="header" id="header" layout horizontal relative>
+          <div class="title" id="title" flex>{{id}}</div>
           <core-icon-button class="icon" icon="close" id="closeicon"></core-icon-button>
         </div>
         <div id="content-div" class="content" flex>

@@ -16,8 +16,11 @@ Polymer('axiom-view', {
   created: function() {
     this.anchorsElement = this.anchorsElement.bind(this);
     this.dropZones = this.dropZones.bind(this);
+    this.headerElement = this.headerElement.bind(this);
     this.enterDragMode = this.enterDragMode.bind(this);
     this.leaveDragMode = this.leaveDragMode.bind(this);
+    this.onTitleMouseEnter = this.onTitleMouseEnter.bind(this);
+    this.onTitleMouseLeave = this.onTitleMouseLeave.bind(this);
     this.setAttribute('relative', '');
   },
   attached: function () {
@@ -26,6 +29,12 @@ Polymer('axiom-view', {
         this.setAttribute('DEBUG', '');
       }
     }
+    this.$.title.addEventListener("mouseenter", this.onTitleMouseEnter);
+    this.$.title.addEventListener("mouseleave", this.onTitleMouseLeave);
+  },
+  detached: function() {
+    this.$.title.removeEventListener("mouseenter", this.onTitleMouseEnter);
+    this.$.title.removeEventListener("mouseleave", this.onTitleMouseLeave);
   },
   ready: function() {
     this.$.closeicon.addEventListener('click', function() {
@@ -40,6 +49,12 @@ Polymer('axiom-view', {
       this.$.container.classList.remove('dragged');
     }
   },
+  onTitleMouseEnter: function(event) {
+    this.fire("title-enter", { view: this});
+  },
+  onTitleMouseLeave: function(event) {
+    this.fire("title-leave", { view: this});
+  },
   // Used by drag-drop to track active drop anchor
   anchorsElement: function() {
     return this.$.anchors;
@@ -47,6 +62,10 @@ Polymer('axiom-view', {
   // Used by drag-drop to access the drop zones
   dropZones: function () {
     return this.$['drop-zones'];
+  },
+  // Used by drag-drop to access the view header for drag-drop.
+  headerElement: function() {
+    return this.$.header;
   },
   // Called by view manager when entering drag mode.
   enterDragMode: function() {

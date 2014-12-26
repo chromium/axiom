@@ -329,6 +329,14 @@ ViewManager.prototype.trackEnd = function(frame) {
   });
 };
 
+ViewManager.prototype.enterViewTitle = function(frame, view) {
+  console.log('enter view title', view);
+};
+
+ViewManager.prototype.leaveViewTitle = function(frame, view) {
+  console.log('leave view title', view);
+};
+
 /*
  * @param {Document} document
  * @return {Promise}  A promise resolvinf to the 'axiom-frame' element.
@@ -347,6 +355,12 @@ ViewManager.prototype.createRootFrame = function(document) {
     }.bind(this));
     frame.addEventListener('drag-end', function(e) {
       this.trackEnd(frame);
+    }.bind(this));
+    frame.addEventListener('title-enter', function(e) {
+      this.enterViewTitle(frame, e.detail.view);
+    }.bind(this));
+    frame.addEventListener('title-leave', function(e) {
+      this.leaveViewTitle(frame, e.detail.view);
     }.bind(this));
 
     var dragDropManager = new DragDropManager(frame);
