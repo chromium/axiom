@@ -331,10 +331,32 @@ ViewManager.prototype.trackEnd = function(frame) {
 
 ViewManager.prototype.enterViewTitle = function(frame, view) {
   console.log('enter view title', view);
+  var document = frame.ownerDocument;
+  var title = document.createElement('axiom-view-title');
+  var r = view.headerElement().getBoundingClientRect();
+  title.id = 'frame-title-track';
+  title.style.position = 'absolute';
+  title.style.top = r.top + 'px';
+  title.style.left = r.left + 'px';
+  title.style.width = r.width + 'px';
+  title.style.height = r.height + 'px';
+  title.style.zIndex = 100;
+  title.addEventListener('mouseenter', function(event) {
+    console.log('mouseenter', title);
+  }.bind(this));
+  title.addEventListener('mouseleave', function(event) {
+    console.log('mouseleave', title);
+    title.parentElement.removeChild(title);
+  }.bind(this));
+  document.body.appendChild(title);
 };
 
 ViewManager.prototype.leaveViewTitle = function(frame, view) {
   console.log('leave view title', view);
+  //var titles = frame.getElementsByTagName('axiom-view-title');
+  //for(var i = 0; i < titles.length; i++) {
+  //  titles[i].parentElement.removeChild(titles[i]);
+  //}
 };
 
 /*
