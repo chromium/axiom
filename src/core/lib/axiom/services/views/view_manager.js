@@ -330,7 +330,7 @@ ViewManager.prototype.trackEnd = function(frame) {
 };
 
 ViewManager.prototype.dragStart = function(frame, view) {
-  //this.detachView(view);
+  this.detachView(view);
   this.trackStart(frame);
 };
 
@@ -387,7 +387,8 @@ ViewManager.prototype.createRootFrame = function(document) {
     document.body.appendChild(frame);
     frame.setAttribute('fit', '');
     frame.addEventListener('drop-view', function(e) {
-      this.moveView(
+      //this.moveView(
+      this.insertView(
         e.detail.view, e.detail.target, e.detail.targetPosition);
     }.bind(this));
     frame.addEventListener('drag-start', function(e) {
@@ -548,17 +549,8 @@ ViewManager.prototype.moveView = function(view, target, position) {
       target = frame; // last resort.
   }
 
-  // Insertion into the main frame is a special case, as the main frame
-  // is neither horizontal or vertical.
-  checkValidFrame(frame);
-  if (target.tagName === AXIOM_FRAME) {
-    this.moveViewIntoFrame(view, target, position);
-  } else if (target.tagName === AXIOM_CONTAINER) {
-    this.moveViewIntoContainer(view, target, position);
-  } else if (target.tagName === AXIOM_VIEW) {
-    this.moveViewNextToView(view, target, position);
-  }
-  checkValidFrame(frame);
+  // Insert view into new location.
+  this.insertView(view, target, position);
 };
 
 /*
