@@ -329,20 +329,38 @@ ViewManager.prototype.trackEnd = function(frame) {
   });
 };
 
+ViewManager.prototype.dragStart = function(frame, view) {
+  //this.detachView(view);
+  //this.trackStart(frame);
+};
+
+ViewManager.prototype.dragEnd = function(frame, view) {
+  this.trackEnd(frame);
+};
+
 ViewManager.prototype.enterViewTitle = function(frame, view) {
   console.log('enter view title', view);
   var document = frame.ownerDocument;
+
+  var titles = document.getElementsByTagName('axiom-view-title');
+  for (var i = titles.length - 1; i >= 0; i--) {
+    titles[i].parentElement.removeChild(titles[i]);
+  }
+
   var title = document.createElement('axiom-view-title');
   var r = view.headerElement().getBoundingClientRect();
   title.id = 'frame-title-track';
+  title.setAttribute('draggable', true);
   title.style.position = 'absolute';
   title.style.top = r.top + 'px';
   title.style.left = r.left + 'px';
   title.style.width = r.width + 'px';
   title.style.height = r.height + 'px';
-  title.style.zIndex = 100;
+  title.style.zIndex = 250;
+  title.style.background = 'red';
+  title['axiom-view'] = view; // TODO(rpaquay): hack!
   title.addEventListener('mouseenter', function(event) {
-    console.log('mouseenter', title);
+    //console.log('mouseenter', title);
   }.bind(this));
   title.addEventListener('mouseleave', function(event) {
     console.log('mouseleave', title);
@@ -352,7 +370,7 @@ ViewManager.prototype.enterViewTitle = function(frame, view) {
 };
 
 ViewManager.prototype.leaveViewTitle = function(frame, view) {
-  console.log('leave view title', view);
+  //console.log('leave view title', view);
   //var titles = frame.getElementsByTagName('axiom-view-title');
   //for(var i = 0; i < titles.length; i++) {
   //  titles[i].parentElement.removeChild(titles[i]);
@@ -373,10 +391,11 @@ ViewManager.prototype.createRootFrame = function(document) {
         e.detail.view, e.detail.target, e.detail.targetPosition);
     }.bind(this));
     frame.addEventListener('drag-start', function(e) {
-      this.trackStart(frame);
+      console.log('drag-start', e);
+      this.dragStart(frame, e.detail.view);
     }.bind(this));
     frame.addEventListener('drag-end', function(e) {
-      this.trackEnd(frame);
+      this.dragEnd(frame, e.detail.view);
     }.bind(this));
     frame.addEventListener('title-enter', function(e) {
       this.enterViewTitle(frame, e.detail.view);

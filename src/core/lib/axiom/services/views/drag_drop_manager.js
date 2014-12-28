@@ -74,16 +74,17 @@ DragDropManager.prototype.registerEventListeners = function() {
 };
 
 DragDropManager.prototype.dragStart = function (event) {
-  if (event.target.tagName !== 'AXIOM-VIEW')
+  console.log('dragstart', event);
+  if (event.target.tagName !== 'AXIOM-VIEW-TITLE')
     return;
-  var view = event.target;
+  var view = event.target['axiom-view'];
 
   // Use state to keep track of current drag-drop operation.
   this.dragDropState = new DragDropState(this, view);
   this.dragDropState.dragStart(event.path);
 
   // Set style to "drag" mode
-  view.setAttribute('dragged', '1');
+  //view.setAttribute('dragged', '1');
 
   // This causes the drag-drop operation to be canceled.
   //this['view-manager'].detachView(event.target, window.document.body);
@@ -93,6 +94,7 @@ DragDropManager.prototype.dragStart = function (event) {
 };
 
 DragDropManager.prototype.dragEnd = function (event) {
+  console.log('dragend', event);
   var view = event.target;
 
   this.dragLeave(event);
@@ -111,6 +113,7 @@ DragDropManager.prototype.dragEnd = function (event) {
 };
 
 DragDropManager.prototype.drag = function (event) {
+  console.log('drag', event);
 };
 
 DragDropManager.prototype.dragEnter = function (event) {
@@ -127,6 +130,7 @@ DragDropManager.prototype.dragLeave = function (event) {
 };
 
 DragDropManager.prototype.dragOver = function (event) {
+  console.log('dragOver', event);
   if (this.dragDropState) {
     this.dragDropState.dragOver(event.path);
     if (this.dragDropState.activeDropTarget) {
@@ -137,6 +141,7 @@ DragDropManager.prototype.dragOver = function (event) {
 };
 
 DragDropManager.prototype.drop = function (event) {
+  console.log('drop', event);
   if (this.dragDropState) {
     var target = this.dragDropState.activeDropTarget;
     if (target) {
