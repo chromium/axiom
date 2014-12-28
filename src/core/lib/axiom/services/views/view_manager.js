@@ -331,7 +331,7 @@ ViewManager.prototype.trackEnd = function(frame) {
 
 ViewManager.prototype.dragStart = function(frame, view) {
   //this.detachView(view);
-  //this.trackStart(frame);
+  this.trackStart(frame);
 };
 
 ViewManager.prototype.dragEnd = function(frame, view) {
