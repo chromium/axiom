@@ -354,18 +354,24 @@ ViewManager.prototype.enterViewTitle = function(frame, view) {
   title.style.position = 'absolute';
   title.style.top = r.top + 'px';
   title.style.left = r.left + 'px';
-  title.style.width = r.width + 'px';
+  // TODO(rpaquay): 24 = size of "X" button.
+  title.style.width = (r.width - 24) + 'px';
   title.style.height = r.height + 'px';
   title.style.zIndex = 250;
+  // TODO(rpaquay): For debugging purposee only
   title.style.background = 'red';
-  title['axiom-view'] = view; // TODO(rpaquay): hack!
+  // TODO(rpaquay): hack so that drag drop manager knows what view is dragged.
+  title['axiom-view'] = view;
+
   title.addEventListener('mouseenter', function(event) {
     //console.log('mouseenter', title);
   }.bind(this));
+
   title.addEventListener('mouseleave', function(event) {
-    console.log('mouseleave', title);
+    //console.log('mouseleave', title);
     title.parentElement.removeChild(title);
   }.bind(this));
+
   document.body.appendChild(title);
 };
 
