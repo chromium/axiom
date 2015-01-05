@@ -368,7 +368,7 @@ ViewManager.prototype.enterViewTitle = function(frame, view) {
   }.bind(this));
 
   title.addEventListener('mouseleave', function(event) {
-    //console.log('mouseleave', title);
+    console.log('mouseleave', title);
     title.parentElement.removeChild(title);
   }.bind(this));
 

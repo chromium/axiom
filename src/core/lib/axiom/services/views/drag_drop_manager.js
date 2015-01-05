@@ -83,12 +83,6 @@ DragDropManager.prototype.dragStart = function (event) {
   this.dragDropState = new DragDropState(this, view);
   this.dragDropState.dragStart(event.path);
 
-  // Set style to "drag" mode
-  //view.setAttribute('dragged', '1');
-
-  // This causes the drag-drop operation to be canceled.
-  //this['view-manager'].detachView(event.target, window.document.body);
-
   // Fire custom 'drag-start' event
   this.fire('drag-start', { view: view });
 };
@@ -96,11 +90,6 @@ DragDropManager.prototype.dragStart = function (event) {
 DragDropManager.prototype.dragEnd = function (event) {
   console.log('dragend', event);
   var view = event.target;
-
-  this.dragLeave(event);
-
-  // Reset view style to regular non-drag mode.
-  view.removeAttribute('dragged');
 
   // Done with this operation.
   if (this.dragDropState) {
@@ -114,6 +103,10 @@ DragDropManager.prototype.dragEnd = function (event) {
 
 DragDropManager.prototype.drag = function (event) {
   console.log('drag', event);
+  // Note: Hiding the element should ideally be done in the "dragStart"
+  // function, but doing so cancels the drag-drop operation, so we delay
+  // hiding the element until the "drag" event is called.
+  event.target.setAttribute('hidden', '');
 };
 
 DragDropManager.prototype.dragEnter = function (event) {
