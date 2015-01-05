@@ -53,14 +53,12 @@ DragDropManager.prototype.registerEventListeners = function() {
   // Note: dragover, dragenter, dragleave and drop are fired on the *destination*
   // target
   document.addEventListener('dragover', function (event) {
-  // prevent default to allow drop
-    event.preventDefault();
+    // prevent default to allow drop
+    //event.preventDefault();
     this.dragOver(event);
   }.bind(this), false);
 
   document.addEventListener('dragenter', function (event) {
-    // prevent default to allow drop
-    event.preventDefault();
     this.dragEnter(event);
   }.bind(this), false);
 
@@ -84,8 +82,7 @@ DragDropManager.prototype.dragStart = function (event) {
   this.dragDropState = new DragDropState(this, view);
   this.dragDropState.dragStart(event.path);
 
-  // Make the view topmost if at all possible, and set style to "drag" mode
-  view.style.zIndex = 200;
+  // Set style to "drag" mode
   view.setAttribute('dragged', '1');
 
   // This causes the drag-drop operation to be canceled.
@@ -100,8 +97,7 @@ DragDropManager.prototype.dragEnd = function (event) {
 
   this.dragLeave(event);
 
-  // Reset view style and z-index.
-  view.style.zIndex = '';
+  // Reset view style to regular non-drag mode.
   view.removeAttribute('dragged');
 
   // Done with this operation.
@@ -120,6 +116,10 @@ DragDropManager.prototype.drag = function (event) {
 DragDropManager.prototype.dragEnter = function (event) {
   if (this.dragDropState) {
     this.dragDropState.dragEnter(event.path);
+    if (this.dragDropState.activeDropTarget) {
+      // prevent default to allow drop
+      event.preventDefault();
+    }
   }
 };
 
@@ -129,6 +129,10 @@ DragDropManager.prototype.dragLeave = function (event) {
 DragDropManager.prototype.dragOver = function (event) {
   if (this.dragDropState) {
     this.dragDropState.dragOver(event.path);
+    if (this.dragDropState.activeDropTarget) {
+      // prevent default to allow drop
+      event.preventDefault();
+    }
   }
 };
 
