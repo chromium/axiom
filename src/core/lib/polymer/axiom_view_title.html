@@ -23,10 +23,14 @@
   <polymer-element name="axiom-view-title">
     <template>
       <style>
+        :host {
+          background: white;
+          opacity: 0.3;
+        }
         .header {
           font-size: 14px;
           padding: 0 0 0 2px;
-          background-color: #4F7DC9;
+          /*background-color: #4F7DC9;*/
           color: #FFF;
         }
         .title {
@@ -34,21 +38,9 @@
           white-space: nowrap;
           overflow: hidden;
         }
-        /*
-        .icon {
-          margin: 0;
-          padding: 0;
-          display: block;
-          font-size: 14px;
-        }
-        */
       </style>
       <div class="header" id="header" layout horizontal relative>
         <div class="title" id="title" flex>{{id}}</div>
-        <!--
-         <core-icon-button class="icon" icon="close" id="closeicon">
-        </core-icon-button>
-        -->
       </div>
     </template>
     <script src="axiom_view_title.js"></script>

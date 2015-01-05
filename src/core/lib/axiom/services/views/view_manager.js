@@ -358,8 +358,6 @@ ViewManager.prototype.enterViewTitle = function(frame, view) {
   title.style.width = (r.width - 24) + 'px';
   title.style.height = r.height + 'px';
   title.style.zIndex = 250;
-  // TODO(rpaquay): For debugging purposee only
-  title.style.background = 'red';
   // TODO(rpaquay): hack so that drag drop manager knows what view is dragged.
   title['axiom-view'] = view;
 
