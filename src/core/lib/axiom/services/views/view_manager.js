@@ -368,8 +368,12 @@ ViewManager.prototype.enterViewTitle = function(frame, view) {
   }.bind(this));
 
   title.addEventListener('mouseleave', function(event) {
-    console.log('mouseleave', title);
-    title.parentElement.removeChild(title);
+    // console.log('mouseleave', title);
+    // Do not delete title bar if it is in in drap-drop move, because
+    // that would interfere with the browser sending a "dragend" event.
+    if (!title.hasAttribute('dragged')) {
+      title.parentElement.removeChild(title);
+    }
   }.bind(this));
 
   document.body.appendChild(title);

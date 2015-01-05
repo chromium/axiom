@@ -53,8 +53,6 @@ DragDropManager.prototype.registerEventListeners = function() {
   // Note: dragover, dragenter, dragleave and drop are fired on the *destination*
   // target
   document.addEventListener('dragover', function (event) {
-    // prevent default to allow drop
-    //event.preventDefault();
     this.dragOver(event);
   }.bind(this), false);
 
@@ -77,6 +75,11 @@ DragDropManager.prototype.dragStart = function (event) {
   console.log('dragstart', event);
   if (event.target.tagName !== 'AXIOM-VIEW-TITLE')
     return;
+
+  // Mark element as being dragged so that view manager does not delete
+  // it too eagerly during drap-drop operation.
+  event.target.setAttribute('dragged', '');
+
   var view = event.target['axiom-view'];
 
   // Use state to keep track of current drag-drop operation.
@@ -89,7 +92,10 @@ DragDropManager.prototype.dragStart = function (event) {
 
 DragDropManager.prototype.dragEnd = function (event) {
   console.log('dragend', event);
-  var view = event.target;
+  if (event.target.tagName !== 'AXIOM-VIEW-TITLE')
+    return;
+
+  var view = event.target['axiom-view'];
 
   // Done with this operation.
   if (this.dragDropState) {
@@ -99,14 +105,23 @@ DragDropManager.prototype.dragEnd = function (event) {
 
   // Fire custom 'drag-end' event
   this.fire('drag-end', { view: view });
+
+  // Remove title bar element from document after all is set and done.
+  var title = event.target;
+  title.parentElement.removeChild(title);
 };
 
 DragDropManager.prototype.drag = function (event) {
-  console.log('drag', event);
+  //console.log('drag', event);
+  if (event.target.tagName !== 'AXIOM-VIEW-TITLE')
+    return;
+  var title = event.target;
   // Note: Hiding the element should ideally be done in the "dragStart"
   // function, but doing so cancels the drag-drop operation, so we delay
   // hiding the element until the "drag" event is called.
-  event.target.setAttribute('hidden', '');
+  if (!title.hasAttribute('hidden')) {
+    title.setAttribute('hidden', '');
+  }
 };
 
 DragDropManager.prototype.dragEnter = function (event) {
@@ -123,7 +138,7 @@ DragDropManager.prototype.dragLeave = function (event) {
 };
 
 DragDropManager.prototype.dragOver = function (event) {
-  console.log('dragOver', event);
+  //console.log('dragOver', event);
   if (this.dragDropState) {
     this.dragDropState.dragOver(event.path);
     if (this.dragDropState.activeDropTarget) {
@@ -139,9 +154,6 @@ DragDropManager.prototype.drop = function (event) {
     var target = this.dragDropState.activeDropTarget;
     if (target) {
       this.fire('drop-view', target);
-
-      // Note: 'dragend' is not fired when the element is removed.
-      this.dragEnd(event);
     }
   }
 };
