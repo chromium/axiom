@@ -338,6 +338,10 @@ ViewManager.prototype.dragEnd = function(frame, view) {
   this.trackEnd(frame);
 };
 
+ViewManager.prototype.drop = function(frame, detail) {
+  this.insertView(detail.view, detail.target, detail.targetPosition);
+};
+
 ViewManager.prototype.enterViewTitle = function(frame, view) {
   console.log('enter view title', view);
   var document = frame.ownerDocument;
@@ -394,21 +398,28 @@ ViewManager.prototype.createRootFrame = function(document) {
     var frame = document.createElement(AXIOM_FRAME);
     document.body.appendChild(frame);
     frame.setAttribute('fit', '');
-    frame.addEventListener('drop-view', function(e) {
-      //this.moveView(
-      this.insertView(
-        e.detail.view, e.detail.target, e.detail.targetPosition);
-    }.bind(this));
+
+    // Event fired by DragDropManager when a drag operation is starting.
     frame.addEventListener('drag-start', function(e) {
-      console.log('drag-start', e);
       this.dragStart(frame, e.detail.view);
     }.bind(this));
+
+    // Event fired by DragDropManager when a drag operation has ended.
     frame.addEventListener('drag-end', function(e) {
       this.dragEnd(frame, e.detail.view);
     }.bind(this));
+
+    // Event fired by DragDropManager when a view is moved to a new location.
+    frame.addEventListener('drop-view', function(e) {
+      this.drop(frame, e.detail);
+    }.bind(this));
+
+    // Event fired by axiom-view to indicate the mouse entered the title region.
     frame.addEventListener('title-enter', function(e) {
       this.enterViewTitle(frame, e.detail.view);
     }.bind(this));
+
+    // Event fired by axiom-view to indicate the mouse left the title region.
     frame.addEventListener('title-leave', function(e) {
       this.leaveViewTitle(frame, e.detail.view);
     }.bind(this));
