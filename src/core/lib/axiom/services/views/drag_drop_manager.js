@@ -169,28 +169,63 @@ DragDropManager.prototype.drop = function (event) {
 DragDropManager.prototype.mouseOverTitle = function(frame, view) {
   var document = frame.ownerDocument;
 
+  // Delete all existing overlay titles, although there should be at most one.
   var titleElements = document.getElementsByTagName(AXIOM_VIEW_TITLE);
   for (var i = titleElements.length - 1; i >= 0; i--) {
     this.deleteTitleElement(titleElements[i]);
   }
 
+  // Utility function to set the size/position of the title to match exactly
+  // the size/position of the rectangle.
+  var setTitleRect = function(title, rect) {
+    title.style.position = 'absolute';
+    title.style.top = rect.top + 'px';
+    title.style.left = rect.left + 'px';
+    // TODO(rpaquay): 24 = size of "X" button.
+    title.style.width = (rect.width - 24) + 'px';
+    title.style.height = rect.height + 'px';
+  };
+
   var title = document.createElement(AXIOM_VIEW_TITLE);
-  var r = view.headerElement().getBoundingClientRect();
+  var titleRect = view.headerElement().getBoundingClientRect();
   title.id = 'frame-title-track';
   title.setAttribute('draggable', true);
-  title.style.position = 'absolute';
-  title.style.top = r.top + 'px';
-  title.style.left = r.left + 'px';
-  // TODO(rpaquay): 24 = size of "X" button.
-  title.style.width = (r.width - 24) + 'px';
-  title.style.height = r.height + 'px';
   title.style.zIndex = 250;
+  setTitleRect(title, titleRect);
   // TODO(rpaquay): hack so that drag drop manager knows what view is dragged.
   title['axiom-view'] = view;
 
+  // Delete the overlay title when the mouse moves outside of its region.
   title.addEventListener('mouseleave', function(event) {
     this.deleteTitleElement(title);
   }.bind(this));
+
+  // The size of the tracked view may change due to various reasons (including
+  // external), so we poll using requestAnmationFrame for any change in
+  // size/position and adjust the title overlay accordingly.
+  var watchSize = function(timestamp) {
+    // If the title element is not part of the DOM anymore, stop tracking.
+    if (!title.ownerDocument) {
+      //console.log('cancelling polling of title overlay resize', title);
+      return;
+    }
+
+    // Track only if the view is still in the DOM.
+    if (view.ownerDocument) {
+      // Any change in bounding client rect requires a resize of the title.
+      var newTitleRect = view.headerElement().getBoundingClientRect();
+      if (newTitleRect.top !== titleRect.top ||
+          newTitleRect.left !== titleRect.left ||
+          newTitleRect.width !== titleRect.width ||
+          newTitleRect.height !== titleRect.height) {
+        //console.log('resizing title overlay', newTitleRect);
+        setTitleRect(title, newTitleRect);
+        titleRect = newTitleRect;
+      }
+    }
+    document.defaultView.requestAnimationFrame(watchSize);
+  };
+  document.defaultView.requestAnimationFrame(watchSize);
 
   document.body.appendChild(title);
 };
