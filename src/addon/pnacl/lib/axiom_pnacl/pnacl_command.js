@@ -39,24 +39,23 @@ var downloadBinaryFile = function(url) {
 };
 
 // @return {Promise<DirectoryEntry>}
-var createDir = function(rootDirEntry, folders) {
+var createDir = function(parentDirEntry, folders) {
   return new Promise(function(resolve, reject) {
-    // Throw out './' or '/' and move on to prevent something like '/foo/.//bar'.
+    // Throw out './' or '/' and move on to prevent something like
+    // '/foo/.//bar'.
     if (folders[0] === '.' || folders[0] === '') {
       folders = folders.slice(1);
     }
     if (folders.length === 0) {
-      resolve(rootDirEntry);
+      resolve(parentDirEntry);
+      return;
     }
-    rootDirEntry.getDirectory(folders[0], { create: true },
-      function(dirEntry) {
-        // Recursively add the new subfolder (if we still have another to create).
-        if (folders.length === 0) {
-          resolve(dirEntry);
-        }
-
-        createDir(dirEntry, folders.slice(1)).then(function(dirEntry) {
-          resolve(dirEntry);
+    parentDirEntry.getDirectory(folders[0], { create: true },
+      function(childDirEntry) {
+        // Recursively add the new subfolder (if we still have another to
+        // create).
+        createDir(childDirEntry, folders.slice(1)).then(function(newDirEntry) {
+          resolve(newDirEntry);
         }).catch(function(e) {
           reject(e);
         });
@@ -82,22 +81,24 @@ var copyUrToFileSystem = function(url, directoryName, fs) {
         downloadBinaryFile(url).then(function(arrayBuffer) {
           fileEntry.createWriter(function(fileWriter) {
             fileWriter.onwriteend = function(e) {
-              console.log('Write completed.');
+              //console.log('Write completed.');
               resolve();
             };
             fileWriter.onerror = function(e) {
-              console.log('Write failed: ' + e.toString());
+              //console.log('Write failed: ' + e.toString());
               reject(e);
             };
             // Create a new Blob and write it to log.txt.
-            var blob = new Blob([arrayBuffer], { type: 'application/x-tar; charset=utf-8' });
+            var blob = new Blob([arrayBuffer], {
+                type: 'application/x-tar; charset=utf-8'
+            });
             fileWriter.write(blob);
           },
           function(e) {
             reject(e);
           });
         }).catch(function(e) {
-            reject(e);
+          reject(e);
         });
       },
       function(e) {
