@@ -19,8 +19,8 @@ Polymer('axiom-view', {
     this.headerElement = this.headerElement.bind(this);
     this.enterDragMode = this.enterDragMode.bind(this);
     this.leaveDragMode = this.leaveDragMode.bind(this);
-    this.onTitleMouseEnter = this.onTitleMouseEnter.bind(this);
-    this.onTitleMouseLeave = this.onTitleMouseLeave.bind(this);
+    this.onClickCloseIcon = this.onClickCloseIcon.bind(this);
+    this.onMouseOverTitle = this.onMouseOverTitle.bind(this);
     this.setAttribute('relative', '');
   },
   attached: function () {
@@ -29,25 +29,21 @@ Polymer('axiom-view', {
         this.setAttribute('DEBUG', '');
       }
     }
-    this.$.title.addEventListener("mouseenter", this.onTitleMouseEnter);
-    this.$.title.addEventListener("mouseleave", this.onTitleMouseLeave);
   },
   detached: function() {
-    this.$.title.removeEventListener("mouseenter", this.onTitleMouseEnter);
-    this.$.title.removeEventListener("mouseleave", this.onTitleMouseLeave);
+    //this.$.title.removeEventListener("mouseover", this.onMouseOverTitle);
   },
   ready: function() {
-    this.$.closeicon.addEventListener('click', function() {
-      this.fire('close');
-    }.bind(this));
+    console.log("ready", this);
+    this.$.closeicon.addEventListener('click', this.onClickCloseIcon);
+    this.$.title.addEventListener("mouseover", this.onMouseOverTitle);
   },
-  onTitleMouseEnter: function(event) {
-    //console.log('onTitleMouseEnter', event);
-    this.fire("title-enter", { view: this});
+  onClickCloseIcon: function(event) {
+    this.fire('close');
   },
-  onTitleMouseLeave: function(event) {
-    //console.log('onTitleMouseLeave', event);
-    this.fire("title-leave", { view: this});
+  onMouseOverTitle: function(event) {
+    //console.log('onMouseOverTitle', event);
+    this.fire("mouseover-title", { view: this});
   },
   // Used by drag-drop to track active drop anchor
   anchorsElement: function() {

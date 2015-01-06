@@ -41,13 +41,8 @@ DragDropManager.prototype.registerEventListeners = function() {
   var document = frame.ownerDocument;
 
   // Event fired by axiom-view to indicate the mouse entered the title region.
-  frame.addEventListener('title-enter', function(e) {
-    this.enterViewTitle(frame, e.detail.view);
-  }.bind(this));
-
-  // Event fired by axiom-view to indicate the mouse left the title region.
-  frame.addEventListener('title-leave', function(e) {
-    this.leaveViewTitle(frame, e.detail.view);
+  frame.addEventListener('mouseover-title', function(e) {
+    this.mouseOverTitle(frame, e.detail.view);
   }.bind(this));
 
   // Note: dragstart, dragend and drag are fired on the *source* target
@@ -171,7 +166,7 @@ DragDropManager.prototype.drop = function (event) {
   }
 };
 
-DragDropManager.prototype.enterViewTitle = function(frame, view) {
+DragDropManager.prototype.mouseOverTitle = function(frame, view) {
   var document = frame.ownerDocument;
 
   var titleElements = document.getElementsByTagName(AXIOM_VIEW_TITLE);
@@ -198,9 +193,6 @@ DragDropManager.prototype.enterViewTitle = function(frame, view) {
   }.bind(this));
 
   document.body.appendChild(title);
-};
-
-DragDropManager.prototype.leaveViewTitle = function(frame, view) {
 };
 
 DragDropManager.prototype.deleteTitleElement = function(title) {
