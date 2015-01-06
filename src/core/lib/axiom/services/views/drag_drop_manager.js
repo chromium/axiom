@@ -85,7 +85,7 @@ DragDropManager.prototype.registerEventListeners = function() {
 };
 
 DragDropManager.prototype.dragStart = function (event) {
-  console.log('dragstart', event);
+  //console.log('dragstart', event);
   if (event.target.tagName !== AXIOM_VIEW_TITLE)
     return;
 
@@ -104,7 +104,7 @@ DragDropManager.prototype.dragStart = function (event) {
 };
 
 DragDropManager.prototype.dragEnd = function (event) {
-  console.log('dragend', event);
+  //console.log('dragend', event);
   if (event.target.tagName !== AXIOM_VIEW_TITLE)
     return;
   var title = event.target;
@@ -162,7 +162,7 @@ DragDropManager.prototype.dragOver = function (event) {
 };
 
 DragDropManager.prototype.drop = function (event) {
-  console.log('drop', event);
+  //console.log('drop', event);
   if (this.dragDropState) {
     var target = this.dragDropState.activeDropTarget;
     if (target) {
