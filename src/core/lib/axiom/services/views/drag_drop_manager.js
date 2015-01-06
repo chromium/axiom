@@ -24,6 +24,7 @@ var AXIOM_VIEW_TITLE = 'AXIOM-VIEW-TITLE';
 export var DragDropManager = function(frame) {
   this.frame = frame;
   this.dragDropState = null;
+  this.trackingMode = false;
 };
 
 export default DragDropManager;
@@ -43,6 +44,14 @@ DragDropManager.prototype.registerEventListeners = function() {
   // Event fired by axiom-view to indicate the mouse entered the title region.
   frame.addEventListener('mouseover-title', function(e) {
     this.mouseOverTitle(frame, e.detail.view);
+  }.bind(this));
+
+  // Event fired by axiom-splitter when tracking starts/ends.
+  frame.addEventListener('trackstart', function(event) {
+    this.trackStart(event);
+  }.bind(this));
+  frame.addEventListener('trackend', function(event) {
+    this.trackEnd(event);
   }.bind(this));
 
   // Note: dragstart, dragend and drag are fired on the *source* target
@@ -167,6 +176,11 @@ DragDropManager.prototype.drop = function (event) {
 };
 
 DragDropManager.prototype.mouseOverTitle = function(frame, view) {
+  // Skip if we are already tracking mouse events (e.g. for splitters).
+  if (this.trackingMode) {
+    return;
+  }
+
   var document = frame.ownerDocument;
 
   // Delete all existing overlay titles, although there should be at most one.
@@ -230,7 +244,18 @@ DragDropManager.prototype.mouseOverTitle = function(frame, view) {
   document.body.appendChild(title);
 };
 
+DragDropManager.prototype.trackStart = function(event) {
+  //console.log('trackStart', this);
+  this.trackingMode = true;
+};
+
+DragDropManager.prototype.trackEnd = function(event) {
+  //console.log('trackEnd', this);
+  this.trackingMode = false;
+};
+
 DragDropManager.prototype.deleteTitleElement = function(title) {
+  //console.log('delete title element', title);
   // Do not delete title bar if it is in drap-drop mode, because that would
   // interfere with the browser sending a "dragend" event.
   if (!title.hasAttribute('dragged')) {

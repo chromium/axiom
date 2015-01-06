@@ -40,7 +40,7 @@ Polymer('axiom-view', {
   },
   onMouseOverTitle: function(event) {
     //console.log('onMouseOverTitle', event);
-    this.fire("mouseover-title", { view: this});
+    this.fire("mouseover-title", { view: this });
   },
   // Used by drag-drop to track active drop anchor
   anchorsElement: function() {
