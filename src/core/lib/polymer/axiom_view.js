@@ -41,18 +41,12 @@ Polymer('axiom-view', {
       this.fire('close');
     }.bind(this));
   },
-  dragged: '',
-  draggedChanged: function(oldValue, newValue) {
-    if (newValue || newValue === '') {
-      this.$.container.classList.add('dragged');
-    } else {
-      this.$.container.classList.remove('dragged');
-    }
-  },
   onTitleMouseEnter: function(event) {
+    //console.log('onTitleMouseEnter', event);
     this.fire("title-enter", { view: this});
   },
   onTitleMouseLeave: function(event) {
+    //console.log('onTitleMouseLeave', event);
     this.fire("title-leave", { view: this});
   },
   // Used by drag-drop to track active drop anchor
