@@ -30,11 +30,8 @@ Polymer('axiom-view', {
       }
     }
   },
-  detached: function() {
-    //this.$.title.removeEventListener("mouseover", this.onMouseOverTitle);
-  },
   ready: function() {
-    console.log("ready", this);
+    //console.log("ready", this);
     this.$.closeicon.addEventListener('click', this.onClickCloseIcon);
     this.$.title.addEventListener("mouseover", this.onMouseOverTitle);
   },
