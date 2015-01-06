@@ -310,7 +310,9 @@ ViewManager.prototype.hide = function(viewId) {
  * @param {Element} view
  */
 ViewManager.prototype.closeView = function(view) {
-  this.detachView(view);
+  if (view.parentElement) {
+    this.detachView(view);
+  }
   if (view.firstElementChild && view.firstElementChild.viewClosed) {
     view.firstElementChild.viewClosed();
   }
@@ -330,63 +332,21 @@ ViewManager.prototype.trackEnd = function(frame) {
 };
 
 ViewManager.prototype.dragStart = function(frame, view) {
+  view.setAttribute('dragdrop', '1');
   this.detachView(view);
   this.trackStart(frame);
 };
 
 ViewManager.prototype.dragEnd = function(frame, view) {
   this.trackEnd(frame);
+  if (view.hasAttribute('dragdrop')) {
+    this.closeView(view);
+  }
 };
 
 ViewManager.prototype.drop = function(frame, detail) {
   this.insertView(detail.view, detail.target, detail.targetPosition);
-};
-
-ViewManager.prototype.enterViewTitle = function(frame, view) {
-  console.log('enter view title', view);
-  var document = frame.ownerDocument;
-
-  var titles = document.getElementsByTagName('axiom-view-title');
-  for (var i = titles.length - 1; i >= 0; i--) {
-    titles[i].parentElement.removeChild(titles[i]);
-  }
-
-  var title = document.createElement('axiom-view-title');
-  var r = view.headerElement().getBoundingClientRect();
-  title.id = 'frame-title-track';
-  title.setAttribute('draggable', true);
-  title.style.position = 'absolute';
-  title.style.top = r.top + 'px';
-  title.style.left = r.left + 'px';
-  // TODO(rpaquay): 24 = size of "X" button.
-  title.style.width = (r.width - 24) + 'px';
-  title.style.height = r.height + 'px';
-  title.style.zIndex = 250;
-  // TODO(rpaquay): hack so that drag drop manager knows what view is dragged.
-  title['axiom-view'] = view;
-
-  title.addEventListener('mouseenter', function(event) {
-    //console.log('mouseenter', title);
-  }.bind(this));
-
-  title.addEventListener('mouseleave', function(event) {
-    // console.log('mouseleave', title);
-    // Do not delete title bar if it is in in drap-drop move, because
-    // that would interfere with the browser sending a "dragend" event.
-    if (!title.hasAttribute('dragged')) {
-      title.parentElement.removeChild(title);
-    }
-  }.bind(this));
-
-  document.body.appendChild(title);
-};
-
-ViewManager.prototype.leaveViewTitle = function(frame, view) {
-  //console.log('leave view title', view);
-  //var titles = frame.getElementsByTagName('axiom-view-title');
-  //for(var i = 0; i < titles.length; i++) {
-  //  titles[i].parentElement.removeChild(titles[i]);
-  //}
+  detail.view.removeAttribute('dragdrop');
 };
 
 /*
@@ -412,16 +372,6 @@ ViewManager.prototype.createRootFrame = function(document) {
     // Event fired by DragDropManager when a view is moved to a new location.
     frame.addEventListener('drop-view', function(e) {
       this.drop(frame, e.detail);
-    }.bind(this));
-
-    // Event fired by axiom-view to indicate the mouse entered the title region.
-    frame.addEventListener('title-enter', function(e) {
-      this.enterViewTitle(frame, e.detail.view);
-    }.bind(this));
-
-    // Event fired by axiom-view to indicate the mouse left the title region.
-    frame.addEventListener('title-leave', function(e) {
-      this.leaveViewTitle(frame, e.detail.view);
     }.bind(this));
 
     var dragDropManager = new DragDropManager(frame);
