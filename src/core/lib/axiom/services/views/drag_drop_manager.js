@@ -219,13 +219,13 @@ DragDropManager.prototype.mouseOverTitle = function(frame, view) {
   // size/position and adjust the title overlay accordingly.
   var watchSize = function(timestamp) {
     // If the title element is not part of the DOM anymore, stop tracking.
-    if (!title.ownerDocument) {
+    if (!title.parentElement) {
       //console.log('cancelling polling of title overlay resize', title);
       return;
     }
 
     // Track only if the view is still in the DOM.
-    if (view.ownerDocument) {
+    if (view.parentElement) {
       // Any change in bounding client rect requires a resize of the title.
       var newTitleRect = view.headerElement().getBoundingClientRect();
       if (newTitleRect.top !== titleRect.top ||
