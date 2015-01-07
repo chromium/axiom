@@ -1,0 +1,1 @@
+An ace.js based editor for interactively editing source and text files.
