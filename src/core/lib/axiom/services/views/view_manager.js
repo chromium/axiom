@@ -323,9 +323,11 @@ ViewManager.prototype.trackStart = function(frame) {
   forEachFrameViews(frame, function(view) {
     view.enterDragMode();
   });
+  frame.enterDragMode();
 };
 
 ViewManager.prototype.trackEnd = function(frame) {
+  frame.leaveDragMode();
   forEachFrameViews(frame, function(view) {
     view.leaveDragMode();
   });

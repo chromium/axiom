@@ -16,6 +16,8 @@ Polymer('axiom-frame', {
   created: function () {
     this.anchorsElement = this.anchorsElement.bind(this);
     this.dropZones = this.dropZones.bind(this);
+    this.enterDragMode = this.enterDragMode.bind(this);
+    this.leaveDragMode = this.leaveDragMode.bind(this);
     this.setAttribute('relative', '');
   },
   // Used by drag-drop to track active drop anchor
@@ -25,5 +27,17 @@ Polymer('axiom-frame', {
   // Used by drag-drop to access the drop zones
   dropZones: function () {
     return this.$['drop-zones'];
+  },
+  // Called by view manager when entering drag mode.
+  enterDragMode: function() {
+    // Cover the whole area if there are no active view/containers
+    // so that overlapping iframe, etc. are not visible during drag-drop.
+    if (!this.firstElementChild) {
+      this.style.zIndex = '200';
+    }
+  },
+  // Called by view manager when leaving drag mode.
+  leaveDragMode: function() {
+    this.style.zIndex = '';
   },
 });
