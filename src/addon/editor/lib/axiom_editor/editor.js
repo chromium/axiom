@@ -63,6 +63,7 @@ export var EditorView = function(filePath) {
 
       this.editor.focus();
       this.editor.setTheme('ace/theme/monokai');
+      
       this.editor.commands.addCommand({
         name: 'saveFile',
         bindKey: {
@@ -76,14 +77,13 @@ export var EditorView = function(filePath) {
         }).bind(this)
       });
 
-
       this.viewElem_.viewClosed = function() {
         console.log('viewClosed!');
       };
 
-      // this.viewElem_.onmousedown = (function(e) {
-      //   this.editor.focus();
-      //   console.log(e.target);
+      this.viewElem_.onmousedown = (function(e) {
+        this.editor.focus();
+        console.log(e.target);
         
 
       //   // setTimeout( function() {
@@ -93,7 +93,7 @@ export var EditorView = function(filePath) {
       // }).bind(this);
       // document.onclick  = (function(e) {
       //   console.log('click!');
-      // }).bind(this);
+      }).bind(this);
 
       this.displayContents_(this.contents);
     }.bind(this));
