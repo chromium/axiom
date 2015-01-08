@@ -13,6 +13,10 @@ export var EditorView = function(filePath) {
 
   var viewsBinding = environment.getServiceBinding('views@axiom');
   this.whenReady = viewsBinding.whenLoadedAndReady().then(function() {
+      this.fileSystem = environment.getServiceBinding('filesystems@axiom');
+      return this.fileSystem.readFile(filePath, {read: true});
+    }.bind(this)).then(function(data) {
+      this.contents = data.data;
       return viewsBinding.register(this.id, 'div');
     }.bind(this)).then(function() {
       return viewsBinding.show(this.id);
@@ -30,7 +34,7 @@ export var EditorView = function(filePath) {
           'overflow: hidden; ' +
           'pointer-events: none;';
 
-      object.style.cssText = editorCssText + 'background-color: red; z-index: -10;';
+      object.style.cssText = editorCssText;// + 'background-color: red; z-index: -10;';
 
       var onResize = function() {
         console.log('onResize!');
@@ -46,11 +50,11 @@ export var EditorView = function(filePath) {
       object.type = 'text/html';
       object.data = 'about:blank';
 
-      // this.viewElem_.appendChild(object);
+      this.viewElem_.appendChild(object);
 
       var ace = document.createElement('div');
       ace.className = 'editor';
-      ace.style.cssText = editorCssText + 'background-color: green; z-index: 1000;';
+      ace.style.cssText = editorCssText;// + 'background-color: green; z-index: 1000;';
 
       this.viewElem_.appendChild(ace);
 
@@ -77,23 +81,21 @@ export var EditorView = function(filePath) {
         console.log('viewClosed!');
       };
 
-      this.viewElem_.onmousedown = (function(e) {
-        this.editor.focus();
-        console.log(e.target);
+      // this.viewElem_.onmousedown = (function(e) {
+      //   this.editor.focus();
+      //   console.log(e.target);
         
 
-        // setTimeout( function() {
-        //   t.dispatchEvent(e);
-        // }, 1);
-        return true;
-      }).bind(this);
+      //   // setTimeout( function() {
+      //   //   t.dispatchEvent(e);
+      //   // }, 1);
+      //   return true;
+      // }).bind(this);
       // document.onclick  = (function(e) {
       //   console.log('click!');
       // }).bind(this);
 
-      this.fileSystem = environment.getServiceBinding('filesystems@axiom');
-      return this.fileSystem.readFile(filePath, {read: true}).then(
-          this.displayData_.bind(this));
+      this.displayContents_(this.contents);
     }.bind(this));
 };
 

@@ -20,6 +20,8 @@ import EditorView from 'axiom_editor/editor';
 
 // @note ExecuteContext from 'axiom/bindings/fs/execute_context'
 
+var EDIT_CMD_USAGE_STRING = 'usage: edit file';
+
 export var executables = {
   /**
    * Ace.js based editor for editing source files.
@@ -28,14 +30,15 @@ export var executables = {
     cx.ready();
     var arg = cx.arg;
 
-    if (!arg || typeof arg != 'string') {
-      return Promise.reject(new AxiomError.Missing('path'));
+    if ((!arg || typeof arg != 'string') || arg.h || arg.help) {
+      cx.stdout(EDIT_CMD_USAGE_STRING + '\n');
+      return Promise.resolve(null);
     }
 
     var filePath = Path.abs(cx.getEnv('$PWD', '/'), arg);
 
     var editorView = new EditorView(filePath);
-    return Promise.resolve(null);
+    return editorView.whenReady;
   },
 };
 
