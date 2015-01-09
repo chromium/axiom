@@ -31,16 +31,16 @@ Polymer('axiom-view', {
     }
   },
   ready: function() {
-    //console.log("ready", this);
+    //console.log('ready', this);
     this.$.closeicon.addEventListener('click', this.onClickCloseIcon);
-    this.$.title.addEventListener("mouseover", this.onMouseOverTitle);
+    this.$.title.addEventListener('mouseover', this.onMouseOverTitle);
   },
   onClickCloseIcon: function(event) {
     this.fire('close');
   },
   onMouseOverTitle: function(event) {
     //console.log('onMouseOverTitle', event);
-    this.fire("mouseover-title", { view: this });
+    this.fire('mouseover-title', { view: this });
   },
   // Used by drag-drop to track active drop anchor
   anchorsElement: function() {
