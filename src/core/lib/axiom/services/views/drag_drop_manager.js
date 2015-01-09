@@ -24,7 +24,7 @@ var AXIOM_VIEW_TITLE = 'AXIOM-VIEW-TITLE';
 export var DragDropManager = function(frame) {
   this.frame = frame;
   this.dragDropState = null;
-  this.trackingMode = false;
+  this.trackingModeActive = false;
 };
 
 export default DragDropManager;
@@ -47,10 +47,10 @@ DragDropManager.prototype.registerEventListeners = function() {
   }.bind(this));
 
   // Event fired by axiom-splitter when tracking starts/ends.
-  frame.addEventListener('trackstart', function(event) {
+  frame.addEventListener('down', function(event) {
     this.trackStart(event);
   }.bind(this));
-  frame.addEventListener('trackend', function(event) {
+  frame.addEventListener('up', function(event) {
     this.trackEnd(event);
   }.bind(this));
 
@@ -175,9 +175,15 @@ DragDropManager.prototype.drop = function (event) {
   }
 };
 
+// This event is invoked when the mouse cursor enters the area of a view
+// title. In response, we create a "draggable" overlay that will be used
+// in case a drag-drop operations is started. The title overlay is deleted
+// once the mouse cursor leaves the view title area.
 DragDropManager.prototype.mouseOverTitle = function(frame, view) {
-  // Skip if we are already tracking mouse events (e.g. for splitters).
-  if (this.trackingMode) {
+  // Skip if we are already tracking mouse events. When dragging splitters,
+  // for example, this prevents "accidental" creation of title overlays, as
+  // well as jank during drag-drop of the splitter element.
+  if (this.trackingModeActive) {
     return;
   }
 
@@ -186,39 +192,110 @@ DragDropManager.prototype.mouseOverTitle = function(frame, view) {
   // Delete all existing overlay titles, although there should be at most one.
   var titleElements = document.getElementsByTagName(AXIOM_VIEW_TITLE);
   for (var i = titleElements.length - 1; i >= 0; i--) {
+    titleElements[i].removeAttribute('dragged');
     this.deleteTitleElement(titleElements[i]);
   }
 
   // Utility function to set the size/position of the title to match exactly
-  // the size/position of the rectangle.
+  // the size/position of the passed in rectangle.
   var setTitleRect = function(title, rect) {
     title.style.position = 'absolute';
     title.style.top = rect.top + 'px';
     title.style.left = rect.left + 'px';
+    // Note: We don't want to overlay the close view ("x") icon so that the
+    // underlying can still handle it.
     // TODO(rpaquay): 24 = size of "X" button.
     title.style.width = (rect.width - 24) + 'px';
     title.style.height = rect.height + 'px';
   };
 
+  // Create the title overlay element with 'draggable' attribute.
   var title = document.createElement(AXIOM_VIEW_TITLE);
-  var titleRect = view.headerElement().getBoundingClientRect();
   title.id = 'frame-title-track';
   title.setAttribute('draggable', true);
   title.style.zIndex = 250;
+  var titleRect = view.headerElement().getBoundingClientRect();
   setTitleRect(title, titleRect);
   // TODO(rpaquay): hack so that drag drop manager knows what view is dragged.
   title['axiom-view'] = view;
 
-  // Delete the overlay title when the mouse moves outside of its region.
-  title.addEventListener('mouseleave', function(event) {
-    this.deleteTitleElement(title);
-  }.bind(this));
+  // Track mouse up/down events, setting/removing the 'dragged' attribute along
+  // the way. This is needed to make sure the title overlay is not dismissed
+  // too eagerly: When the mouse cursor is at the limit of the title overlay,
+  // and the cursor is moved away from the title overlay, the 'dragstart' event
+  // is slightly delayed by the browser, sometimes to the point where the mouse
+  // cursor moves outside the title overlat. Given we track "mouseleave" events
+  // to know when to delete the title overlay, the overlay would be deleted
+  // early, preventing the browser from firing a "dragstart" event.
+  var mouseDown = false;
+  title.addEventListener('mousedown', function(event) {
+    if (!mouseDown) {
+      mouseDown = true;
+      title.setAttribute('dragged', true);
+    }
+  });
+  title.addEventListener('mouseup', function(event) {
+    if (mouseDown) {
+      mouseDown = false;
+      title.removeAttribute('dragged');
+    }
+  });
 
-  // The size of the tracked view may change due to various reasons (including
-  // external), so we poll using requestAnmationFrame for any change in
-  // size/position and adjust the title overlay accordingly.
+  // We need to track whether we get a "mouseenter" event for the newly created
+  // title overlay, so that we know what to do when we get a "mouseleave" event
+  // (see below).
+  var mouseEnteredTitleOverlay = false;
+  var titleMouseEnterHandler = function(event) {
+    //console.log('********* title mouseenter', event);
+    mouseEnteredTitleOverlay = true;
+    title.removeEventListener('mouseenter', titleMouseEnterHandler);
+  }.bind(this);
+  title.addEventListener('mouseenter', titleMouseEnterHandler);
+
+  // Temporally track all "mouseleave" events on the document (in "useCapture"
+  // mode) so that we know when the mouse cursor leaves the title overlay.
+  // Note that this is somewhat tricky as we get a lot of these events,
+  // including between the 'mousedown' and 'dragstart' events.
+  var mouseleaveHandler = function(event) {
+    //console.log('mouseleave', event);
+
+    // "mouseleave" events *to* the title overlay are fired just after
+    // we create the overlay, because, as we create it with a higher z-index,
+    // the browser considers the mouse cursor is leaving the underlying view to
+    // reach the title overlay element.
+    // We ignore these events, as they are noise for our purposes.
+    if (event.toElement === title) {
+      return;
+    }
+
+    // The common case is that we get a "mouseleave" event for the title
+    // overlay element. However, we may get 'mouseleave' for pretty much any
+    // other element in the document if we have not received a "mouseenter"
+    // for the title overlay.
+    // The later case is rare and seems to happen only when the mouse
+    // cursor is moving fast enough that the browser skips the 'mouseenter'
+    // event for the title overlay (after it is created).
+    // In either case, we delete the title overlay.
+    if (!mouseEnteredTitleOverlay || event.target === title) {
+      //console.log('********* title mouseleave', event);
+      document.removeEventListener('mouseleave', mouseleaveHandler, true);
+      if (title.parentElement) {
+        this.deleteTitleElement(title);
+      }
+    }
+  }.bind(this);
+  document.addEventListener('mouseleave', mouseleaveHandler, true);
+
+  // When the size of the view under the title overlay changes, we need to
+  // adjust the title overlay to the new size.
+  // Note that the size of the tracked view may change due to many reasons
+  // (including "external" ones, such as the browser window is resized).
+  // There is no silver bullet to track these changes using events,  so use
+  // polling via requestAnmationFrame to check for any size/position change.
+  // Note we do this only as long as the title overlay is active.
   var watchSize = function(timestamp) {
     // If the title element is not part of the DOM anymore, stop tracking.
+    // TODO(rpaquay): Should we also stop if the "dragged" attrinute is set?
     if (!title.parentElement) {
       //console.log('cancelling polling of title overlay resize', title);
       return;
@@ -241,17 +318,18 @@ DragDropManager.prototype.mouseOverTitle = function(frame, view) {
   };
   document.defaultView.requestAnimationFrame(watchSize);
 
+  // And finally add the newly created title overlay element to the dom.
   document.body.appendChild(title);
 };
 
 DragDropManager.prototype.trackStart = function(event) {
   //console.log('trackStart', this);
-  this.trackingMode = true;
+  this.trackingModeActive = true;
 };
 
 DragDropManager.prototype.trackEnd = function(event) {
   //console.log('trackEnd', this);
-  this.trackingMode = false;
+  this.trackingModeActive = false;
 };
 
 DragDropManager.prototype.deleteTitleElement = function(title) {
@@ -259,6 +337,8 @@ DragDropManager.prototype.deleteTitleElement = function(title) {
   // Do not delete title bar if it is in drap-drop mode, because that would
   // interfere with the browser sending a "dragend" event.
   if (!title.hasAttribute('dragged')) {
-    title.parentElement.removeChild(title);
+    if (title.parentElement) {
+      title.parentElement.removeChild(title);
+    }
   }
 };
