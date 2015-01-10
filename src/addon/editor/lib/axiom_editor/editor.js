@@ -33,7 +33,7 @@ export var EditorView = function(filePath) {
           'height: 100%; ' +
           'width: 100%; ' +
           'overflow: hidden; ' +
-          'pointer-events: none;';
+          'pointer-events: all;';
 
       object.style.cssText = editorCssText;// + 'background-color: red; z-index: -10;';
 
