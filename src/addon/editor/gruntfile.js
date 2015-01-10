@@ -30,7 +30,7 @@ module.exports = function(grunt) {
     },
 
     watch: {
-      shell: {
+      all: {
         files: ['lib/**/*.js',
                 'lib/**/*.html',
                 'lib/**/*.css',
@@ -105,6 +105,4 @@ module.exports = function(grunt) {
   grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
                                'bower:install', 'copy']);
   grunt.registerTask('default', ['build']);
-
-  grunt.loadNpmTasks('grunt-contrib-watch');
 };

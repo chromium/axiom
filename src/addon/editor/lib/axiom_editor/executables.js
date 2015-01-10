@@ -26,16 +26,16 @@ export var executables = {
   /**
    * Ace.js based editor for editing source files.
    */
-  'edit(*)': function(cx) {
+  'edit(%)': function(cx) {
     cx.ready();
     var arg = cx.arg;
 
-    if ((!arg || typeof arg != 'string') || arg.h || arg.help) {
+    if ((!arg._ || (arg._.length != 1)) || arg.h || arg.help) {
       cx.stdout(EDIT_CMD_USAGE_STRING + '\n');
       return Promise.resolve(null);
     }
 
-    var filePath = Path.abs(cx.getEnv('$PWD', '/'), arg);
+    var filePath = Path.abs(cx.getEnv('$PWD', '/'), arg._[0]);
 
     var editorView = new EditorView(filePath);
     return editorView.whenReady;

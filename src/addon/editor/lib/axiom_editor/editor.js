@@ -24,7 +24,7 @@ export var EditorView = function(filePath) {
       this.viewElem_ = viewElem;
 
       var object = document.createElement('object');
-      var editorCssText = 
+      var editorCssText =
           'display: block; ' +
           'position: absolute; ' +
           'top: 0; ' +
@@ -75,24 +75,9 @@ export var EditorView = function(filePath) {
         }).bind(this)
       });
 
-
       this.viewElem_.viewClosed = function() {
         console.log('viewClosed!');
       };
-
-      // this.viewElem_.onmousedown = (function(e) {
-      //   this.editor.focus();
-      //   console.log(e.target);
-        
-
-      //   // setTimeout( function() {
-      //   //   t.dispatchEvent(e);
-      //   // }, 1);
-      //   return true;
-      // }).bind(this);
-      // document.onclick  = (function(e) {
-      //   console.log('click!');
-      // }).bind(this);
 
       this.displayContents_(this.contents);
     }.bind(this));
