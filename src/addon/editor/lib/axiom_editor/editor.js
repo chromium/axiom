@@ -23,7 +23,6 @@ export var EditorView = function(filePath) {
     }.bind(this)).then(function(viewElem) {
       this.viewElem_ = viewElem;
 
-      var object = document.createElement('object');
       var editorCssText =
           'display: block; ' +
           'position: absolute; ' +
@@ -33,24 +32,6 @@ export var EditorView = function(filePath) {
           'width: 100%; ' +
           'overflow: hidden;';
 
-      object.style.cssText = editorCssText;// + 'background-color: red; z-index: -10;';
-
-      var onResize = function() {
-        console.log('onResize!');
-      }.bind(this);
-
-      object.onload = function() {
-        console.log('onload!');
-        this.contentDocument.defaultView.addEventListener(
-            'resize', onResize);
-        onResize();
-      };
-
-      object.type = 'text/html';
-      object.data = 'about:blank';
-
-      this.viewElem_.appendChild(object);
-
       var ace = document.createElement('div');
       ace.className = 'editor';
       ace.style.cssText = editorCssText;// + 'background-color: green; z-index: 1000;';
@@ -58,7 +39,6 @@ export var EditorView = function(filePath) {
       this.viewElem_.appendChild(ace);
 
       this.editor = window.ace.edit(ace);
-      // this.editor.followObject = object;
 
       this.editor.focus();
       this.editor.setTheme('ace/theme/monokai');
@@ -75,10 +55,6 @@ export var EditorView = function(filePath) {
         }).bind(this)
       });
 
-      this.viewElem_.viewClosed = function() {
-        console.log('viewClosed!');
-      };
-
       this.displayContents_(this.contents);
     }.bind(this));
 };
@@ -86,12 +62,6 @@ export var EditorView = function(filePath) {
 export default EditorView;
 
 EditorView.sequence = 0;
-
-EditorView.raf_ = null;
-
-EditorView.viewClosed = function(followObject) {
-  console.log('viewClosed!');
-};
 
 EditorView.prototype.displayContents_ = function(contents) {
   this.editor.getSession().setValue(contents, -1);
