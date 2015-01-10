@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import AxiomError from 'axiom/core/error';
-import CodeMirror from 'axiom/core/error';
 
 import environment from 'shell/environment';
 
@@ -32,8 +31,7 @@ export var EditorView = function(filePath) {
           'left: 0; ' +
           'height: 100%; ' +
           'width: 100%; ' +
-          'overflow: hidden; ' +
-          'pointer-events: all;';
+          'overflow: hidden;';
 
       object.style.cssText = editorCssText;// + 'background-color: red; z-index: -10;';
 
@@ -54,47 +52,49 @@ export var EditorView = function(filePath) {
       this.viewElem_.appendChild(object);
 
       var ace = document.createElement('div');
-
-
       ace.className = 'editor';
-      ace.style.cssText = editorCssText + 'background-color: green; z-index: 1000;';
+      ace.style.cssText = editorCssText;// + 'background-color: green; z-index: 1000;';
 
       this.viewElem_.appendChild(ace);
 
-      var myCodeMirror = new window.CodeMirror(ace, {
-        value: 'function myScript(){return 100;}\n',
-        mode:  'javascript'
+      this.editor = window.ace.edit(ace);
+      // this.editor.followObject = object;
+
+      this.editor.focus();
+      this.editor.setTheme('ace/theme/monokai');
+      this.editor.commands.addCommand({
+        name: 'saveFile',
+        bindKey: {
+          win: 'Ctrl-S',
+          mac: 'Command-S',
+          sender: 'editor|cli'
+        },
+        exec: (function(env, args, request) {
+          return this.fileSystem.writeFile(filePath, {write: true},
+              {data: this.editor.getSession().getValue()});
+        }).bind(this)
       });
-      
 
-      // this.editor = window.ace.edit(ace);
-
-      myCodeMirror.focus();
-      // this.editor.setTheme('ace/theme/monokai');
-      
-      // this.editor.commands.addCommand({
-      //   name: 'saveFile',
-      //   bindKey: {
-      //     win: 'Ctrl-S',
-      //     mac: 'Command-S',
-      //     sender: 'editor|cli'
-      //   },
-      //   exec: (function(env, args, request) {
-      //     return this.fileSystem.writeFile(filePath, {write: true},
-      //         {data: this.editor.getSession().getValue()});
-      //   }).bind(this)
-      // });
 
       this.viewElem_.viewClosed = function() {
         console.log('viewClosed!');
       };
 
       // this.viewElem_.onmousedown = (function(e) {
-      //   // this.editor.focus();
+      //   this.editor.focus();
       //   console.log(e.target);
+        
+
+      //   // setTimeout( function() {
+      //   //   t.dispatchEvent(e);
+      //   // }, 1);
+      //   return true;
+      // }).bind(this);
+      // document.onclick  = (function(e) {
+      //   console.log('click!');
       // }).bind(this);
 
-      // this.displayContents_(this.contents);
+      this.displayContents_(this.contents);
     }.bind(this));
 };
 
