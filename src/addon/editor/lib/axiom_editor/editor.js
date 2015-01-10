@@ -13,17 +13,19 @@ export var EditorView = function(filePath) {
 
   var viewsBinding = environment.getServiceBinding('views@axiom');
   this.whenReady = viewsBinding.whenLoadedAndReady().then(function() {
-      this.fileSystem = environment.getServiceBinding('filesystems@axiom');
-      return this.fileSystem.readFile(filePath, {read: true});
+      this.fileSystem_ = environment.getServiceBinding('filesystems@axiom');
+      return this.fileSystem_.readFile(filePath, {read: true});
     }.bind(this)).then(function(data) {
-      this.contents = data.data;
+      this.contents_ = data.data;
       return viewsBinding.register(this.id, 'div');
     }.bind(this)).then(function() {
       return viewsBinding.show(this.id);
     }.bind(this)).then(function(viewElem) {
       this.viewElem_ = viewElem;
 
-      var editorCssText =
+      var ace = document.createElement('div');
+      ace.className = 'editor';
+      ace.style.cssText =
           'display: block; ' +
           'position: absolute; ' +
           'top: 0; ' +
@@ -31,11 +33,6 @@ export var EditorView = function(filePath) {
           'height: 100%; ' +
           'width: 100%; ' +
           'overflow: hidden;';
-
-      var ace = document.createElement('div');
-      ace.className = 'editor';
-      ace.style.cssText = editorCssText;// + 'background-color: green; z-index: 1000;';
-
       this.viewElem_.appendChild(ace);
 
       this.editor = window.ace.edit(ace);
@@ -50,12 +47,12 @@ export var EditorView = function(filePath) {
           sender: 'editor|cli'
         },
         exec: (function(env, args, request) {
-          return this.fileSystem.writeFile(filePath, {write: true},
+          return this.fileSystem_.writeFile(filePath, {write: true},
               {data: this.editor.getSession().getValue()});
         }).bind(this)
       });
 
-      this.displayContents_(this.contents);
+      this.displayContents_(this.contents_);
     }.bind(this));
 };
 
