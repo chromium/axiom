@@ -310,7 +310,9 @@ ViewManager.prototype.hide = function(viewId) {
  * @param {Element} view
  */
 ViewManager.prototype.closeView = function(view) {
-  this.detachView(view);
+  if (view.parentElement) {
+    this.detachView(view);
+  }
   if (view.firstElementChild && view.firstElementChild.viewClosed) {
     view.firstElementChild.viewClosed();
   }
@@ -321,12 +323,32 @@ ViewManager.prototype.trackStart = function(frame) {
   forEachFrameViews(frame, function(view) {
     view.enterDragMode();
   });
+  frame.enterDragMode();
 };
 
 ViewManager.prototype.trackEnd = function(frame) {
+  frame.leaveDragMode();
   forEachFrameViews(frame, function(view) {
     view.leaveDragMode();
   });
+};
+
+ViewManager.prototype.dragStart = function(frame, view) {
+  view.setAttribute('dragdrop', '1');
+  this.detachView(view);
+  this.trackStart(frame);
+};
+
+ViewManager.prototype.dragEnd = function(frame, view) {
+  this.trackEnd(frame);
+  if (view.hasAttribute('dragdrop')) {
+    this.closeView(view);
+  }
+};
+
+ViewManager.prototype.drop = function(frame, detail) {
+  this.insertView(detail.view, detail.target, detail.targetPosition);
+  detail.view.removeAttribute('dragdrop');
 };
 
 /*
@@ -338,15 +360,20 @@ ViewManager.prototype.createRootFrame = function(document) {
     var frame = document.createElement(AXIOM_FRAME);
     document.body.appendChild(frame);
     frame.setAttribute('fit', '');
-    frame.addEventListener('drop-view', function(e) {
-      this.moveView(
-        e.detail.view, e.detail.target, e.detail.targetPosition);
-    }.bind(this));
+
+    // Event fired by DragDropManager when a drag operation is starting.
     frame.addEventListener('drag-start', function(e) {
-      this.trackStart(frame);
+      this.dragStart(frame, e.detail.view);
     }.bind(this));
+
+    // Event fired by DragDropManager when a drag operation has ended.
     frame.addEventListener('drag-end', function(e) {
-      this.trackEnd(frame);
+      this.dragEnd(frame, e.detail.view);
+    }.bind(this));
+
+    // Event fired by DragDropManager when a view is moved to a new location.
+    frame.addEventListener('drop-view', function(e) {
+      this.drop(frame, e.detail);
     }.bind(this));
 
     var dragDropManager = new DragDropManager(frame);
@@ -493,17 +520,8 @@ ViewManager.prototype.moveView = function(view, target, position) {
       target = frame; // last resort.
   }
 
-  // Insertion into the main frame is a special case, as the main frame
-  // is neither horizontal or vertical.
-  checkValidFrame(frame);
-  if (target.tagName === AXIOM_FRAME) {
-    this.moveViewIntoFrame(view, target, position);
-  } else if (target.tagName === AXIOM_CONTAINER) {
-    this.moveViewIntoContainer(view, target, position);
-  } else if (target.tagName === AXIOM_VIEW) {
-    this.moveViewNextToView(view, target, position);
-  }
-  checkValidFrame(frame);
+  // Insert view into new location.
+  this.insertView(view, target, position);
 };
 
 /*
