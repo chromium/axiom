@@ -13,15 +13,15 @@
 // limitations under the License.
 
 import AxiomError from 'axiom/core/error';
-
 import ExecuteContextBinding from 'axiom/bindings/fs/execute_context';
-
 import Path from 'axiom/fs/path';
 
+goog.forwardDeclare('DomFileSystem');
+
 /**
+ * @constructor
  * Construct a new context that can be used to invoke an executable.
  *
- * @constructor
  * @param {DomFileSystem} domfs
  * @param {Path} path
  * @param {FileEntry} entry

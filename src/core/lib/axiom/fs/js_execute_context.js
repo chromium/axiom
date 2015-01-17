@@ -17,6 +17,9 @@ import ExecuteContextBinding from 'axiom/bindings/fs/execute_context';
 import JsExecutable from 'axiom/fs/js_executable';
 import Path from 'axiom/fs/path';
 
+goog.forwardDeclare('JsFileSystem');
+goog.forwardDeclare('JsEntry');
+
 /**
  * Construct a new context that can be used to invoke an executable.
  *

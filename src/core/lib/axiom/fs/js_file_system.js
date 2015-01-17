@@ -22,15 +22,17 @@ import JsExecuteContext from 'axiom/fs/js_execute_context';
 import JsOpenContext from 'axiom/fs/js_open_context';
 import JsResolveResult from 'axiom/fs/js_resolve_result';
 
+goog.forwardDeclare('FileSystem');
+
 /**
  * @constructor
  * @param {JsDirectory} opt_rootDirectory An optional directory instance
  *   to use as the root.
- * @param {FileSystemBinding} opt_binding An optional FileSystemBinding
+ * @param {FileSystem} opt_binding An optional FileSystem
  *   instance to bind to.  If not provided, a new binding will be created.
  */
 var JsFileSystem = function(opt_rootDirectory, opt_binding) {
-  this.binding = opt_binding || new FileSystemBinding();
+  this.binding = opt_binding || new FileSystem();
   this.rootDirectory = opt_rootDirectory || new JsDirectory(this);
 
   this.binding.bind(this, {
@@ -51,7 +53,7 @@ export default JsFileSystem;
  * This method is not directly reachable through the FileSystemBinding.
  *
  * @param {Path} path
- * @return {ResolveResult}
+ * @return {JsResolveResult}
  */
 JsFileSystem.prototype.resolve = function(path) {
   if (!path.elements.length)

@@ -15,9 +15,11 @@
 import AxiomError from 'axiom/core/error';
 
 import Path from 'axiom/fs/path';
-import FileSystemBinding from 'axiom/bindings/fs/file_system';
+import FileSystem from 'axiom/bindings/fs/file_system';
 import DomFileSystem from 'axiom/fs/dom_file_system';
 import JsFileSystem from 'axiom/fs/js_file_system';
+
+goog.forwardDeclare('ExtensionBinding');
 
 /**
  * @constructor
@@ -127,7 +129,7 @@ FileSystemManager.prototype.mountDomfs = function(type, mountName, jsDir) {
 FileSystemManager.prototype.onExtend = function(extensionBinding) {
   var sourceModuleId = extensionBinding.sourceModuleBinding.moduleId;
 
-  var fsb = new FileSystemBinding();
+  var fsb = new FileSystem();
   fsb.bind(extensionBinding, {
     'createContext': 'createContext',
     'list': 'list',

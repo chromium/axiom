@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+goog.forwardDeclare('JsResolveResult');
+
 /**
  * @constructor
  * Represents the result of an attempt to resolve a path.
@@ -32,7 +34,7 @@
  * @param {Array<string>} suffixList  The list of path elements that were not.
  * @param {JsEntry} entry  The entry for the final item in prefixList.
  */
-var JsFsResolveResult = function(prefixList, suffixList, entry) {
+var JsResolveResult = function(prefixList, suffixList, entry) {
   this.prefixList = prefixList || [];
   this.suffixList = suffixList || [];
   this.entry = entry;
@@ -40,5 +42,5 @@ var JsFsResolveResult = function(prefixList, suffixList, entry) {
   this.isFinal = (entry && this.suffixList.length === 0);
 };
 
-export {JsFsResolveResult};
-export default JsFsResolveResult;
+export {JsResolveResult};
+export default JsResolveResult;

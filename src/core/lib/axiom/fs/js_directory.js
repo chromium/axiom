@@ -14,7 +14,7 @@
 
 import AxiomError from 'axiom/core/error';
 
-import FileSystemBinding from 'axiom/bindings/fs/file_system';
+import FileSystem from 'axiom/bindings/fs/file_system';
 import Path from 'axiom/fs/path';
 
 import JsEntry from 'axiom/fs/js_entry';
@@ -25,7 +25,7 @@ import JsResolveResult from 'axiom/fs/js_resolve_result';
  * @constructor
  * A directory in a JsFileSystem.
  *
- * A directory can contain JsEntry subclasses and/or FileSystemBindings.
+ * A directory can contain JsEntry subclasses and/or FileSystems.
  *
  * @param {JsFileSystem} jsfs  The parent file system.
  */
@@ -46,7 +46,7 @@ JsDirectory.prototype = Object.create(JsEntry.prototype);
  * the path can be resolved.
  *
  * @param {Path} path An object representing the path to resolve.
- * @param {integer} opt_index The optional index into the path elements where
+ * @param {Number=} opt_index The optional index into the path elements where
  *   we should start resolving.  Defaults to 0, the first path element.
  * @return {JsResolveResult}
  */
@@ -85,7 +85,7 @@ JsDirectory.prototype.entryExists = function(name) {
 /**
  * Link the given entry into this directory.
  *
- * This method is not directly reachable through the FileSystemBinding.
+ * This method is not directly reachable through the FileSystem.
  *
  * @param {string} name  A name to give the entry.
  * @param {JsEntry} entry
@@ -101,23 +101,23 @@ JsDirectory.prototype.link = function(name, entry) {
 };
 
 /**
- * Link the given FileSystemBinding into this directory.
+ * Link the given FileSystem into this directory.
  *
- * This method is not directly reachable through the FileSystemBinding.
+ * This method is not directly reachable through the FileSystem.
  *
  * @param {string} name  A name to give the file system.
- * @param {FileSystemBinding} fileSystemBinding
+ * @param {FileSystem} fileSystem
  */
-JsDirectory.prototype.mount = function(name, fileSystemBinding) {
-  if (!(fileSystemBinding instanceof FileSystemBinding)) {
-    throw new AxiomError.TypeMismatch('instanceof FileSystemBinding',
-                                      fileSystemBinding);
+JsDirectory.prototype.mount = function(name, fileSystem) {
+  if (!(fileSystem instanceof FileSystem)) {
+    throw new AxiomError.TypeMismatch('instanceof FileSystem',
+                                      fileSystem);
   }
 
   if (this.entryMap_.has(name))
     throw new AxiomError.Duplicate('directory-name', name);
 
-  this.entryMap_.set(name, fileSystemBinding);
+  this.entryMap_.set(name, fileSystem);
 };
 
 JsDirectory.prototype.install = function(executables) {
@@ -178,7 +178,7 @@ JsDirectory.prototype.list = function() {
   this.entryMap_.forEach(function(entry, name) {
     var promise;
 
-    if (entry instanceof FileSystemBinding) {
+    if (entry instanceof FileSystem) {
       promise = entry.stat('/');
     } else {
       promise = entry.stat();

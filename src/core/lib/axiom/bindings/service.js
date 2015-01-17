@@ -17,6 +17,8 @@ import AxiomEvent from 'axiom/core/event';
 import BaseBinding from 'axiom/bindings/base';
 import ExtensionBinding from 'axiom/bindings/extension';
 
+goog.forwardDeclare('SourceModuleBinding');
+
 /**
  * @constructor
  * @param {ModuleBinding} moduleBinding  The parent module.

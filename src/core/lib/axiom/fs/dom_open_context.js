@@ -19,10 +19,12 @@ import domfsUtil from 'axiom/fs/domfs_util';
 
 import Path from 'axiom/fs/path';
 
+goog.forwardDeclare('DomFileSystem');
+
 /**
+ * @constructor
  * Construct a new context that can be used to open a file.
  *
- * @constructor
  * @param {DomFileSystem} domfs
  * @param {Path} path
  * @param {Object} arg

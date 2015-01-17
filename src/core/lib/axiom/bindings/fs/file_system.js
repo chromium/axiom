@@ -13,10 +13,12 @@
 // limitations under the License.
 
 import AxiomError from 'axiom/core/error';
-
 import BaseBinding from 'axiom/bindings/base';
 
-export var FileSystem = function() {
+/**
+ * @constructor
+ */
+var FileSystem = function() {
   BaseBinding.call(this, {
     // Create an alias entry.
     alias: {type: 'method', args: ['pathSpecFrom', 'pathSpecTo']},
@@ -41,6 +43,7 @@ export var FileSystem = function() {
   });
 };
 
+export {FileSystem};
 export default FileSystem;
 
 FileSystem.prototype = Object.create(BaseBinding.prototype);

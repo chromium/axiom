@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import AxiomError from 'axiom/core/error';
-
 import JsEntry from 'axiom/fs/js_entry';
+
+goog.forwardDeclare('JsFileSystem');
 
 /**
  * @constructor

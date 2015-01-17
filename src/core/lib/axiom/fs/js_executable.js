@@ -15,13 +15,16 @@
 import AxiomError from 'axiom/core/error';
 import JsEntry from 'axiom/fs/js_entry';
 
+goog.forwardDeclare('ExecuteContext');
+goog.forwardDeclare('JsExecuteContext');
+
 /**
  * @constructor
  * An executable file in a JsFileSystem.
  *
  * @param {JsFileSystem} jsfs  The parent file system.
- * @param {function(JsExecuteContext)} callback  The function to call when the
- *   executable is invoked.
+ * @param {function(ExecuteContext, JsExecuteContext)} callback  The function
+ *   to call when the executable is invoked.
  * @param {string} argSigil  A sigil representing the argument type expected
  *   by this executable.  "$" -> String, "@" -> Array, "%" -> Object,
  *   "*" -> Any.

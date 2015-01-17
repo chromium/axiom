@@ -20,6 +20,8 @@ import JsEntry from 'axiom/fs/js_entry';
 import JsData from 'axiom/fs/js_data';
 import Path from 'axiom/fs/path';
 
+goog.forwardDeclare('FileSystemBinding');
+
 /**
  * Construct a new context that can be used to open a file.
  *

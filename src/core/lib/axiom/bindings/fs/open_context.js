@@ -16,7 +16,7 @@ import AxiomError from 'axiom/core/error';
 import AxiomEvent from 'axiom/core/event';
 
 import BaseBinding from 'axiom/bindings/base';
-import FileSystemBinding from 'axiom/bindings/fs/file_system';
+import FileSystem from 'axiom/bindings/fs/file_system';
 
 /**
  * @constructor
@@ -37,7 +37,7 @@ import FileSystemBinding from 'axiom/bindings/fs/file_system';
  *     write: false, True to enable write operations.
  *   }
  *
- * @param {FileSystemBinding} fileSystem The parent file system.
+ * @param {FileSystem} fileSystem The parent file system.
  * @param {string} pathSpec
  * @param {Object} arg
  */

@@ -17,6 +17,8 @@ import AxiomError from 'axiom/core/error';
 import BaseBinding from 'axiom/bindings/base';
 import ServiceBinding from 'axiom/bindings/service';
 
+goog.forwardDeclare('ModuleManager');
+
 /**
  * @constructor
  * @param {ModuleManager} moduleManager

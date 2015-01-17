@@ -14,20 +14,22 @@
 
 import AxiomError from 'axiom/core/error';
 
-import FileSystemBinding from 'axiom/bindings/fs/file_system';
+import FileSystem from 'axiom/bindings/fs/file_system';
 
 import Path from 'axiom/fs/path';
 import DomExecuteContext from 'axiom/fs/dom_execute_context';
 import DomOpenContext from 'axiom/fs/dom_open_context';
 import domfsUtil from 'axiom/fs/domfs_util';
 
+goog.forwardDeclare('JsResolveResult');
+
 /**
  * @constructor
- * @param {FileSystemBinding} opt_binding An optional FileSystemBinding
+ * @param {FileSystem} opt_binding An optional FileSystemBinding
  * instance to bind to. If not provided, a new binding will be created.
  */
 var DomFileSystem = function(file_system, opt_binding) {
-  this.binding = opt_binding || new FileSystemBinding();
+  this.binding = opt_binding || new FileSystem();
   this.fileSystem = file_system;
 
   this.binding.bind(this, {
@@ -48,7 +50,7 @@ export default DomFileSystem;
  * This method is not directly reachable through the FileSystemBinding.
  *
  * @param {Path} path
- * @return {ResolveResult}
+ * @return {JsResolveResult}
  */
 DomFileSystem.prototype.resolve = function(path) {
   //TODO(grv): resolve directories and read mode bits.
