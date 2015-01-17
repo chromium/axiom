@@ -17,13 +17,15 @@ import AxiomError from 'axiom/core/error';
 import ExtensionBinding from 'axiom/bindings/extension';
 
 /**
+ * @constructor
  * Registry of commands.
  */
-export var CommandManager = function() {
+var CommandManager = function() {
   this.commands_ = {};
   this.extensionBindings_ = [];
 };
 
+export {CommandManager};
 export default CommandManager;
 
 CommandManager.prototype.bind = function(serviceBinding) {

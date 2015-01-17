@@ -17,15 +17,17 @@ import AxiomError from 'axiom/core/error';
 import JsEntry from 'axiom/fs/js_entry';
 
 /**
+ * @constructor
  * @param {JsFileSystem} jsfs
  * @param {Object} value
  * @param {string} opt_modeStr
  */
-export var JsData = function(jsfs, value, opt_modeStr) {
+var JsData = function(jsfs, value, opt_modeStr) {
   JsEntry.call(this, jsfs, opt_modeStr || 'rw');
   this.value_ = value;
 };
 
+export {JsData};
 export default JsData;
 
 JsData.prototype = Object.create(JsEntry.prototype);

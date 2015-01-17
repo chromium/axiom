@@ -16,6 +16,7 @@ import AxiomError from 'axiom/core/error';
 import JsEntry from 'axiom/fs/js_entry';
 
 /**
+ * @constructor
  * An executable file in a JsFileSystem.
  *
  * @param {JsFileSystem} jsfs  The parent file system.
@@ -25,7 +26,7 @@ import JsEntry from 'axiom/fs/js_entry';
  *   by this executable.  "$" -> String, "@" -> Array, "%" -> Object,
  *   "*" -> Any.
  */
-export var JsExecutable = function(jsfs, callback, argSigil) {
+var JsExecutable = function(jsfs, callback, argSigil) {
   JsEntry.call(this, jsfs, 'x');
 
   if (typeof callback != 'function')
@@ -35,6 +36,7 @@ export var JsExecutable = function(jsfs, callback, argSigil) {
   this.argSigil_ = argSigil;
 };
 
+export {JsExecutable};
 export default JsExecutable;
 
 JsExecutable.prototype = Object.create(JsEntry.prototype);
@@ -77,7 +79,7 @@ JsExecutable.prototype.execute = function(jsExecuteContext) {
     }
   ).catch(
     function(value) {
-      if (jsExecuteContext.binding.isReadyState('READY'));
+      if (jsExecuteContext.binding.isReadyState('READY'))
         jsExecuteContext.binding.closeErrorValue(value);
     }
   );

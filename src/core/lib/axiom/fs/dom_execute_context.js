@@ -27,7 +27,7 @@ import Path from 'axiom/fs/path';
  * @param {FileEntry} entry
  * @param {Object} arg
  */
-export var DomExecuteContext = function(domfs, path, entry, arg) {
+var DomExecuteContext = function(domfs, path, entry, arg) {
   this.domfs = domfs;
   this.path = path;
   this.targetEntry = entry;
@@ -39,6 +39,7 @@ export var DomExecuteContext = function(domfs, path, entry, arg) {
   });
 };
 
+export {DomExecuteContext};
 export default DomExecuteContext;
 
 DomExecuteContext.prototype.execute_ = function() {

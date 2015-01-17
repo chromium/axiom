@@ -20,10 +20,9 @@ import ServiceBinding from 'axiom/bindings/service';
 /**
  * @constructor
  * @param {ModuleManager} moduleManager
- * @param {string} moduleId
  * @param {Object} descriptor
  */
-export var ModuleBinding = function(moduleManager, descriptor) {
+var ModuleBinding = function(moduleManager, descriptor) {
   BaseBinding.call(this);
 
   if (!descriptor.id)
@@ -68,6 +67,7 @@ export var ModuleBinding = function(moduleManager, descriptor) {
   }
 };
 
+export {ModuleBinding};
 export default ModuleBinding;
 
 ModuleBinding.prototype = Object.create(BaseBinding.prototype);

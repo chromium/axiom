@@ -25,10 +25,9 @@ import Path from 'axiom/fs/path';
  * @constructor
  * @param {DomFileSystem} domfs
  * @param {Path} path
- * @param {Entry} FileEntry
  * @param {Object} arg
  */
-export var DomOpenContext = function(domfs, path, arg) {
+var DomOpenContext = function(domfs, path, arg) {
   this.domfs = domfs;
   this.path = path;
   this.arg = arg;
@@ -52,6 +51,9 @@ export var DomOpenContext = function(domfs, path, arg) {
     write: this.write_
   });
 };
+
+export {DomOpenContext};
+export default DomOpenContext;
 
 /**
  * If the arg object does not have a 'whence' property, this call succeeds
@@ -162,12 +164,12 @@ DomOpenContext.prototype.read_ = function(arg) {
         this.position_ = end + 1;
         var data = reader.result;
 
-        if (dataType == 'base64-string') {
+        //if (dataType == 'base64-string') {
           // TODO: By the time we read this into a string the data may already
           // have been munged.  We need an ArrayBuffer->Base64 string
           // implementation to make this work for real.
-          data = btoa(data);
-        }
+          //data = btoa(data);
+          //}
         resolve({dataType: dataType, data: data});
       }.bind(this);
 
@@ -206,7 +208,7 @@ DomOpenContext.prototype.write_ = function(arg) {
         // TODO: Once we turn this into a string the data may already have
         // been munged.  We need an ArrayBuffer->Base64 string implementation to
         // make this work for real.
-        blob = new Blob([atob(arg.data)],  {type: 'application/octet-stream'});
+        blob = new Blob([arg.data],  {type: 'application/octet-stream'});
       } else if (dataType == 'utf8-string') {
         blob = new Blob([arg.data],  {type: 'text/plain'});
       } else if (dataType == 'value') {
@@ -236,5 +238,3 @@ DomOpenContext.prototype.write_ = function(arg) {
     }.bind(this));
   }.bind(this));
 };
-
-export default DomOpenContext;

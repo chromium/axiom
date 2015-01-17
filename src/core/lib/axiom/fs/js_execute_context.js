@@ -26,7 +26,7 @@ import Path from 'axiom/fs/path';
  * @param {JsEntry} entry
  * @param {Object} arg
  */
-export var JsExecuteContext = function(jsfs, path, entry, arg) {
+var JsExecuteContext = function(jsfs, path, entry, arg) {
   this.jsfs = jsfs;
   this.path = path;
   this.targetEntry = entry;
@@ -38,6 +38,7 @@ export var JsExecuteContext = function(jsfs, path, entry, arg) {
   });
 };
 
+export {JsExecuteContext};
 export default JsExecuteContext;
 
 JsExecuteContext.prototype.execute_ = function() {

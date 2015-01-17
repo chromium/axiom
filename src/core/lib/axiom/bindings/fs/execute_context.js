@@ -19,14 +19,17 @@ import BaseBinding from 'axiom/bindings/base';
 import FileSystem from 'axiom/bindings/fs/file_system';
 
 /**
+ * @constructor
  * A binding that represents a running executable on FileSystem.
  *
  * You should only create an ExecuteContext by calling an instance of
  * FileSystem..createContext('execute', ...).
  *
- * @param {FileSystem} The parent file system.
+ * @param {FileSystem} fileSystem The parent file system.
+ * @param {string} pathSpec
+ * @param {Object} arg
  */
-export var ExecuteContext = function(fileSystem, pathSpec, arg) {
+var ExecuteContext = function(fileSystem, pathSpec, arg) {
   BaseBinding.call(this);
 
   /**
@@ -86,6 +89,7 @@ export var ExecuteContext = function(fileSystem, pathSpec, arg) {
   };
 };
 
+export {ExecuteContext};
 export default ExecuteContext;
 
 ExecuteContext.prototype = Object.create(BaseBinding.prototype);
@@ -315,7 +319,6 @@ ExecuteContext.prototype.setEnv = function(name, value) {
  * Remove the given environment variable.
  *
  * @param {string} name
- * @param {*} value
  */
 ExecuteContext.prototype.delEnv = function(name) {
   this.assertReadyState('WAIT', 'READY');
@@ -338,8 +341,8 @@ ExecuteContext.prototype.createContext = function(name, pathSpec, arg) {
  * The only signal defined at this time has the name 'Interrupt' and a null
  * value.
  *
- * @param {name}
- * @param {value}
+ * @param {string} name
+ * @param {string} value
  */
 ExecuteContext.prototype.signal = function(name, value) {
   this.assertReady();

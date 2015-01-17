@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Helper class used to track the state of an active drag & drop operation.
-export var DragDropState = function (frame, view) {
+/**
+ * @constructor
+ * Helper class used to track the state of an active drag & drop operation.
+ */
+var DragDropState = function (frame, view) {
   this.frame = frame;
   this.view = view;
 
@@ -24,6 +27,7 @@ export var DragDropState = function (frame, view) {
   this.activeDropTarget = null;
 };
 
+export {DragDropState};
 export default DragDropState;
 
 DragDropState.prototype.dragStart = function(path) {

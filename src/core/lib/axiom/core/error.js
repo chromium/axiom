@@ -13,6 +13,7 @@
 // limitations under the License.
 
 /**
+ * @constructor
  * An error value used when rejecting a promise.
  *
  * TODO(rginda): I haven't used Promises enough yet to know if rejecting a
@@ -21,7 +22,7 @@
  * the case we should change this to a Result class which can indicate
  * "ok" with a result value or "error" with an Err value.
  */
-export var AxiomError = function(name, value) {
+var AxiomError = function(name, value) {
   Error.call(this);
 
   // The Error ctor doesn't seem to apply the message argument correctly, so
@@ -35,6 +36,7 @@ export var AxiomError = function(name, value) {
   this.errorValue = value;
 };
 
+export {AxiomError};
 export default AxiomError;
 
 /**

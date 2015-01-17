@@ -15,6 +15,8 @@
 import AxiomEvent from 'axiom/core/event';
 import BaseBinding from 'axiom/bindings/base';
 
+import ServiceBinding from 'axiom/bindings/service';
+
 /**
  * @constructor
  * @param {ServiceBinding} targetServiceBinding
@@ -22,7 +24,7 @@ import BaseBinding from 'axiom/bindings/base';
  * @param {ModuleBinding} sourceModuleBinding
  * @param {Object} extensionDescriptor
  */
-export var ExtensionBinding = function(
+var ExtensionBinding = function(
     targetServiceBinding, targetServiceDescriptor,
     sourceModuleBinding, extensionDescriptor) {
   BaseBinding.call(this, targetServiceDescriptor['extension-binding']);
@@ -59,6 +61,7 @@ export var ExtensionBinding = function(
     }.bind(this));
 };
 
+export {ExtensionBinding};
 export default ExtensionBinding;
 
 ExtensionBinding.prototype = Object.create(BaseBinding.prototype);

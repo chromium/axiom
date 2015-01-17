@@ -23,7 +23,7 @@ import ExtensionBinding from 'axiom/bindings/extension';
  * @param {string} serviceId
  * @param {Object} serviceDescriptor
  */
-export var ServiceBinding = function(
+var ServiceBinding = function(
     moduleBinding, serviceId, serviceDescriptor) {
   BaseBinding.call(this, serviceDescriptor['service-binding']);
 
@@ -63,6 +63,7 @@ export var ServiceBinding = function(
     }.bind(this));
 };
 
+export {ServiceBinding};
 export default ServiceBinding;
 
 ServiceBinding.prototype = Object.create(BaseBinding.prototype);
@@ -78,7 +79,8 @@ ServiceBinding.prototype.whenLoadedAndReady = function() {
 };
 
 /**
- * @param {ExtensionBinding} extensionBinding
+ * @param {SourceModuleBinding} sourceModuleBinding
+ * @param {Object} extensionDescriptor
  */
 ServiceBinding.prototype.extend = function(
     sourceModuleBinding, extensionDescriptor) {

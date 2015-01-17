@@ -13,14 +13,16 @@
 // limitations under the License.
 
 /**
+ * @constructor
  * A container is a horizontal-box, vertical-box, or tab-strip which fits in
  * a window or another container, and contains views or other containers.
  */
-export var Container = function(options) {
+var Container = function(options) {
   this.options_ = options;
   this.views_ = {};
 };
 
+export {Container};
 export default Container;
 
 Container.prototype.addView = function(viewId) {};

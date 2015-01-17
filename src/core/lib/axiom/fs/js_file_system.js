@@ -23,12 +23,13 @@ import JsOpenContext from 'axiom/fs/js_open_context';
 import JsResolveResult from 'axiom/fs/js_resolve_result';
 
 /**
+ * @constructor
  * @param {JsDirectory} opt_rootDirectory An optional directory instance
  *   to use as the root.
  * @param {FileSystemBinding} opt_binding An optional FileSystemBinding
  *   instance to bind to.  If not provided, a new binding will be created.
  */
-export var JsFileSystem = function(opt_rootDirectory, opt_binding) {
+var JsFileSystem = function(opt_rootDirectory, opt_binding) {
   this.binding = opt_binding || new FileSystemBinding();
   this.rootDirectory = opt_rootDirectory || new JsDirectory(this);
 
@@ -43,6 +44,7 @@ export var JsFileSystem = function(opt_rootDirectory, opt_binding) {
   this.binding.ready();
 };
 
+export {JsFileSystem};
 export default JsFileSystem;
 
 /**
@@ -60,7 +62,7 @@ JsFileSystem.prototype.resolve = function(path) {
 
 /**
  * @param {string} pathSpec
- * @return {Promise<>}
+ * @return {Promise}
  */
 JsFileSystem.prototype.stat = function(pathSpec) {
   if (!pathSpec)
@@ -87,7 +89,7 @@ JsFileSystem.prototype.stat = function(pathSpec) {
  * the JsDirectory returned by `mkdir` doesn't leak through the binding.
  *
  * @param {string} pathSpec
- * @return {Promise<>}
+ * @return {Promise}
  */
 JsFileSystem.prototype.mkdir_ = function(pathSpec) {
   return this.mkdir(pathSpec).then(function() { return null; });
@@ -95,7 +97,7 @@ JsFileSystem.prototype.mkdir_ = function(pathSpec) {
 
 /**
  * @param {string} pathSpec
- * @return {Promise<>}
+ * @return {Promise}
  */
 JsFileSystem.prototype.mkdir = function(pathSpec) {
   var path = new Path(pathSpec);
@@ -133,7 +135,7 @@ JsFileSystem.prototype.mkdir = function(pathSpec) {
  *
  * @param {string} pathSpecFrom
  * @param {string} pathSpecTo
- * @return {Promise<>}
+ * @return {Promise}
  */
 JsFileSystem.prototype.alias = function(pathSpecFrom, pathSpecTo) {
   var pathFrom = new Path(pathSpecFrom);
@@ -212,9 +214,9 @@ JsFileSystem.prototype.alias = function(pathSpecFrom, pathSpecTo) {
  * The destination path must refer to a file that does not yet exist, inside a
  * directory that does.
  *
- * @param {string} pathSpecFrom
- * @param {string} pathSpecTo
- * @return {Promise<>}
+ * @param {string} fromPathSpec
+ * @param {string} toPathSpec
+ * @return {Promise}
  */
 JsFileSystem.prototype.move = function(fromPathSpec, toPathSpec) {
   return this.alias(fromPathSpec, toPathSpec).then(
@@ -225,7 +227,7 @@ JsFileSystem.prototype.move = function(fromPathSpec, toPathSpec) {
 
 /**
  * @param {string} pathSpec
- * @return {Promise<>}
+ * @return {Promise}
  */
 JsFileSystem.prototype.unlink = function(pathSpec) {
   var path = new Path(pathSpec);
@@ -252,7 +254,7 @@ JsFileSystem.prototype.unlink = function(pathSpec) {
 
 /**
  * @param {string} pathSpec
- * @return {Promise<>}
+ * @return {Promise}
  */
 JsFileSystem.prototype.list = function(pathSpec) {
   var path = new Path(pathSpec);

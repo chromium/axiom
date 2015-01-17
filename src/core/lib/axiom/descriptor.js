@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export var descriptor = {
+var descriptor = {
   'id': 'axiom',
   'version': '1.0.0',
 
@@ -156,4 +156,5 @@ export var descriptor = {
   }
 };
 
+export {descriptor};
 export default descriptor;

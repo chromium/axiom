@@ -16,7 +16,7 @@
  * @constructor
  * @param {string} spec
  */
-export var Path = function(spec) {
+var Path = function(spec) {
   this.originalSpec = spec; // the path you gave.
 
   this.isValid = true;  // True if the path was parsed, false if not.
@@ -46,6 +46,7 @@ export var Path = function(spec) {
   this.spec = this.elements.join('/');
 };
 
+export {Path};
 export default Path;
 
 /**

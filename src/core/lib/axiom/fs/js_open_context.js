@@ -29,7 +29,7 @@ import Path from 'axiom/fs/path';
  * @param {JsEntry} entry
  * @param {Object} arg
  */
-export var JsOpenContext = function(jsfs, path, entry, arg) {
+var JsOpenContext = function(jsfs, path, entry, arg) {
   this.jsfs = jsfs;
   this.path = path;
   this.targetEntry = entry;
@@ -45,6 +45,9 @@ export var JsOpenContext = function(jsfs, path, entry, arg) {
 
   this.binding.ready();
 };
+
+export {JsOpenContext};
+export default JsOpenContext;
 
 JsOpenContext.prototype.open_ = function() {
   if (!(this.targetEntry.mode & (JsEntry.mode.r | JsEntry.mode.w))) {

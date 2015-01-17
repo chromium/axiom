@@ -18,15 +18,17 @@ import DragDropState from 'axiom/services/views/drag_drop_state';
 
 var AXIOM_VIEW_TITLE = 'AXIOM-VIEW-TITLE';
 
-/*
+/**
+ * @constructor
  * Drag & drop manager for a given AXIOM-FRAME
  */
-export var DragDropManager = function(frame) {
+var DragDropManager = function(frame) {
   this.frame = frame;
   this.dragDropState = null;
   this.trackingModeActive = false;
 };
 
+export {DragDropManager};
 export default DragDropManager;
 
 DragDropManager.prototype.activate = function() {

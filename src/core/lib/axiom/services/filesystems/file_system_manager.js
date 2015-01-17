@@ -20,13 +20,15 @@ import DomFileSystem from 'axiom/fs/dom_file_system';
 import JsFileSystem from 'axiom/fs/js_file_system';
 
 /**
+ * @constructor
  * Registry of filesystems.
  */
-export var FileSystemManager = function() {
+var FileSystemManager = function() {
   this.extensionBindings_ = [];
   this.jsfs_ = new JsFileSystem();
 };
 
+export {FileSystemManager};
 export default FileSystemManager;
 
 /**
@@ -120,7 +122,7 @@ FileSystemManager.prototype.mountDomfs = function(type, mountName, jsDir) {
  * and the binding should provide a 'get' function which takes (name) and
  * returns a promise to the requested filesystem.
  *
- * @param {ExtensionBinding} extension
+ * @param {ExtensionBinding} extensionBinding
  */
 FileSystemManager.prototype.onExtend = function(extensionBinding) {
   var sourceModuleId = extensionBinding.sourceModuleBinding.moduleId;

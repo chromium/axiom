@@ -22,17 +22,19 @@ import JsExecutable from 'axiom/fs/js_executable';
 import JsResolveResult from 'axiom/fs/js_resolve_result';
 
 /**
+ * @constructor
  * A directory in a JsFileSystem.
  *
  * A directory can contain JsEntry subclasses and/or FileSystemBindings.
  *
  * @param {JsFileSystem} jsfs  The parent file system.
  */
-export var JsDirectory = function(jsfs) {
+var JsDirectory = function(jsfs) {
   JsEntry.call(this, jsfs, 'd');
   this.entryMap_ = new Map();
 };
 
+export {JsDirectory};
 export default JsDirectory;
 
 JsDirectory.prototype = Object.create(JsEntry.prototype);
@@ -86,10 +88,10 @@ JsDirectory.prototype.entryExists = function(name) {
  * This method is not directly reachable through the FileSystemBinding.
  *
  * @param {string} name  A name to give the entry.
- * @param {JsEntry}
+ * @param {JsEntry} entry
  */
 JsDirectory.prototype.link = function(name, entry) {
-  if (!entry instanceof JsEntry)
+  if (!(entry instanceof JsEntry))
     throw new AxiomError.TypeMismatch('instanceof JsEntry', entry);
 
   if (this.entryMap_.has(name))
@@ -104,10 +106,10 @@ JsDirectory.prototype.link = function(name, entry) {
  * This method is not directly reachable through the FileSystemBinding.
  *
  * @param {string} name  A name to give the file system.
- * @param {FileSystemBinding}
+ * @param {FileSystemBinding} fileSystemBinding
  */
 JsDirectory.prototype.mount = function(name, fileSystemBinding) {
-  if (!fileSystemBinding instanceof FileSystemBinding) {
+  if (!(fileSystemBinding instanceof FileSystemBinding)) {
     throw new AxiomError.TypeMismatch('instanceof FileSystemBinding',
                                       fileSystemBinding);
   }
@@ -154,7 +156,7 @@ JsDirectory.prototype.mkdir = function(name) {
  * Remove the entry with the given name.
  *
  * @param {string} name
- * @return {Promise<>}
+ * @return {Promise}
  */
 JsDirectory.prototype.unlink = function(name) {
   if (!this.entryExists(name))

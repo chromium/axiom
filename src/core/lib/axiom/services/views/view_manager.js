@@ -38,7 +38,7 @@ var AXIOM_FRAME = 'AXIOM-FRAME';
 var AXIOM_SPLITTER = 'AXIOM-SPLITTER';
 var AXIOM_VIEW = 'AXIOM-VIEW';
 
-/*
+/**
  * Check the given 'axiom-view' element is valid.
  * @param {Element} view
  */
@@ -54,7 +54,7 @@ var checkValidView = function(view) {
   */
 };
 
-/*
+/**
  * Check the given 'axiom-container' element is valid.
  * @param {Element} container
  */
@@ -88,7 +88,7 @@ var checkValidContainer = function(container) {
   }
 };
 
-/*
+/**
  * Check the given 'axiom-frame' element is valid.
  * @param {Element} frame
  */
@@ -107,10 +107,10 @@ var checkValidFrame = function(frame) {
   }
 };
 
-/*
+/**
  * Calls a function on each view contained in a frame.
  * @param {Element} frame
- * @param {function} callback
+ * @param {function(HTMLElement)} callback
  */
 var forEachFrameViews = function(frame, callback) {
   Check.eq(frame.tagName, AXIOM_FRAME);
@@ -121,12 +121,12 @@ var forEachFrameViews = function(frame, callback) {
   }
 };
 
-/*
+/**
  * Polymer splitter elements don't re-ajust themselves automically
  * with changes to the DOM. The purpose of this function is to
  * force all splitter elements to refresh themselves.
  *
- * @param {Element} frame
+ * @param {HTMLElement} container
  */
 var fixupSplitters = function(container) {
   Check.eq(container.tagName, AXIOM_CONTAINER);
@@ -137,7 +137,8 @@ var fixupSplitters = function(container) {
   }
 };
 
-/*
+/**
+ * @constructor
  * Simple encapsulation around 'axiom-view' elements.
  * @param {Element} rawView
  */
@@ -190,14 +191,16 @@ ViewWrapper.prototype.isFirstChild = function() {
 };
 
 /**
+ * @constructor
  * Registry of views that can be placed in windows.
  */
-export var ViewManager = function(moduleManager) {
+var ViewManager = function(moduleManager) {
   this.moduleManager_ = moduleManager;
   this.views_ = new Map();
   this.extensionBindings_ = new Set();
 };
 
+export {ViewManager};
 export default ViewManager;
 
 /**
@@ -306,7 +309,7 @@ ViewManager.prototype.hide = function(viewId) {
     return Promise.reject(AxiomError.NotFound('view', viewId));
 };
 
-/*
+/**
  * @param {Element} view
  */
 ViewManager.prototype.closeView = function(view) {
@@ -351,7 +354,7 @@ ViewManager.prototype.drop = function(frame, detail) {
   detail.view.removeAttribute('dragdrop');
 };
 
-/*
+/**
  * @param {Document} document
  * @return {Promise}  A promise resolvinf to the 'axiom-frame' element.
  */
@@ -398,7 +401,7 @@ ViewManager.prototype.createRootFrame = function(document) {
   });
 };
 
-/*
+/**
  * @param {Document} document
  * @param {string} tagName
  * @return {Element}  The 'axiom-view' element.
@@ -417,7 +420,7 @@ ViewManager.prototype.createViewElement = function(document, tagName) {
   return viewElement;
 };
 
-/*
+/**
  * @param {Document} document
  * @return {Element} The 'axiom-splitter' element.
  */
@@ -433,7 +436,7 @@ ViewManager.prototype.createSplitter = function(document) {
   return splitter;
 };
 
-/*
+/**
  * @param {Element} view  Update the view element attributes so that it fits
  * the whole parent frame.
  */
@@ -444,7 +447,7 @@ ViewManager.prototype.makeSingleViewFrame = function(view) {
   return view;
 };
 
-/*
+/**
  * Return the parent 'axiom-frame' element of a given child element.
  * @param {Element} element
  */
@@ -473,7 +476,7 @@ ViewManager.prototype.insertView = function(view, target, position) {
   }
 };
 
-/*
+/**
  * Moves a view from it current container to a new location relative to a
  * target element.
  *
@@ -524,7 +527,7 @@ ViewManager.prototype.moveView = function(view, target, position) {
   this.insertView(view, target, position);
 };
 
-/*
+/**
  * @param {Element} view  The 'axiom-view' element to move.
  * @param {Element} targetContainer  The container the view moves into.
  * @param {string} position  The position in the container ('left', 'right',
@@ -576,7 +579,7 @@ ViewManager.prototype.moveViewIntoContainer =
   }
 };
 
-/*
+/**
  * @param {Element} view
  * @param {Element} targetView
  * @param {string} position
@@ -629,7 +632,7 @@ ViewManager.prototype.moveViewNextToView =
   }
 };
 
-/*
+/**
  * @param {Element} view
  * @param {Element} frame
  * @param {string} position
@@ -703,7 +706,7 @@ ViewManager.prototype.moveViewIntoFrame = function(view, frame, position) {
   }
 };
 
-/*
+/**
  * @param {Element} rawView
  */
 ViewManager.prototype.detachView = function(rawView) {
@@ -754,7 +757,7 @@ ViewManager.prototype.detachView = function(rawView) {
   return view;
 };
 
-/*
+/**
  * Ensure the set of element inside [container] are layed out according to
  * the invariants of a Container constraints.
  *

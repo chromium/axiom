@@ -12,18 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SemVer from 'semver';
+//import SemVer from 'semver';
+
 import AxiomError from 'axiom/core/error';
 import ModuleBinding from 'axiom/bindings/module';
 
 /**
  * @constructor
  */
-export var ModuleManager = function() {
+var ModuleManager = function() {
   // The registry of modules, keyed by module id.
   this.moduleBindings_ = new Map();
 };
 
+export {ModuleManager};
 export default ModuleManager;
 
 /**
@@ -37,8 +39,8 @@ export default ModuleManager;
 ModuleManager.prototype.defineModule = function(descriptor) {
   if (this.moduleBindings_.has(descriptor.id))
     throw new AxiomError.Duplicate('module-id', descriptor.id);
-  if (!SemVer.valid(descriptor.version))
-    throw new AxiomError.Invalid('version', descriptor.version);
+  //  if (!SemVer.valid(descriptor.version))
+  //  throw new AxiomError.Invalid('version', descriptor.version);
 
   var moduleBinding = new ModuleBinding(this, descriptor);
   this.moduleBindings_.set(moduleBinding.moduleId, moduleBinding);
@@ -65,6 +67,7 @@ ModuleManager.prototype.getModuleBinding = function(dependencyExpr) {
   if (!moduleBinding)
     throw new AxiomError.NotFound('module-id', moduleId);
 
+  /*
   if (expr) {
     var range;
     try {
@@ -77,12 +80,14 @@ ModuleManager.prototype.getModuleBinding = function(dependencyExpr) {
     if (!range.test(moduleBinding.version))
       throw new AxiomError.Incompatible('dependency-expr', dependencyExpr);
   }
+  */
 
   return moduleBinding;
 };
 
 /**
  * @param {string} moduleServiceId  String of the form "serviceName@moduleName".
+ * @return {ServiceBinding}
  */
 ModuleManager.prototype.getServiceBinding = function(moduleServiceId) {
   var ary = moduleServiceId.split('@');

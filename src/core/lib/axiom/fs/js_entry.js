@@ -21,11 +21,12 @@ import Path from 'axiom/fs/path';
  * @param {JsFileSystem} jsfs  The parent file system.
  * @param {string} modeStr
  */
-export var JsEntry = function(jsfs, modeStr) {
+var JsEntry = function(jsfs, modeStr) {
   this.jsfs = jsfs;
   this.mode = Path.modeStringToInt(modeStr);
 };
 
+export {JsEntry};
 export default JsEntry;
 
 /**

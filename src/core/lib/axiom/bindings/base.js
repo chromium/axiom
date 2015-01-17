@@ -24,8 +24,9 @@ import AxiomEvent from 'axiom/core/event';
  *
  * @param {Object} opt_descriptor Optional descriptor defining the "bindable"
  *   properties.
+ * @constructor
  */
-export var BaseBinding = function(opt_descriptor) {
+var BaseBinding = function(opt_descriptor) {
   this.readyState = BaseBinding.state.WAIT;
 
   this.isOpen = false;
@@ -56,6 +57,7 @@ export var BaseBinding = function(opt_descriptor) {
     this.describe(opt_descriptor);
 };
 
+export {BaseBinding};
 export default BaseBinding;
 
 BaseBinding.state = {

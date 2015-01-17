@@ -22,10 +22,11 @@ import DomOpenContext from 'axiom/fs/dom_open_context';
 import domfsUtil from 'axiom/fs/domfs_util';
 
 /**
+ * @constructor
  * @param {FileSystemBinding} opt_binding An optional FileSystemBinding
  * instance to bind to. If not provided, a new binding will be created.
  */
-export var DomFileSystem = function(file_system, opt_binding) {
+var DomFileSystem = function(file_system, opt_binding) {
   this.binding = opt_binding || new FileSystemBinding();
   this.fileSystem = file_system;
 
@@ -40,6 +41,7 @@ export var DomFileSystem = function(file_system, opt_binding) {
   this.binding.ready();
 };
 
+export {DomFileSystem};
 export default DomFileSystem;
 
 /**
@@ -58,7 +60,7 @@ DomFileSystem.prototype.resolve = function(path) {
 
 /**
  * @param {string} pathSpec
- * @return {Promise<>}
+ * @return {Promise}
  */
 DomFileSystem.prototype.stat = function(pathSpec) {
   return domfsUtil.getFileOrDirectory(this.fileSystem.root, pathSpec).then(
@@ -72,7 +74,7 @@ DomFileSystem.prototype.stat = function(pathSpec) {
  * the DomDirectory returned by `mkdir` doesn't leak through the binding.
  *
  * @param {string} pathSpec
- * @return {Promise<>}
+ * @return {Promise}
  */
 DomFileSystem.prototype.mkdir_ = function(pathSpec) {
   return this.mkdir(pathSpec).then(function() {
@@ -82,7 +84,7 @@ DomFileSystem.prototype.mkdir_ = function(pathSpec) {
 
 /**
  * @param {string} pathSpec
- * @return {Promise<>}
+ * @return {Promise}
  */
 DomFileSystem.prototype.mkdir = function(pathSpec) {
   var path = new Path(pathSpec);
@@ -127,7 +129,7 @@ DomFileSystem.prototype.mkdir = function(pathSpec) {
  *
  * @param {string} pathSpecFrom
  * @param {string} pathSpecTo
- * @return {Promise<>}
+ * @return {Promise}
  */
 DomFileSystem.prototype.alias = function(pathSpecFrom, pathSpecTo) {
     return Promise.reject(new AxiomError.NotImplemented('To be implemented.'));
@@ -143,9 +145,9 @@ DomFileSystem.prototype.alias = function(pathSpecFrom, pathSpecTo) {
  * The destination path must refer to a file that does not yet exist, inside a
  * directory that does.
  *
- * @param {string} pathSpecFrom
- * @param {string} pathSpecTo
- * @return {Promise<>}
+ * @param {string} fromPathSpec
+ * @param {string} toPathSpec
+ * @return {Promise}
  */
 DomFileSystem.prototype.move = function(fromPathSpec, toPathSpec) {
   return Promise.reject(new AxiomError.NotImplemented('To be implemented.'));
@@ -153,7 +155,7 @@ DomFileSystem.prototype.move = function(fromPathSpec, toPathSpec) {
 
 /**
  * @param {string} pathSpec
- * @return {Promise<>}
+ * @return {Promise}
  */
 DomFileSystem.prototype.unlink = function(pathSpec) {
   var path = new Path(pathSpec);
@@ -189,7 +191,7 @@ DomFileSystem.prototype.unlink = function(pathSpec) {
 
 /**
  * @param {string} pathSpec
- * @return {Promise<>}
+ * @return {Promise}
  */
 DomFileSystem.prototype.list = function(pathSpec) {
   return domfsUtil.listDirectory(this.fileSystem.root, pathSpec).then(

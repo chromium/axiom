@@ -29,8 +29,6 @@ export var main = function() {
     'mm': moduleManager
   };
 
-  var axiomModule = moduleManager.defineModule(axiomDescriptor);
-
   var ary = [
       ['filesystems', FileSystemManager],
       ['commands', CommandManager],

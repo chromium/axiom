@@ -15,13 +15,15 @@
 import AxiomError from 'axiom/core/error';
 
 /**
+ * @constructor
  * Registry of opened windows.
  */
-export var WindowManager = function() {
+var WindowManager = function() {
   this.windows_ = new Map();
   this.extensionBindings_ = [];
 };
 
+export {WindowManager};
 export default WindowManager;
 
 /**
@@ -48,7 +50,7 @@ WindowManager.prototype.onExtend = function(extensionBinding) {
   this.extensionBindings_.push(extensionBinding);
 };
 
-/*
+/**
  * @param {Document} document
  */
 WindowManager.prototype.createRootFrame = function(document) {
@@ -58,7 +60,7 @@ WindowManager.prototype.createRootFrame = function(document) {
   document.body.appendChild(frame);
 };
 
-/*
+/**
  * @param {string} id  The window identifier
  */
 WindowManager.prototype.openWindow = function(id) {

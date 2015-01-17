@@ -19,6 +19,7 @@ import BaseBinding from 'axiom/bindings/base';
 import FileSystemBinding from 'axiom/bindings/fs/file_system';
 
 /**
+ * @constructor
  * A binding that represents an open file on a FileSystem.
  *
  * You should only create an OpenContext by calling an instance of
@@ -40,7 +41,7 @@ import FileSystemBinding from 'axiom/bindings/fs/file_system';
  * @param {string} pathSpec
  * @param {Object} arg
  */
-export var OpenContext = function(fileSystem, pathSpec, arg) {
+var OpenContext = function(fileSystem, pathSpec, arg) {
   BaseBinding.call(this);
 
   this.describeMethod('open', {type: 'method', arg: []},
@@ -77,6 +78,7 @@ export var OpenContext = function(fileSystem, pathSpec, arg) {
   this.didOpen_ = false;
 };
 
+export {OpenContext};
 export default OpenContext;
 
 OpenContext.prototype = Object.create(BaseBinding.prototype);
@@ -144,7 +146,7 @@ OpenContext.dataTypes = [
  *
  * @param {Object} arg The arguments object to check.
  *
- * @return {Promise<>} Promise rejects with an AxiomError if the check fails,
+ * @return {Promise} Promise rejects with an AxiomError if the check fails,
  *   resolves with no value if the check passes.
  */
 OpenContext.prototype.checkArg_ = function(arg) {
