@@ -16,42 +16,53 @@ import AxiomError from 'axiom/core/error';
 import AxiomEvent from 'axiom/core/event';
 
 /**
+ * @fileoverview
+ * @suppress {reportUnknownTypes}
+ */
+
+/**
+ * @constructor
  * The base class for bindings, which includes the ability to mark the binding
  * as 'ready'.
  *
  * A binding that is ready has had all of its event handlers attached such that
  * it's able to communication with the underlying implementation.
  *
- * @param {Object} opt_descriptor Optional descriptor defining the "bindable"
+ * @param {Object=} opt_descriptor Optional descriptor defining the "bindable"
  *   properties.
- * @constructor
  */
 var BaseBinding = function(opt_descriptor) {
   this.readyState = BaseBinding.state.WAIT;
 
   this.isOpen = false;
 
+  /** @type {?*} */
   this.readyValue = null;
+
+  /** @type {?string} */
   this.closeReason = null;
+
+  /** @type {?*} */
   this.closeValue = null;
 
-  this.onReady = new AxiomEvent(function(value) {
+  this.onReady = new AxiomEvent(function(/** * */ value) {
       this.readyValue = value;
       this.readyState = BaseBinding.state.READY;
       this.isOpen = true;
     }.bind(this));
 
-  this.onClose = new AxiomEvent(function(reason, value) {
-      this.closeReason = (reason == 'ok' ? 'ok' : 'error');
-      this.closeValue = value;
-      this.isOpen = false;
+  this.onClose = new AxiomEvent(function(/** string */ reason,
+                                         /** * */ value) {
+    this.closeReason = (reason == 'ok' ? 'ok' : 'error');
+    this.closeValue = value;
+    this.isOpen = false;
 
-      if (reason == 'ok') {
-        this.readyState = BaseBinding.state.CLOSED;
-      } else {
-        this.readyState = BaseBinding.state.ERROR;
-      }
-    }.bind(this));
+    if (reason == 'ok') {
+      this.readyState = BaseBinding.state.CLOSED;
+    } else {
+      this.readyState = BaseBinding.state.ERROR;
+    }
+  }.bind(this));
 
   if (opt_descriptor)
     this.describe(opt_descriptor);
@@ -60,6 +71,7 @@ var BaseBinding = function(opt_descriptor) {
 export {BaseBinding};
 export default BaseBinding;
 
+/** @enum {string} */
 BaseBinding.state = {
   WAIT: 'WAIT',
   READY: 'READY',
@@ -67,22 +79,42 @@ BaseBinding.state = {
   CLOSED: 'CLOSED'
 };
 
+/**
+ * Attach to a bindable methods on this instance.
+ *
+ * Call sites look like:
+ *   $b->bind(this, { 'doSomething': this.doSomething_, ...})
+ *
+ * You can also use the form:
+ *   $b->bind(this, { 'doSomething': 'doSomething_', ...})
+
+ * @param {?Object} self The object to use as `this` when invoking the target
+ *   function, or null to execute the function as-is.
+ * @param {Object<string, (function(...)|string)>} obj A map of
+ *   bindable-method-names to target functions.
+ */
 BaseBinding.prototype.bind = function(self, obj) {
   for (var name in obj) {
+    /**
+     * The method or property we're trying to bind to.
+     * @type {function(...)}
+     */
     var target = this[name];
 
     if (!target)
       throw new AxiomError.NotFound('bind-target', name);
 
-    var impl = obj[name];
-    if (self && typeof impl == 'string')
-      impl = self[impl];
+    /**
+     * The method implementation or property value being bound.
+     * @type {function(...)}
+     */
+    var impl = (self && typeof obj[name] == 'string') ? self[impl] : obj[name];
 
     if (typeof target == 'function') {
       if (!('impl' in target))
         throw new AxiomError.Invalid('bind-target', name);
 
-      if (target.impl)
+      if (target.impl != null)
         throw new AxiomError.Duplicate('bind-target', name);
 
       if (typeof impl != 'function')
