@@ -21,6 +21,9 @@
  * resolve a promise to an error value for non-fatal failures.  If that's
  * the case we should change this to a Result class which can indicate
  * "ok" with a result value or "error" with an Err value.
+ *
+ * @param {string} name
+ * @param {*} value
  */
 var AxiomError = function(name, value) {
   Error.call(this);
@@ -28,11 +31,17 @@ var AxiomError = function(name, value) {
   // The Error ctor doesn't seem to apply the message argument correctly, so
   // we set it by hand instead.  The message property gives DevTools an
   // informative message to dump for uncaught exceptions.
+  /** @const {string} */
   this.message = name + ': ' + JSON.stringify(value);
+
   // Similar with the stack property.
+  /** @const {string} */
   this.stack = (new Error()).stack;
 
+  /** @const {string} */
   this.errorName = name;
+
+  /** @const {*} */
   this.errorValue = value;
 };
 
@@ -44,44 +53,158 @@ export default AxiomError;
  */
 AxiomError.prototype = Object.create(Error.prototype);
 
+/** @const {string} */ AxiomError.errorName = 'AxiomError';
+/** @const {Array} */ AxiomError.argNames = [];
+
+/**
+ * Checks if the given error object is an instance of AxiomError.
+ *
+ * This method is also copied onto all AxiomError subclasses, where it can
+ * be used to check if the error object is an instance of the particular
+ * subclass.
+ *
+ * @this {function(...)}
+ * @param {Object} err
+ */
+AxiomError.test = function(err) {
+  return (err instanceof AxiomError && err.errorName === this.errorName);
+};
+
 AxiomError.prototype.toString = function() {
   return 'AxiomError: ' + this.message;
 };
 
-// Define a function which will construct a new error with the given name.
-// The constructor will also have a static 'test(err)' method which
-// returns true if the given AxiomError instance has the same name.
-export var mkerr = function(name, argNames) {
-  var ctor = function(/* ... */) {
-    if (arguments.length != argNames.length) {
-      throw new Error('Not enough arguments for error :' + name +
-                      ', got: ' + arguments.length + ', expected: ' +
-                      argNames.length);
-    }
+/**
+ * @param {Array<*>} args
+ */
+AxiomError.prototype.init = function(args) {
+  this.errorName = this.constructor.errorName
+  var argNames = this.constructor.argNames;
 
-    var value = {};
-    for (var i = 0; i < argNames.length; i++) {
-      value[argNames[i]] = arguments[i];
-    }
+  if (args.length != argNames.length) {
+    throw new Error('Not enough arguments for error :' + this.errorName +
+                    ', got: ' + args.length + ', expected: ' +
+                    argNames.length);
+  }
 
-    return new AxiomError(name, value);
-  };
+  this.errorValue = {};
+  for (var i = 0; i < argNames.length; i++) {
+    this.errorValue[argNames[i]] = args[i];
+  }
 
-  ctor.test = function(err) {
-    return (err instanceof AxiomError && err.errorName ===  name);
-  };
-
-  AxiomError[name] = ctor;
 };
 
-mkerr('Duplicate', ['type', 'value']);
-mkerr('Incompatible', ['type', 'value']);
-mkerr('Interrupt', []);
-mkerr('Invalid', ['type', 'value']);
-mkerr('Missing', ['type']);
-mkerr('NotFound', ['type', 'value']);
-mkerr('NotImplemented', ['msg']);
-mkerr('ParentClosed', ['reason', 'value']);
-mkerr('Runtime', ['message']);
-mkerr('TypeMismatch', ['expectedType', 'gotValue']);
-mkerr('Unknown', ['value']);
+/**
+ * @param {Object<string, function(...)>} map
+ */
+AxiomError.subclasses = function(map) {
+  for (var name in map) {
+    AxiomError.subclass(map[name], name);
+  }
+};
+
+/**
+ * @param {function(...)} ctor
+ * @param {string=} opt_name
+ */
+AxiomError.subclass = function(ctor, opt_name) {
+  var match = ctor.toString().match(/^function [^\(]*\(([^\)]*)\)/);
+  if (!match)
+    throw new Error('Error parsing AxiomError constructor: ' + ctor.toString());
+
+  var /** Array<string> */ argNames = [];
+
+  if (match[1])
+    ctor.argNames = match[1].split(/\s*,\s*/);
+
+  ctor.errorName = opt_name || ctor.name;
+  ctor.test = AxiomError.test.bind(ctor);
+};
+
+AxiomError.subclasses({
+  'Duplicate':
+  /**
+   * @constructor @extends{AxiomError}
+   *
+   * @param {string} type
+   * @param {*} value
+   */
+  AxiomError.Duplicate = function(type, value) { this.init(arguments) },
+
+  'Incompatible':
+  /**
+   * @constructor @extends{AxiomError}
+   * @param {string} type
+   * @param {*} value
+   */
+  AxiomError.Incompatible = function(type, value) { this.init(arguments) },
+
+  'Interrupt':
+  /**
+   * @constructor @extends{AxiomError}
+   */
+  AxiomError.Interrupt = function() { this.init(arguments) },
+
+  'Invalid':
+  /**
+   * @constructor @extends{AxiomError}
+   * @param {string} type
+   * @param {*} value
+   */
+  AxiomError.Invalid = function(type, value) { this.init(arguments) },
+
+  'Missing':
+  /**
+   * @constructor @extends{AxiomError}
+   * @param {string} type
+   * @param {*} value
+   */
+  AxiomError.Missing = function(type, value) { this.init(arguments) },
+
+  'NotFound':
+  /**
+   * @constructor @extends{AxiomError}
+   * @param {string} type
+   * @param {*} value
+   */
+  AxiomError.NotFound = function(type, value) { this.init(arguments) },
+
+  'NotImplemented':
+  /**
+   * @constructor @extends{AxiomError}
+   * @param {string} message
+   */
+  AxiomError.NotImplemented = function(message) { this.init(arguments) },
+
+  'ParentClosed':
+  /**
+   * @constructor @extends{AxiomError}
+   * @param {string} reason
+   * @param {*} value
+   */
+  AxiomError.ParentClosed = function(reason, value) { this.init(arguments) },
+
+  'Runtime':
+  /**
+   * @constructor @extends{AxiomError}
+   * @param {string} message
+   */
+  AxiomError.Runtime = function(message) { this.init(arguments) },
+
+  'TypeMismatch':
+  /**
+   * @constructor @extends{AxiomError}
+   * @param {string} expectedType
+   * @param {*} gotValue
+   */
+  AxiomError.TypeMismatch = function(expectedType, gotValue) {
+    this.init(arguments);
+  },
+
+  'Unknown':
+  /**
+   * @constructor @extends{AxiomError}
+   * @param {*} value
+   */
+  AxiomError.Unknown = function(value) { this.init(arguments) },
+});
