@@ -19,7 +19,7 @@ goog.forwardDeclare('ServiceBinding');
 goog.forwardDeclare('ModuleBinding');
 
 /**
- * @constructor
+ * @constructor @extends{BaseBinding}
  * @param {ServiceBinding} targetServiceBinding
  * @param {Object} targetServiceDescriptor
  * @param {ModuleBinding} sourceModuleBinding

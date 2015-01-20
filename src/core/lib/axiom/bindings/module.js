@@ -20,7 +20,7 @@ import ServiceBinding from 'axiom/bindings/service';
 goog.forwardDeclare('ModuleManager');
 
 /**
- * @constructor
+ * @constructor @extends {BaseBinding};
  * @param {ModuleManager} moduleManager
  * @param {Object} descriptor
  */
@@ -34,12 +34,19 @@ var ModuleBinding = function(moduleManager, descriptor) {
     throw new AxiomError.Missing('version');
 
   this.moduleManager = moduleManager;
+
+  /** @type {string} */
   this.moduleId = descriptor.id;
+
+  /** @type {string} */
   this.version = descriptor.version;
+
+  /** @type {Object} */
   this.descriptor = descriptor;
 
   /**
    * Services that we provide, keyed by the bare service id.
+   * @type {Map}
    */
   this.serviceBindings_ = new Map();
 
@@ -56,6 +63,7 @@ var ModuleBinding = function(moduleManager, descriptor) {
 
   /**
    * Extensions we define, keyed by the target module-service-id.
+   * @type {Map}
    */
   this.extensionBindings_ = new Map();
 
@@ -74,12 +82,21 @@ export default ModuleBinding;
 
 ModuleBinding.prototype = Object.create(BaseBinding.prototype);
 
+/** @type {string} */
+ModuleBinding.prototype.moduleId;
+
+/**
+ * @param {string} serviceId
+ */
 ModuleBinding.prototype.getServiceBinding = function(serviceId) {
   if (!this.serviceBindings_.has(serviceId))
     throw new AxiomError.NotFound('service-id', serviceId);
   return this.serviceBindings_.get(serviceId);
 };
 
+/**
+ * @param {string} moduleServiceId
+ */
 ModuleBinding.prototype.getExtensionBinding = function(moduleServiceId) {
   if (!this.extensionBindings_.has(moduleServiceId))
     throw new AxiomError.NotFound('module-service-id', moduleServiceId);

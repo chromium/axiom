@@ -17,7 +17,7 @@ import AxiomEvent from 'axiom/core/event';
 import BaseBinding from 'axiom/bindings/base';
 import ExtensionBinding from 'axiom/bindings/extension';
 
-goog.forwardDeclare('SourceModuleBinding');
+goog.forwardDeclare('ModuleBinding');
 
 /**
  * @constructor
@@ -81,7 +81,7 @@ ServiceBinding.prototype.whenLoadedAndReady = function() {
 };
 
 /**
- * @param {SourceModuleBinding} sourceModuleBinding
+ * @param {ModuleBinding} sourceModuleBinding
  * @param {Object} extensionDescriptor
  */
 ServiceBinding.prototype.extend = function(
