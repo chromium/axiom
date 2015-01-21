@@ -97,7 +97,7 @@ ExtensionBinding.subclass = function(
 ExtensionBinding.prototype.whenLoadedAndReady = function() {
   if (this.isReadyState('WAIT')) {
     console.log('Loading and waiting for extension: ' +
-                this.sourceModule.moduleId + ' => ' +
+                this.sourceModuleBinding.moduleId + ' => ' +
                 this.targetServiceBinding.serviceId);
     this.onLoadRequest.fire();
     return this.whenReady();

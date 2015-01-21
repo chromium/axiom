@@ -19,8 +19,8 @@ import BaseBinding from 'axiom/bindings/base';
 import FileSystem from 'axiom/bindings/fs/file_system';
 
 /**
- * @constructor
- * A binding that represents a running executable on FileSystem.
+ * @constructor @extends {BaseBinding}
+ * A binding that represents a running executable on a FileSystem.
  *
  * You should only create an ExecuteContext by calling an instance of
  * FileSystem..createContext('execute', ...).
@@ -114,6 +114,9 @@ ExecuteContext.prototype.executePromise = function() {
 
   return promise;
 };
+
+// Replaced with describeMethod later.
+ExecuteContext.prototype.execute = function() {};
 
 ExecuteContext.prototype.execute_ = function() {
   if (this.didExecute_) {

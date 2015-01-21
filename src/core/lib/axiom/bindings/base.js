@@ -16,11 +16,6 @@ import AxiomError from 'axiom/core/error';
 import AxiomEvent from 'axiom/core/event';
 
 /**
- * @fileoverview
- * @suppress {reportUnknownTypes}
- */
-
-/**
  * @constructor
  * The base class for bindings, which includes the ability to mark the binding
  * as 'ready'.
@@ -147,6 +142,11 @@ BaseBinding.prototype.describe = function(descriptor) {
   }
 };
 
+/**
+ * @param {string} name
+ * @param {Object} args
+ * @param {function(...)=} opt_first
+ */
 BaseBinding.prototype.describeMethod = function(name, args, opt_first) {
   var f = function() {
     if (!f.impl)
@@ -168,7 +168,10 @@ BaseBinding.prototype.describeMethod = function(name, args, opt_first) {
   this[name] = f;
 };
 
-BaseBinding.prototype.isReadyState = function(/* stateName , ... */) {
+/**
+ * @param {...string} var_args
+ */
+BaseBinding.prototype.isReadyState = function(var_args) {
   for (var i = 0; i < arguments.length; i++) {
     var stateName = arguments[i];
     if (!BaseBinding.state.hasOwnProperty(stateName))
@@ -186,11 +189,17 @@ BaseBinding.prototype.assertReady = function() {
     throw new Error('Invalid ready call: ' + this.readyState);
 };
 
-BaseBinding.prototype.assertReadyState = function(/* stateName , ... */) {
+/**
+ * @param {...string} var_args
+ */
+BaseBinding.prototype.assertReadyState = function(var_args) {
   if (!this.isReadyState.apply(this, arguments))
     throw new Error('Invalid ready call: ' + this.readyState);
 };
 
+/**
+ * @param {BaseBinding} otherReady
+ */
 BaseBinding.prototype.dependsOn = function(otherReady) {
   otherReady.onClose.addListener(function() {
       if (this.isReadyState('CLOSED', 'ERROR'))

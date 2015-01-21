@@ -16,7 +16,7 @@ import AxiomError from 'axiom/core/error';
 import BaseBinding from 'axiom/bindings/base';
 
 /**
- * @constructor
+ * @constructor @extends {BaseBinding}
  */
 var FileSystem = function() {
   BaseBinding.call(this, {

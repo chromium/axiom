@@ -62,7 +62,7 @@ export default AxiomEvent;
 AxiomEvent.prototype.fire = function(var_args) {};
 
 /**
- * @param {...*} var_args
+ * @param {...} var_args
  */
 AxiomEvent.prototype.fire_ = function(var_args) {
   var rv;
@@ -85,7 +85,7 @@ AxiomEvent.prototype.fire_ = function(var_args) {
  * Add a callback function that unregisters itself after the first callback.
  *
  * @param {function(...)} callback The function to call back.
- * @param {Object} opt_obj The optional |this| object to apply the function
+ * @param {Object=} opt_obj The optional |this| object to apply the function
  *   to.  You can use this in place of bind() so you don't have to save
  *   the bound function for a future call to removeListener.
  */
@@ -102,7 +102,7 @@ AxiomEvent.prototype.listenOnce = function(callback, opt_obj) {
  * Add a callback function.
  *
  * @param {function(...)} callback The function to call back.
- * @param {Object} opt_obj The optional |this| object to apply the function
+ * @param {Object=} opt_obj The optional |this| object to apply the function
  *   to.  You can use this in place of bind() so you don't have to save
  *   the bound function for a future call to removeListener.
  */
@@ -118,7 +118,7 @@ AxiomEvent.prototype.addListener = function(callback, opt_obj) {
  * Remove a callback function.
  *
  * @param {function(...)} callback The callback function to remove.
- * @param {Object} opt_obj The optional |this| object passed when registering
+ * @param {Object=} opt_obj The optional |this| object passed when registering
  *   this observer.
 */
 AxiomEvent.prototype.removeListener = function(callback, opt_obj) {

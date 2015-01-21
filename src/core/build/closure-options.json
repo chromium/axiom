@@ -3,7 +3,10 @@
   "language_out": "ES5_STRICT",
   "rewrite_es6_modules": null,
   "jscomp_off": [
-    "misplacedTypeAnnotation"
+    "misplacedTypeAnnotation",
+    "reportUnknownTypes",
+    "internetExplorerChecks",
+    "newCheckTypes"
   ],
   "jscomp_error": [
     "accessControls",
@@ -25,15 +28,12 @@
     "fileoverviewTags",
     "globalThis",
     "inferredConstCheck",
-    "internetExplorerChecks",
     "invalidCasts",
     "missingGetCssName",
     "missingProperties",
     "missingProvide",
     "missingReturn",
-    "newCheckTypes",
     "nonStandardJsDocs",
-    "reportUnknownTypes",
     "suspiciousCode",
     "strictModuleDepCheck",
     "typeInvalidation",
