@@ -1,5 +1,5 @@
 {
-  "name": "axiom_shell",
+  "name": "shell",
   "version": "1.0.0",
   "description": "Web Application Shell on Axiom.",
   "repository": {
@@ -23,6 +23,8 @@
     "grunt-contrib-watch": "^0.6.1"
   },
   "dependencies": {
-    "axiom": "^1.0.0"
+    "axiom": "^1.0.0",
+    "hterm": "^2.0.0",
+    "minimist": "^1.1.0"
   }
 }

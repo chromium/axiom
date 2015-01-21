@@ -1,6 +1,16 @@
-// Copyright (c) 2014 The Axiom Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 module.exports = function(grunt) {
   // Load the grunt related dev deps listed in package.json.
@@ -36,6 +46,20 @@ module.exports = function(grunt) {
       }
     },
 
+    npm_adapt: {
+      // This is a custom task defined in ./build/tasks/ which adapts simple
+      // npm module to our module system.
+      main: {
+        files: [
+          {
+            cwd: 'out/amd/lib/npm/',
+            src: 'node_modules/minimist/index.js',
+            dest: 'minimist.js'
+          }
+        ]
+      }
+    },
+
     copy: {
       chrome_app: {
         files: [
@@ -52,7 +76,7 @@ module.exports = function(grunt) {
           // Copy application polymer elements
           { expand: true,
             cwd: 'lib/',
-            src: ['polymer/**/*.html', 'polymer/**/*.js'],
+            src: ['polymer/**/*.html', 'polymer/**/*.css', 'polymer/**/*.js'],
             dest: 'out/chrome_app/'
           },
           { expand: true,
@@ -67,7 +91,7 @@ module.exports = function(grunt) {
             dest: 'out/chrome_app/js/'
           },
           { expand: true,
-            cwd: 'third_party/',
+            cwd: 'node_modules/hterm/dist/amd/lib/',
             src: ['hterm.amd.min.js'],
             dest: 'out/chrome_app/js/'
           },
@@ -80,6 +104,11 @@ module.exports = function(grunt) {
             cwd: 'out/concat/lib',
             src: [pkg.name + '.amd.js'],
             dest: 'out/chrome_app/js/'
+          },
+          { expand: true,
+            cwd: 'out/concat/lib',
+            src: [pkg.name + '_npm_deps.amd.js'],
+            dest: 'out/web_app/js/'
           }
         ]
       },
@@ -99,7 +128,7 @@ module.exports = function(grunt) {
           // Copy application polymer elements
           { expand: true,
             cwd: 'lib/',
-            src: ['polymer/**/*.html', 'polymer/**/*.js'],
+            src: ['polymer/**/*.html', 'polymer/**/*.css', 'polymer/**/*.js'],
             dest: 'out/web_app/'
           },
           { expand: true,
@@ -115,7 +144,7 @@ module.exports = function(grunt) {
             dest: 'out/web_app/js/'
           },
           { expand: true,
-            cwd: 'third_party/',
+            cwd: 'node_modules/hterm/dist/amd/lib/',
             src: ['hterm.amd.min.js'],
             dest: 'out/web_app/js/'
           },
@@ -129,6 +158,11 @@ module.exports = function(grunt) {
           { expand: true,
             cwd: 'out/concat/lib',
             src: [pkg.name + '.amd.js'],
+            dest: 'out/web_app/js/'
+          },
+          { expand: true,
+            cwd: 'out/concat/lib',
+            src: [pkg.name + '_npm_deps.amd.js'],
             dest: 'out/web_app/js/'
           }
         ]
@@ -162,6 +196,12 @@ module.exports = function(grunt) {
     },
 
     concat: {
+      npm: {
+        // Concatenate all of our npm deps into a single file.  (We only
+        // have one dep right now.)
+        src: ['out/amd/lib/npm/**/*.js'],
+        dest: 'out/concat/lib/' + pkg.name + '_npm_deps.amd.js'
+      },
       lib: {
         // Concatenate the AMD version of the transpiled source into a single
         // library.
@@ -229,8 +269,8 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
-                               'concat', 'uglify', 'copy:chrome_app',
-                               'copy:web_app']);
+                               'npm_adapt', 'concat', 'uglify',
+                               'copy:chrome_app', 'copy:web_app']);
   grunt.registerTask('dist', ['build', 'copy:dist']);
 
   grunt.registerTask('reload_chrome_app',

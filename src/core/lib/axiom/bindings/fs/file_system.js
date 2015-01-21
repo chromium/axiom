@@ -1,6 +1,16 @@
-// Copyright (c) 2014 The Axiom Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import AxiomError from 'axiom/core/error';
 
@@ -52,34 +62,25 @@ FileSystem.prototype = Object.create(BaseBinding.prototype);
  *   OpenContext..read() call.
  */
 FileSystem.prototype.readFile = function(path, openArg, readArg) {
+  if (!openArg)
+    openArg = {};
+  openArg.read = true;
+
   readArg = readArg || {};
-  return new Promise(function(resolve, reject) {
-    var openContext = new this.createContext('open', path, openArg);
-    openContext.then(function(ocx) {
-      ocx.onClose.addListener(function(value) {
-          if (!ocx.readyValue)
-          reject(ocx.closeValue);
-      });
 
-      ocx.onReady.addListener(function() {
-        ocx.read(readArg).then(function(result) {
-          resolve(result);
-          ocx.closeOk(null);
-        }).catch(function(e) {
-          ocx.closeOk(null);
-          reject(e);
+  return this.createContext('open', path, openArg).then(
+    function(ocx) {
+      return ocx.open().then(
+        function() {
+          return ocx.read(readArg).then(function(result) {
+            ocx.closeOk(null);
+            return Promise.resolve(result);
+          }).catch(function(e) {
+            ocx.closeErrorValue(e);
+            return Promise.reject(e);
+          });
         });
-      });
-
-      if (!openArg)
-        openArg = {};
-
-      openArg.read = true;
-      ocx.open(path, openArg).catch(function(e) {
-        reject(e);
-      });
-    }.bind(this));
-  }.bind(this));
+    });
 };
 
 /**
@@ -96,32 +97,24 @@ FileSystem.prototype.readFile = function(path, openArg, readArg) {
  *   OpenContext..write() call.
  */
 FileSystem.prototype.writeFile = function(path, openArg, writeArg) {
-  return new Promise(function(resolve, reject) {
-    var openContext = new this.createContext('open', path, openArg);
-    openContext.then(function(ocx) {
-      ocx.onClose.addListener(function(value) {
-        if (!ocx.readyValue)
-          reject(ocx.closeValue);
-      });
+  if (!openArg)
+    openArg = {};
 
-      ocx.onReady.addListener(function() {
-        ocx.write(writeArg).then(function(result) {
-          ocx.closeOk(null);
-          resolve(result);
-        }).catch(function(e) {
-          ocx.closeOk(null);
-          reject(e);
+  openArg.write = true;
+
+  writeArg = writeArg || {};
+
+  return this.createContext('open', path, openArg).then(
+    function(ocx) {
+      return ocx.open().then(
+        function() {
+          return ocx.write(writeArg).then(function(result) {
+            ocx.closeOk(null);
+            return Promise.resolve(result);
+          }).catch(function(e) {
+            ocx.closeErrorValue(e);
+            return Promise.reject(e);
+          });
         });
-      });
-
-      if (!openArg)
-        openArg = {};
-
-      if (!openArg.mode)
-        openArg.mode = {};
-
-      openArg.mode = 'write';
-      ocx.open(path, openArg);
-    }.bind(this));
-  }.bind(this));
+   });
 };

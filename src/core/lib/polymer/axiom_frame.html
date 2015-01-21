@@ -1,33 +1,46 @@
 <!--
-  Copyright (c) 2014 The Axiom Authors. All rights reserved.
-  Use of this source code is governed by a BSD-style license that can be
-  found in the LICENSE file.
--->
+  -- Copyright 2014 Google Inc. All rights reserved.
+  --
+  -- Licensed under the Apache License, Version 2.0 (the "License");
+  -- you may not use this file except in compliance with the License.
+  -- You may obtain a copy of the License at
+  --
+  --     http://www.apache.org/licenses/LICENSE-2.0
+  --
+  -- Unless required by applicable law or agreed to in writing, software
+  -- distributed under the License is distributed on an \"AS IS\" BASIS,
+  -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  -- See the License for the specific language governing permissions and
+  -- limitations under the License.
+  -->
 
 <html>
 <head>
   <link rel="import" href="bower_components/polymer/polymer.html">
   <link rel="import" href="axiom_container.html">
   <link rel="import" href="axiom_view.html">
+  <link rel="import" href="axiom_view_title.html">
   <link rel="import" href="axiom_splitter.html">
   <link rel="import" href="axiom_anchors.html">
+  <link rel="import" href="axiom_drop_zones.html">
 </head>
 <body>
   <polymer-element name="axiom-frame">
     <template>
       <style>
+        :host {
+          background: white;
+        }
         :host([debug]) {
           /* TODO(rpaquay): debug only */
           border-width: 4px;
           border-style: solid;
           border-color: bisque;
         }
-        #anchors {
-          background: rgba(30,0,0,0.5);
-        }
       </style>
-     <content></content>
-     <axiom-anchors id="anchors"></axiom-anchors>
+      <content></content>
+      <axiom-anchors id="anchors"></axiom-anchors>
+      <axiom-drop-zones id="drop-zones" hidden></axiom-drop-zones>
     </template>
     <script src="axiom_frame.js"></script>
   </polymer-element>

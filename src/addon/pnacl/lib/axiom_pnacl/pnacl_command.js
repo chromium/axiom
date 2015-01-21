@@ -1,6 +1,16 @@
-// Copyright (c) 2014 The Axiom Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import SpawnNacl from 'axiom_pnacl/spawn_nacl';
 
@@ -29,24 +39,23 @@ var downloadBinaryFile = function(url) {
 };
 
 // @return {Promise<DirectoryEntry>}
-var createDir = function(rootDirEntry, folders) {
+var createDir = function(parentDirEntry, folders) {
   return new Promise(function(resolve, reject) {
-    // Throw out './' or '/' and move on to prevent something like '/foo/.//bar'.
+    // Throw out './' or '/' and move on to prevent something like
+    // '/foo/.//bar'.
     if (folders[0] === '.' || folders[0] === '') {
       folders = folders.slice(1);
     }
     if (folders.length === 0) {
-      resolve(rootDirEntry);
+      resolve(parentDirEntry);
+      return;
     }
-    rootDirEntry.getDirectory(folders[0], { create: true },
-      function(dirEntry) {
-        // Recursively add the new subfolder (if we still have another to create).
-        if (folders.length === 0) {
-          resolve(dirEntry);
-        }
-
-        createDir(dirEntry, folders.slice(1)).then(function(dirEntry) {
-          resolve(dirEntry);
+    parentDirEntry.getDirectory(folders[0], { create: true },
+      function(childDirEntry) {
+        // Recursively add the new subfolder (if we still have another to
+        // create).
+        createDir(childDirEntry, folders.slice(1)).then(function(newDirEntry) {
+          resolve(newDirEntry);
         }).catch(function(e) {
           reject(e);
         });
@@ -72,22 +81,24 @@ var copyUrToFileSystem = function(url, directoryName, fs) {
         downloadBinaryFile(url).then(function(arrayBuffer) {
           fileEntry.createWriter(function(fileWriter) {
             fileWriter.onwriteend = function(e) {
-              console.log('Write completed.');
+              //console.log('Write completed.');
               resolve();
             };
             fileWriter.onerror = function(e) {
-              console.log('Write failed: ' + e.toString());
+              //console.log('Write failed: ' + e.toString());
               reject(e);
             };
             // Create a new Blob and write it to log.txt.
-            var blob = new Blob([arrayBuffer], { type: 'application/x-tar; charset=utf-8' });
+            var blob = new Blob([arrayBuffer], {
+                type: 'application/x-tar; charset=utf-8'
+            });
             fileWriter.write(blob);
           },
           function(e) {
             reject(e);
           });
         }).catch(function(e) {
-            reject(e);
+          reject(e);
         });
       },
       function(e) {
@@ -124,21 +135,24 @@ var copyUrlToTemporaryStorage = function(cx, url, directoryName) {
 
 /**
  * Creates a command that invokes a PNaCl executable.
- * @param {String} commandName The name of the PNaCl command, without
+ * @param {String} name The name of the PNaCl command, without
  *   extension (e.g. "vim").
- * @param {String} sourceUrl The Url of the extesion.
- * @param {String} tarFilename Optional name of the tar file associated to
+ * @param {String} sourceUrl The Url of the extension.
+ * @param {String} opt_tarFilename Optional name of the tar file associated to
  *   the PNaCl command (e.g. "vim.tar").
+ * @param {Object} opt_env Optional enviroment variables to add to the execution
+ *   context before running the command.
  */
-export var PnaclCommand = function(commandName, sourceUrl, tarFilename) {
-  this.commandName = commandName;
-  this.tarFilename = tarFilename;
+export var PnaclCommand = function(name, sourceUrl, opt_tarFilename, opt_env) {
+  this.commandName = name;
   this.sourceUrl = sourceUrl;
+  this.tarFilename = opt_tarFilename;
+  this.env = opt_env;
   var index = sourceUrl.lastIndexOf('/');
   if (index == sourceUrl.length - 1)
     this.baseUrl = this.sourceUrl;
   else
-    this.baseUrl = this.sourceUrl(0, index + 1);
+    this.baseUrl = this.sourceUrl.substr(0, index + 1);
 };
 
 PnaclCommand.prototype.run = function(cx) {
@@ -153,6 +167,12 @@ PnaclCommand.prototype.run = function(cx) {
     }.bind(this));
     cx.ready();
 
+    //this.runPnacl(cx);
+
+    // TODO(rpaquay): Remove this code (and [copyUrlToTemporaryStorage]) when
+    // there is no need to test with naclports builds older than (approximately)
+    // pepper41/trunk-223-g26a4b66.
+
     // If no tar file, run the command right away.
     if (!this.tarFilename) {
       this.runPnacl(cx);
@@ -162,7 +182,7 @@ PnaclCommand.prototype.run = function(cx) {
     // TODO(rpaquay): We copy the tar file into the the temporary DOM
     // filesystem (under 'pnacl') and then pass '/tmp/pnacl/<cmd>.nmf' to
     // <cmd> so that '/tmp/pnacl/<cmd>.tar' will be opened at startup.
-    // See https://chromium.googlesource.com/external/naclports.git/+/master/ports/nacl-spawn/nacl_startup_untar.c
+    // See http://goo.gl/Km8YWu
     var tarUrl = this.baseUrl + 'pnacl/' + this.tarFilename;
     copyUrlToTemporaryStorage(cx, tarUrl, 'pnacl').then(function() {
       this.runPnacl(cx);
@@ -174,6 +194,12 @@ PnaclCommand.prototype.run = function(cx) {
 
 // Creates and runs the pnacl executable.
 PnaclCommand.prototype.runPnacl = function(cx) {
+  // Apply additional environment variables to [cx]
+  if (this.env) {
+    for (var key in this.env) {
+      cx.setEnv(key, this.env[key]);
+    }
+  }
   var nmfUrl = this.baseUrl + 'pnacl/' + this.commandName + '.nmf';
   var nmfFile = '/tmp/pnacl/' + this.commandName + '.nmf';
   var nacl = new SpawnNacl('application/x-pnacl', nmfUrl, nmfFile, cx);

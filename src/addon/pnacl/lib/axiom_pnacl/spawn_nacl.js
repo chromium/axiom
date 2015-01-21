@@ -1,6 +1,16 @@
-// Copyright (c) 2014 The Axiom Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import AxiomError from 'axiom/core/error';
 
@@ -61,13 +71,35 @@ SpawnNacl.prototype.run = function () {
     PS_STDERR: '/dev/tty',
     PS_VERBOSITY: '2',
     PS_EXIT_MESSAGE: 'exited',
-    //NACL_DATA_URL: urlBase
+    // Base url nacl startup code uses to download resources (.tar file)
+    NACL_DATA_URL: urlBase,
+    // Allow CORS requests when downloading resources (.tar file)
+    NACL_DATA_MOUNT_FLAGS: 'allow_cross_origin_requests=true',
   };
 
   var env = this.executeContext.getEnvs();
   for (var key in env) {
-    if (!params.hasOwnProperty(key))
-      params[key] = env[key];
+    var keySigil = key.charAt(0);
+    var envKey = null;
+    var envValue = null;
+
+    if (keySigil === '$') {
+      // Arbitrary values go through unchanged.
+      envKey = key.substr(1);
+      envValue = env[key];
+    } else if (keySigil === '@') {
+      // Arrays are translated into list of elements separated by ":".
+      envKey = key.substr(1);
+      envValue = env[key].join(':');
+    } else if (keySigil === '%') {
+      // Dictionaries are ignored.
+    } else {
+      // No prefix is an error: ignore.
+    }
+
+    if (envKey && !params.hasOwnProperty(envKey)) {
+      params[envKey] = envValue;
+    }
   }
 
   for (var i = 0; i < this.posixArgs_.length; i++) {

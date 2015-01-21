@@ -1,9 +1,20 @@
-// Copyright (c) 2014 The Axiom Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import AxiomError from 'axiom/core/error';
 import Check from 'axiom/util/check';
+import DragDropManager from 'axiom/services/views/drag_drop_manager';
 
 
 // Invariants of the ViewManager, Containers and Views:
@@ -24,7 +35,7 @@ import Check from 'axiom/util/check';
 //   frame with a single view).
 var AXIOM_CONTAINER = 'AXIOM-CONTAINER';
 var AXIOM_FRAME = 'AXIOM-FRAME';
-var AXIOM_SPLITTER = 'CORE-SPLITTER';
+var AXIOM_SPLITTER = 'AXIOM-SPLITTER';
 var AXIOM_VIEW = 'AXIOM-VIEW';
 
 /*
@@ -299,7 +310,9 @@ ViewManager.prototype.hide = function(viewId) {
  * @param {Element} view
  */
 ViewManager.prototype.closeView = function(view) {
-  this.detachView(view);
+  if (view.parentElement) {
+    this.detachView(view);
+  }
   if (view.firstElementChild && view.firstElementChild.viewClosed) {
     view.firstElementChild.viewClosed();
   }
@@ -310,12 +323,32 @@ ViewManager.prototype.trackStart = function(frame) {
   forEachFrameViews(frame, function(view) {
     view.enterDragMode();
   });
+  frame.enterDragMode();
 };
 
 ViewManager.prototype.trackEnd = function(frame) {
+  frame.leaveDragMode();
   forEachFrameViews(frame, function(view) {
     view.leaveDragMode();
   });
+};
+
+ViewManager.prototype.dragStart = function(frame, view) {
+  view.setAttribute('dragdrop', '1');
+  this.detachView(view);
+  this.trackStart(frame);
+};
+
+ViewManager.prototype.dragEnd = function(frame, view) {
+  this.trackEnd(frame);
+  if (view.hasAttribute('dragdrop')) {
+    this.closeView(view);
+  }
+};
+
+ViewManager.prototype.drop = function(frame, detail) {
+  this.insertView(detail.view, detail.target, detail.targetPosition);
+  detail.view.removeAttribute('dragdrop');
 };
 
 /*
@@ -327,16 +360,25 @@ ViewManager.prototype.createRootFrame = function(document) {
     var frame = document.createElement(AXIOM_FRAME);
     document.body.appendChild(frame);
     frame.setAttribute('fit', '');
-    frame.addEventListener('drop-view', function(e) {
-      this.moveView(
-        e.detail.view, e.detail.target, e.detail.targetPosition);
-    }.bind(this));
+
+    // Event fired by DragDropManager when a drag operation is starting.
     frame.addEventListener('drag-start', function(e) {
-      this.trackStart(frame);
+      this.dragStart(frame, e.detail.view);
     }.bind(this));
+
+    // Event fired by DragDropManager when a drag operation has ended.
     frame.addEventListener('drag-end', function(e) {
-      this.trackEnd(frame);
+      this.dragEnd(frame, e.detail.view);
     }.bind(this));
+
+    // Event fired by DragDropManager when a view is moved to a new location.
+    frame.addEventListener('drop-view', function(e) {
+      this.drop(frame, e.detail);
+    }.bind(this));
+
+    var dragDropManager = new DragDropManager(frame);
+    dragDropManager.activate();
+
     return frame;
   }.bind(this);
 
@@ -382,10 +424,10 @@ ViewManager.prototype.createViewElement = function(document, tagName) {
 ViewManager.prototype.createSplitter = function(document) {
   var frame = document.querySelector(AXIOM_FRAME);
   var splitter = document.createElement(AXIOM_SPLITTER);
-  splitter.addEventListener('trackstart', function(e) {
+  splitter.addEventListener('down', function(e) {
     this.trackStart(frame);
   }.bind(this));
-  splitter.addEventListener('trackend', function(e) {
+  splitter.addEventListener('up', function(e) {
     this.trackEnd(frame);
   }.bind(this));
   return splitter;
@@ -450,21 +492,36 @@ ViewManager.prototype.moveView = function(view, target, position) {
   if (!frame)
     return;
 
+  // If the parent of the view is a container, the container may disappear
+  // during the call to "detach" below. Pick a backup target that we know
+  // won't disappear to use later at the new target.
+  var backupTarget = null;
+  if (view.parentElement.tagName === AXIOM_CONTAINER) {
+    for (var elem = view.parentElement.firstElementChild;
+         elem !== null;
+         elem = elem.nextElementSibling) {
+      if (elem !== view) {
+        if (elem.tagName === AXIOM_CONTAINER || elem.tagName === AXIOM_VIEW) {
+          backupTarget = elem;
+        }
+      }
+    }
+  }
+
   // Remove the view and re-grunt. Note this may remove the container from
   // the frame.
   this.detachView(view);
 
-  // Insertion into the main frame is a special case, as the main frame
-  // is neither horizontal or vertical.
-  checkValidFrame(frame);
-  if (target.tagName === AXIOM_FRAME) {
-    this.moveViewIntoFrame(view, target, position);
-  } else if (target.tagName === AXIOM_CONTAINER) {
-    this.moveViewIntoContainer(view, target, position);
-  } else if (target.tagName === AXIOM_VIEW) {
-    this.moveViewNextToView(view, target, position);
+  // See comment above...
+  if (target.parentElement === null) {
+    if (backupTarget.parentElement !== null)
+      target = backupTarget;
+    else
+      target = frame; // last resort.
   }
-  checkValidFrame(frame);
+
+  // Insert view into new location.
+  this.insertView(view, target, position);
 };
 
 /*
@@ -816,12 +873,12 @@ ViewManager.prototype.groutContainer = function(container) {
     if (element.tagName !== AXIOM_SPLITTER) {
       if (parentLayout === 'vertical') {
         element.style.removeProperty('width');
-        if (window.getComputedStyle(element).height === '0px') {
+        if (!element.style.height) {
           element.style.height = '200px';
         }
       } else {
         element.style.removeProperty('height');
-        if (window.getComputedStyle(element).width === '0px') {
+        if (!element.style.width) {
           element.style.width = '200px';
         }
       }

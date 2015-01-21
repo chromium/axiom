@@ -1,31 +1,76 @@
-// Copyright (c) 2014 The Axiom Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 Polymer('axiom-view', {
   created: function() {
     this.anchorsElement = this.anchorsElement.bind(this);
-    this.setAttribute("relative", "");
+    this.dropZones = this.dropZones.bind(this);
+    this.headerElement = this.headerElement.bind(this);
+    this.enterDragMode = this.enterDragMode.bind(this);
+    this.leaveDragMode = this.leaveDragMode.bind(this);
+    this.onClickCloseIcon = this.onClickCloseIcon.bind(this);
+    this.onMouseOverTitle = this.onMouseOverTitle.bind(this);
+    this.setAttribute('relative', '');
   },
   attached: function () {
     if (this.parentElement) {
-      if (this.parentElement.hasAttribute("DEBUG")) {
-        this.setAttribute("DEBUG", "");
+      if (this.parentElement.hasAttribute('DEBUG')) {
+        this.setAttribute('DEBUG', '');
       }
     }
   },
   ready: function() {
-    this.$.closeicon.addEventListener('click', function() {
-      this.fire("close");
-    }.bind(this));
+    //console.log('ready', this);
+    this.$.closeicon.addEventListener('click', this.onClickCloseIcon);
+    this.$.title.addEventListener('mouseover', this.onMouseOverTitle);
   },
+  onClickCloseIcon: function(event) {
+    this.fire('close');
+  },
+  onMouseOverTitle: function(event) {
+    //console.log('onMouseOverTitle', event);
+    this.fire('mouseover-title', { view: this });
+  },
+  // Used by drag-drop to track active drop anchor
   anchorsElement: function() {
     return this.$.anchors;
   },
-  enterDragMode: function() {
-    this.$['content-div'].style.zIndex = "200";
+  // Used by drag-drop to access the drop zones
+  dropZones: function () {
+    return this.$['drop-zones'];
   },
+  // Used by drag-drop to access the view header for drag-drop.
+  headerElement: function() {
+    return this.$.header;
+  },
+  // Called by view manager when entering drag mode.
+  enterDragMode: function() {
+    // Make view top-most so that we receive all mouse events. We need this in
+    // case our element is overlayed by some other element (e.g. a iframe).
+    this.style.zIndex = '200';
+
+    // Prevent children from receiving mouse events to ensure mouse events
+    // are realiably dispatched to us (and our parents).
+    for(var child = this.firstElementChild; child !== null; child = child.nextElementSibling) {
+      child.style.pointerEvents = 'none';
+    }
+  },
+  // Called by view manager when leaving drag mode.
   leaveDragMode: function() {
-    this.$['content-div'].style.zIndex = "0";
-  }
+    this.style.zIndex = '';
+    for(var child = this.firstElementChild; child !== null; child = child.nextElementSibling) {
+      child.style.pointerEvents = '';
+    }
+  },
 });
