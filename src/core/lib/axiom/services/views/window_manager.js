@@ -62,12 +62,13 @@ WindowManager.prototype.onExtend = function(extensionBinding) {
 WindowManager.prototype.createRootFrame = function(document) {
   var frame = document.createElement('axiom-frame');
   frame.setAttribute('fit', '');
-  frame.setWindowManager(this);
+  frame['setWindowManager'](this);
   document.body.appendChild(frame);
 };
 
 /**
  * @param {string} id  The window identifier
+ * @return {Promise<?>}
  */
 WindowManager.prototype.openWindow = function(id) {
   return Promise.all(this.extensionBindings_.map(function(binding) {
@@ -79,9 +80,9 @@ WindowManager.prototype.openWindow = function(id) {
   })).then(function(values) {
     var result = values.filter(function(x) { return !!x; });
     if (result.length === 0)
-      return Promise.reject(AxiomError.NotFound('window', id));
+      return Promise.reject(new AxiomError.NotFound('window', id));
     if (result.length > 1)
-      return Promise.reject(AxiomError.Duplicate('window', id));
+      return Promise.reject(new AxiomError.Duplicate('window', id));
     return Promise.resolve(result[0]);
   }).then(function(window) {
     this.windows_.set(id, window);

@@ -131,14 +131,14 @@ var forEachFrameViews = function(frame, callback) {
  * with changes to the DOM. The purpose of this function is to
  * force all splitter elements to refresh themselves.
  *
- * @param {HTMLElement} container
+ * @param {Element} container
  */
 var fixupSplitters = function(container) {
   Check.eq(container.tagName, AXIOM_CONTAINER);
 
   var splitters = container.querySelectorAll(AXIOM_SPLITTER);
   for (var i = 0; i < splitters.length; i++) {
-    splitters[i].directionChanged();
+    splitters[i]['directionChanged']();
   }
 };
 
@@ -247,10 +247,11 @@ ViewManager.prototype.onExtend = function(extensionBinding) {
  *
  * @param {string} viewId  The view id
  * @param {string} tagName  The custom element to create
+ * @return {Promise<undefined>}
  */
 ViewManager.prototype.register = function(viewId, tagName) {
   if (this.views_.has(viewId))
-    return Promise.reject(AxiomError.Duplicate('view', viewId));
+    return Promise.reject(new AxiomError.Duplicate('view', viewId));
 
   this.views_.set(viewId, {
     tagName: tagName,
@@ -261,10 +262,11 @@ ViewManager.prototype.register = function(viewId, tagName) {
  * Unregisters a view given its id.
  *
  * @param {string} viewId  The view id
+ * @return {Promise<undefined>}
  */
 ViewManager.prototype.unregister = function(viewId) {
   if (!this.views_.has(viewId))
-    return Promise.reject(AxiomError.NotFound('view', viewId));
+    return Promise.reject(new AxiomError.NotFound('view', viewId));
 
   this.views_.delete(viewId);
 };
@@ -274,11 +276,12 @@ ViewManager.prototype.unregister = function(viewId) {
  *
  * @param {string} viewId  The view id
  * @param {Object} args
+ * @return {Promise<HTMLElement>}
  */
 ViewManager.prototype.show = function(viewId, args) {
   var view = this.views_.get(viewId);
   if (!view)
-    return Promise.reject(AxiomError.NotFound('view', viewId));
+    return Promise.reject(new AxiomError.NotFound('view', viewId));
 
   var windowsService = this.moduleManager_.getServiceBinding('windows@axiom');
   return windowsService.whenLoadedAndReady().then(function() {
@@ -307,11 +310,12 @@ ViewManager.prototype.show = function(viewId, args) {
  * Hides a view.
  *
  * @param {string} viewId  The view id
+ * @return {Promise<undefined>}
  */
 ViewManager.prototype.hide = function(viewId) {
   var view = this.views_.get(viewId);
   if (!view)
-    return Promise.reject(AxiomError.NotFound('view', viewId));
+    return Promise.reject(new AxiomError.NotFound('view', viewId));
 };
 
 /**
@@ -321,23 +325,23 @@ ViewManager.prototype.closeView = function(view) {
   if (view.parentElement) {
     this.detachView(view);
   }
-  if (view.firstElementChild && view.firstElementChild.viewClosed) {
-    view.firstElementChild.viewClosed();
+  if (view.firstElementChild && view.firstElementChild['viewClosed']) {
+    view.firstElementChild['viewClosed']();
   }
   // TODO(rpaquay): Remove from views_?
 };
 
 ViewManager.prototype.trackStart = function(frame) {
   forEachFrameViews(frame, function(view) {
-    view.enterDragMode();
+    view['enterDragMode']();
   });
-  frame.enterDragMode();
+  frame['enterDragMode']();
 };
 
 ViewManager.prototype.trackEnd = function(frame) {
-  frame.leaveDragMode();
+  frame['leaveDragMode']();
   forEachFrameViews(frame, function(view) {
-    view.leaveDragMode();
+    view['leaveDragMode']();
   });
 };
 
