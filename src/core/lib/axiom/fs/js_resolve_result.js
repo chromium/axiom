@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-goog.forwardDeclare('JsResolveResult');
+/** @typedef FileSystem$$module$axiom$bindings$fs$file_system */
+var FileSystem;
+
+/** @typedef JsEntry$$module$axiom$fs$js_entry */
+var JsEntry;
 
 /**
  * @constructor
@@ -32,7 +36,8 @@ goog.forwardDeclare('JsResolveResult');
  *
  * @param {Array<string>} prefixList  The list of path elements that were found.
  * @param {Array<string>} suffixList  The list of path elements that were not.
- * @param {JsEntry} entry  The entry for the final item in prefixList.
+ * @param {JsEntry|FileSystem} entry  The entry for the final item in
+ *   prefixList.
  */
 var JsResolveResult = function(prefixList, suffixList, entry) {
   this.prefixList = prefixList || [];

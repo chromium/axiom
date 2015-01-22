@@ -14,21 +14,31 @@
 
 import AxiomError from 'axiom/core/error';
 
-import FileSystemBinding from 'axiom/bindings/fs/file_system';
+import FileSystem from 'axiom/bindings/fs/file_system';
 
 import Path from 'axiom/fs/path';
+import StatResult from 'axiom/fs/stat_result';
+
+import JsEntry from 'axiom/fs/js_entry';
 import JsDirectory from 'axiom/fs/js_directory';
 import JsExecuteContext from 'axiom/fs/js_execute_context';
 import JsOpenContext from 'axiom/fs/js_open_context';
 import JsResolveResult from 'axiom/fs/js_resolve_result';
 
-goog.forwardDeclare('FileSystem');
+/** @typedef ExecuteContext$$module$axiom$bindings$fs$execute_context */
+var ExecuteContext;
+
+/** @typedef FileSystem$$module$axiom$bindings$fs$file_system */
+var FileSystem;
+
+/** @typedef OpenContext$$module$axiom$bindings$fs$open_context */
+var OpenContext;
 
 /**
  * @constructor
- * @param {JsDirectory} opt_rootDirectory An optional directory instance
+ * @param {JsDirectory=} opt_rootDirectory An optional directory instance
  *   to use as the root.
- * @param {FileSystem} opt_binding An optional FileSystem
+ * @param {FileSystem=} opt_binding An optional FileSystem
  *   instance to bind to.  If not provided, a new binding will be created.
  */
 var JsFileSystem = function(opt_rootDirectory, opt_binding) {
@@ -40,7 +50,8 @@ var JsFileSystem = function(opt_rootDirectory, opt_binding) {
     mkdir: this.mkdir_,
     unlink: this.unlink,
     list: this.list,
-    createContext: this.createContext
+    createExecuteContext: this.createExecuteContext,
+    createOpenContext: this.createOpenContext
   });
 
   this.binding.ready();
@@ -50,7 +61,7 @@ export {JsFileSystem};
 export default JsFileSystem;
 
 /**
- * This method is not directly reachable through the FileSystemBinding.
+ * This method is not directly reachable through the FileSystem.
  *
  * @param {Path} path
  * @return {JsResolveResult}
@@ -64,7 +75,7 @@ JsFileSystem.prototype.resolve = function(path) {
 
 /**
  * @param {string} pathSpec
- * @return {Promise}
+ * @return {!Promise<!StatResult>}
  */
 JsFileSystem.prototype.stat = function(pathSpec) {
   if (!pathSpec)
@@ -75,7 +86,7 @@ JsFileSystem.prototype.stat = function(pathSpec) {
     return Promise.reject(new AxiomError.Invalid('path', pathSpec));
 
   var rv = this.resolve(path);
-  if (rv.entry instanceof FileSystemBinding)
+  if (rv.entry instanceof FileSystem)
     return rv.entry.stat(Path.join(rv.suffixList));
 
   if (!rv.isFinal) {
@@ -87,7 +98,7 @@ JsFileSystem.prototype.stat = function(pathSpec) {
 };
 
 /**
- * This version of mkdir_ is attached to the FileSystemBinding to ensure that
+ * This version of mkdir_ is attached to the FileSystem to ensure that
  * the JsDirectory returned by `mkdir` doesn't leak through the binding.
  *
  * @param {string} pathSpec
@@ -111,7 +122,7 @@ JsFileSystem.prototype.mkdir = function(pathSpec) {
 
   var rv = this.resolve(parentPath);
 
-  if (rv.entry instanceof FileSystemBinding)
+  if (rv.entry instanceof FileSystem)
     return rv.entry.mkdir(Path.join(rv.suffixList, targetName));
 
   if (!rv.isFinal) {
@@ -151,7 +162,7 @@ JsFileSystem.prototype.alias = function(pathSpecFrom, pathSpecTo) {
   var resolveTo = this.resolve(pathTo);
 
   if (!resolveFrom.isFinal) {
-    if (resolveFrom.entry instanceof FileSystemBinding) {
+    if (resolveFrom.entry instanceof FileSystem) {
       // If the source resolution stopped on a file system, then the target
       // must stop on the same file system.  If not, this is an attempt to move
       // across file systems.
@@ -175,7 +186,7 @@ JsFileSystem.prototype.alias = function(pathSpecFrom, pathSpecTo) {
 
   // If the target path resolution stops (finally, or otherwise) on a
   // filesystem, that's trouble.
-  if (resolveTo.entry instanceof FileSystemBinding)
+  if (resolveTo.entry instanceof FileSystem)
     return Promise.reject(new AxiomError.Invalid('filesystem', pathSpecTo));
 
   if (resolveTo.isFinal) {
@@ -186,12 +197,12 @@ JsFileSystem.prototype.alias = function(pathSpecFrom, pathSpecTo) {
 
     // But if path resolution stops on a directory, that just means we should
     // take the target name from the source.
-    targetName = resolveFrom.getBaseName();
+    targetName = pathFrom.getBaseName();
 
   } else if (resolveTo.suffixList.length == 1) {
     // If the resolution was not final then there should be a single name in
     // the suffix list, which we'll use as the target name.
-    targetName = resolveFrom.getBaseName();
+    targetName = pathFrom.getBaseName();
 
   } else {
     // If there's more than one item in the suffix list then the path refers
@@ -240,7 +251,7 @@ JsFileSystem.prototype.unlink = function(pathSpec) {
   var targetName = path.getBaseName();
 
   var rv = this.resolve(parentPath);
-  if (rv.entry instanceof FileSystemBinding)
+  if (rv.entry instanceof FileSystem)
     return rv.entry.unlink(Path.join(rv.suffixList, targetName));
 
   if (!rv.isFinal) {
@@ -256,7 +267,7 @@ JsFileSystem.prototype.unlink = function(pathSpec) {
 
 /**
  * @param {string} pathSpec
- * @return {Promise}
+ * @return {Promise<Object<string, StatResult>>}
  */
 JsFileSystem.prototype.list = function(pathSpec) {
   var path = new Path(pathSpec);
@@ -264,7 +275,7 @@ JsFileSystem.prototype.list = function(pathSpec) {
     return Promise.reject(new AxiomError.Invalid('path', pathSpec));
 
   var rv = this.resolve(path);
-  if (rv.entry instanceof FileSystemBinding)
+  if (rv.entry instanceof FileSystem)
     return rv.entry.list(Path.join(rv.suffixList));
 
   if (!rv.isFinal) {
@@ -272,40 +283,62 @@ JsFileSystem.prototype.list = function(pathSpec) {
         'path', Path.join(rv.prefixList.join('/'), rv.suffixList[0])));
   }
 
-  if (!rv.entry.hasMode('d'))
+  if (!(rv.entry instanceof JsDirectory))
     return Promise.reject(new AxiomError.TypeMismatch('dir', pathSpec));
 
   return rv.entry.list();
 };
 
 /**
- * @param {string} contextType ('execute' | 'open')
  * @param {string} pathSpec
  * @param {Object} arg
+ * @return {!Promise<!ExecuteContext>}
  */
-JsFileSystem.prototype.createContext = function(contextType, pathSpec, arg) {
+JsFileSystem.prototype.createExecuteContext = function(pathSpec, arg) {
   var path = new Path(pathSpec);
   if (!path.isValid)
     return Promise.reject(new AxiomError.Invalid('path', pathSpec));
 
   var rv = this.resolve(path);
   if (!rv.isFinal) {
-    if (rv.entry instanceof FileSystemBinding)
-      return rv.entry.createContext(contextType, Path.join(rv.suffixList), arg);
+    if (rv.entry instanceof FileSystem)
+      return rv.entry.createExecuteContext(Path.join(rv.suffixList), arg);
 
     return Promise.reject(new AxiomError.NotFound(
         'path', Path.join(rv.prefixList.join('/'), rv.suffixList[0])));
   }
 
-  var cx;
-
-  if (contextType == 'execute') {
-    cx = new JsExecuteContext(this, path, rv.entry, arg);
-  } else if (contextType == 'open') {
-    cx = new JsOpenContext(this, path, rv.entry, arg);
-  } else {
-    return Promise.reject(new AxiomError.Invalid('contextType', contextType));
+  if (rv.entry instanceof JsEntry) {
+    var cx = new JsExecuteContext(this, path, rv.entry, arg);
+    return Promise.resolve(cx.binding);
   }
 
-  return Promise.resolve(cx.binding);
+  return Promise.reject(new AxiomError.Runtime('Unexpected condition'));
+};
+
+/**
+ * @param {string} pathSpec
+ * @param {Object} arg
+ * @return {!Promise<!OpenContext>}
+ */
+JsFileSystem.prototype.createOpenContext = function(pathSpec, arg) {
+  var path = new Path(pathSpec);
+  if (!path.isValid)
+    return Promise.reject(new AxiomError.Invalid('path', pathSpec));
+
+  var rv = this.resolve(path);
+  if (!rv.isFinal) {
+    if (rv.entry instanceof FileSystem)
+      return rv.entry.createOpenContext(Path.join(rv.suffixList), arg);
+
+    return Promise.reject(new AxiomError.NotFound(
+        'path', Path.join(rv.prefixList.join('/'), rv.suffixList[0])));
+  }
+
+  if (rv.entry instanceof JsEntry) {
+    var cx = new JsOpenContext(this, path, rv.entry, arg);
+    return Promise.resolve(cx.binding);
+  }
+
+  return Promise.reject(new AxiomError.Runtime('Unexpected condition'));
 };

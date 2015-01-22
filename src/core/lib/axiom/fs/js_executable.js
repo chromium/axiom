@@ -15,11 +15,17 @@
 import AxiomError from 'axiom/core/error';
 import JsEntry from 'axiom/fs/js_entry';
 
-goog.forwardDeclare('ExecuteContext');
-goog.forwardDeclare('JsExecuteContext');
+/** @typedef ExecuteContext$$module$axiom$bindings$fs$execute_context */
+var ExecuteContext;
+
+/** @typedef JsExecuteContext$$module$axiom$fs$js_execute_context */
+var JsExecuteContext;
+
+/** @typedef JsFileSystem$$module$axiom$fs$js_file_system */
+var JsFileSystem;
 
 /**
- * @constructor
+ * @constructor @extends {JsEntry}
  * An executable file in a JsFileSystem.
  *
  * @param {JsFileSystem} jsfs  The parent file system.

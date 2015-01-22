@@ -21,16 +21,19 @@ import DomExecuteContext from 'axiom/fs/dom_execute_context';
 import DomOpenContext from 'axiom/fs/dom_open_context';
 import domfsUtil from 'axiom/fs/domfs_util';
 
-goog.forwardDeclare('JsResolveResult');
+/** @typedef JsResolveResult$$module$axiom$fs$js_resolve_result */
+var JsResolveResult;
 
 /**
  * @constructor
- * @param {FileSystem} opt_binding An optional FileSystemBinding
+ * TODO(rginda): LocalFileSystem externs for closure.
+ * @param {?} fileSystem
+ * @param {FileSystem=} opt_binding An optional FileSystem
  * instance to bind to. If not provided, a new binding will be created.
  */
-var DomFileSystem = function(file_system, opt_binding) {
+var DomFileSystem = function(fileSystem, opt_binding) {
   this.binding = opt_binding || new FileSystem();
-  this.fileSystem = file_system;
+  this.fileSystem = fileSystem;
 
   this.binding.bind(this, {
     stat: this.stat,
@@ -50,7 +53,7 @@ export default DomFileSystem;
  * This method is not directly reachable through the FileSystemBinding.
  *
  * @param {Path} path
- * @return {JsResolveResult}
+ * @return {Promise<JsResolveResult>}
  */
 DomFileSystem.prototype.resolve = function(path) {
   //TODO(grv): resolve directories and read mode bits.

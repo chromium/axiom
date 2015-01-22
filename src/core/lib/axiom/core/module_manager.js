@@ -17,6 +17,9 @@
 import AxiomError from 'axiom/core/error';
 import ModuleBinding from 'axiom/bindings/module';
 
+/** @typedef ServiceBinding$$module$axiom$bindings$service */
+var ServiceBinding;
+
 /**
  * @constructor
  */

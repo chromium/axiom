@@ -177,10 +177,15 @@ DragDropManager.prototype.drop = function (event) {
   }
 };
 
-// This event is invoked when the mouse cursor enters the area of a view
-// title. In response, we create a "draggable" overlay that will be used
-// in case a drag-drop operations is started. The title overlay is deleted
-// once the mouse cursor leaves the view title area.
+/**
+ * This event is invoked when the mouse cursor enters the area of a view
+ * title. In response, we create a "draggable" overlay that will be used
+ * in case a drag-drop operations is started. The title overlay is deleted
+ * once the mouse cursor leaves the view title area.
+ *
+ * @param {?} frame
+ * @param {?} view
+ */
 DragDropManager.prototype.mouseOverTitle = function(frame, view) {
   // Skip if we are already tracking mouse events. When dragging splitters,
   // for example, this prevents "accidental" creation of title overlays, as

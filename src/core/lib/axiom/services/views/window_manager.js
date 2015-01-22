@@ -14,6 +14,12 @@
 
 import AxiomError from 'axiom/core/error';
 
+/** @typedef ExtensionBinding$$module$axiom$bindings$extension */
+var ExtensionBinding;
+
+/** @typedef ServiceBinding$$module$axiom$bindings$service */
+var ServiceBinding;
+
 /**
  * @constructor
  * Registry of opened windows.

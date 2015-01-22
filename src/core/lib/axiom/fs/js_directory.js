@@ -21,8 +21,17 @@ import JsEntry from 'axiom/fs/js_entry';
 import JsExecutable from 'axiom/fs/js_executable';
 import JsResolveResult from 'axiom/fs/js_resolve_result';
 
+/** @typedef ExecuteContext$$module$axiom$bindings$fs$execute_context */
+var ExecuteContext;
+
+/** @typedef JsExecuteContext$$module$axiom$fs$js_execute_context */
+var JsExecuteContext;
+
+/** @typedef JsFileSystem$$module$axiom$fs$js_file_system */
+var JsFileSystem;
+
 /**
- * @constructor
+ * @constructor @extends {JsEntry}
  * A directory in a JsFileSystem.
  *
  * A directory can contain JsEntry subclasses and/or FileSystems.
@@ -31,6 +40,8 @@ import JsResolveResult from 'axiom/fs/js_resolve_result';
  */
 var JsDirectory = function(jsfs) {
   JsEntry.call(this, jsfs, 'd');
+
+  /** @type {Map<string, (JsEntry|FileSystem)>} */
   this.entryMap_ = new Map();
 };
 
@@ -46,7 +57,7 @@ JsDirectory.prototype = Object.create(JsEntry.prototype);
  * the path can be resolved.
  *
  * @param {Path} path An object representing the path to resolve.
- * @param {Number=} opt_index The optional index into the path elements where
+ * @param {number=} opt_index The optional index into the path elements where
  *   we should start resolving.  Defaults to 0, the first path element.
  * @return {JsResolveResult}
  */
@@ -60,7 +71,7 @@ JsDirectory.prototype.resolve = function(path, opt_index) {
         this);
   }
 
-  var entry = this.entryMap_.get(path.elements[index]);
+  var entry = this.entryMap_.get(path.elements[index]) || null;
 
   if (index == path.elements.length - 1)
     return new JsResolveResult(path.elements, null, entry);
@@ -120,6 +131,10 @@ JsDirectory.prototype.mount = function(name, fileSystem) {
   this.entryMap_.set(name, fileSystem);
 };
 
+/**
+ * @param {Object<string, function(ExecuteContext, JsExecuteContext)>}
+ *   executables
+ */
 JsDirectory.prototype.install = function(executables) {
   for (var name in executables) {
     var callback = executables[name];
@@ -131,10 +146,10 @@ JsDirectory.prototype.install = function(executables) {
       if (sigil && '$@%*'.indexOf(sigil) == -1)
         throw new AxiomError.Invalid('sigil', sigil);
     } else {
-      sigil = executables[name].argSigil || '*';
+      sigil = executables[name]['argSigil'] || '*';
     }
 
-    this.link(name, new JsExecutable(this, callback, sigil));
+    this.link(name, new JsExecutable(this.jsfs, callback, sigil));
   }
 };
 
@@ -187,7 +202,7 @@ JsDirectory.prototype.list = function() {
     promises.push(promise.then(function(statResult) {
       rv[name] = statResult;
     }));
-  });
+    }, null);
 
   return Promise.all(promises).then(function() {
     return rv;

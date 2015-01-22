@@ -19,7 +19,7 @@ import BaseBinding from 'axiom/bindings/base';
 import FileSystem from 'axiom/bindings/fs/file_system';
 
 /**
- * @constructor
+ * @constructor @extends {BaseBinding}
  * A binding that represents an open file on a FileSystem.
  *
  * You should only create an OpenContext by calling an instance of
@@ -44,14 +44,14 @@ import FileSystem from 'axiom/bindings/fs/file_system';
 var OpenContext = function(fileSystem, pathSpec, arg) {
   BaseBinding.call(this);
 
-  this.describeMethod('open', {type: 'method', arg: []},
+  this.describeMethod('open', {type: 'method'},
                       this.open_.bind(this));
-  this.describeMethod('seek', {type: 'method', arg: ['arg']},
+  this.describeMethod('seek', {type: 'method'},
                       this.seek_.bind(this));
-  this.describeMethod('read', {type: 'method', arg: ['arg']},
-                      this.read.bind(this));
-  this.describeMethod('write', {type: 'method', arg: ['arg']},
-                      this.write.bind(this));
+  this.describeMethod('read', {type: 'method'},
+                      this.read_.bind(this));
+  this.describeMethod('write', {type: 'method'},
+                      this.write_.bind(this));
 
   this.fileSystem = fileSystem;
 
@@ -142,6 +142,35 @@ OpenContext.dataTypes = [
   ];
 
 /**
+ * Bindable method.
+ * @return {Promise<undefined>}
+ */
+OpenContext.prototype.open = function() {};
+
+/**
+ * Bindable method.
+ *
+ * @param {Object} arg
+ */
+OpenContext.prototype.seek = function(arg) {};
+
+/**
+ * Bindable method.
+ *
+ * @param {Object} arg
+ * @return {Promise<Object>}
+ */
+OpenContext.prototype.read = function(arg) {};
+
+/**
+ * Bindable method.
+ *
+ * @param {Object} arg
+ * @return {Promise<Object>}
+ */
+OpenContext.prototype.write = function(arg) {};
+
+/**
  * Sanity check an inbound arguments.
  *
  * @param {Object} arg The arguments object to check.
@@ -164,11 +193,11 @@ OpenContext.prototype.checkArg_ = function(arg) {
 
   // If there's a whence, there's got to be an offset.
   if (arg.whence && !('offset' in arg))
-    return Promise.reject(new AxiomError.Missing('offset', arg.whence));
+    return Promise.reject(new AxiomError.Missing('offset'));
 
   // If there's an offset, there's got to be a whence.
   if (('offset' in arg) && !arg.whence)
-    return Promise.reject(new AxiomError.Missing('whence', arg.whence));
+    return Promise.reject(new AxiomError.Missing('whence'));
 
   // If there's a dataType, it's got to be valid.
   if ('dataType' in arg && OpenContext.dataTypes.indexOf(arg.dataType) == -1)
@@ -239,7 +268,7 @@ OpenContext.prototype.seek_ = function(arg) {
  *
  * @param {Object} arg The read arg.
  */
-OpenContext.prototype.read = function(arg) {
+OpenContext.prototype.read_ = function(arg) {
   if (!this.mode.read) {
     return Promise.reject(new AxiomError.Invalid('mode.read', this.mode.read));
   }
@@ -264,9 +293,10 @@ OpenContext.prototype.read = function(arg) {
  *
  * @param {Object} arg The write arg.
  */
-OpenContext.prototype.write = function(arg) {
+OpenContext.prototype.write_ = function(arg) {
   if (!this.mode.write) {
-    return Promise.reject(new AxiomError.Invalid('mode.write', this.mode.write));
+    return Promise.reject(new AxiomError.Invalid('mode.write',
+                                                 this.mode.write));
   }
 
   return this.checkArg_(arg);

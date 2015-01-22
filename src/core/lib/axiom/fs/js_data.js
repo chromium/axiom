@@ -15,10 +15,11 @@
 import AxiomError from 'axiom/core/error';
 import JsEntry from 'axiom/fs/js_entry';
 
-goog.forwardDeclare('JsFileSystem');
+/** @typedef JsFileSystem$$module$axiom$fs$js_file_system */
+var JsFileSystem;
 
 /**
- * @constructor
+ * @constructor @extends {JsEntry}
  * @param {JsFileSystem} jsfs
  * @param {Object} value
  * @param {string} opt_modeStr

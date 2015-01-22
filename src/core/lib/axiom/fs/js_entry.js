@@ -13,11 +13,15 @@
 // limitations under the License.
 
 import Path from 'axiom/fs/path';
+import StatResult from 'axiom/fs/stat_result';
+
+/** @typedef JsFileSystem$$module$axiom$fs$js_file_system */
+var JsFileSystem;
 
 /**
+ * @constructor
  * The base class for all of the things that can appear in a JsFileSystem.
  *
- * @constructor
  * @param {JsFileSystem} jsfs  The parent file system.
  * @param {string} modeStr
  */
@@ -42,8 +46,10 @@ JsEntry.prototype.hasMode = function(modeStr) {
  * Default stat implementation.
  *
  * Overridden stat() implementations should call this first and decorate the
- * result with additional proeprties.
+ * result with additional properties.
+ *
+ * @return {!Promise<!StatResult>}
  */
 JsEntry.prototype.stat = function() {
-  return Promise.resolve({mode: this.mode});
+  return Promise.resolve(new StatResult(this.mode));
 };

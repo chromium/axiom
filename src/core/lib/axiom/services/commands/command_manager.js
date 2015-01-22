@@ -64,7 +64,7 @@ CommandManager.prototype.onExtend = function(extensionBinding) {
 CommandManager.prototype.dispatch = function(name, arg) {
   var command = this.commands_[name];
   if (!command)
-    return Promise.reject(AxiomError.NotFound('command', name));
+    return Promise.reject(new AxiomError.NotFound('command', name));
 
   var binding = command.extensionBinding;
   return binding.whenLoadedAndReady().then(

@@ -15,8 +15,11 @@
 import AxiomEvent from 'axiom/core/event';
 import BaseBinding from 'axiom/bindings/base';
 
-goog.forwardDeclare('ServiceBinding');
-goog.forwardDeclare('ModuleBinding');
+/** @typedef ModuleBinding$$module$axiom$bindings$module */
+var ModuleBinding;
+
+/** @typedef ServiceBinding$$module$axiom$bindings$service */
+var ServiceBinding;
 
 /**
  * @constructor @extends{BaseBinding}

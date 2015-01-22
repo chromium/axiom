@@ -75,7 +75,7 @@ AxiomError.prototype.toString = function() {
 };
 
 /**
- * @param {Array<*>} args
+ * @param {Arguments} args
  */
 AxiomError.prototype.init = function(args) {
   this.errorName = this.constructor.errorName
@@ -157,9 +157,8 @@ AxiomError.subclasses({
   /**
    * @constructor @extends{AxiomError}
    * @param {string} type
-   * @param {*} value
    */
-  AxiomError.Missing = function(type, value) { this.init(arguments) },
+  AxiomError.Missing = function(type) { this.init(arguments) },
 
   'NotFound':
   /**

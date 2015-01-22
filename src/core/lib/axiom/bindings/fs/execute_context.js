@@ -18,6 +18,8 @@ import AxiomEvent from 'axiom/core/event';
 import BaseBinding from 'axiom/bindings/base';
 import FileSystem from 'axiom/bindings/fs/file_system';
 
+goog.forwardDeclare('OpenContext');
+
 /**
  * @constructor @extends {BaseBinding}
  * A binding that represents a running executable on a FileSystem.
@@ -50,7 +52,7 @@ var ExecuteContext = function(fileSystem, pathSpec, arg) {
   // If the parent file system is closed, we close too.
   this.dependsOn(this.fileSystem);
 
-  this.describeMethod('execute', {type: 'method', arg: []},
+  this.describeMethod('execute', {type: 'method'},
                       this.execute_.bind(this));
 
   /**
@@ -329,13 +331,35 @@ ExecuteContext.prototype.delEnv = function(name) {
 };
 
 /**
- * Create a new context using the fs.FileSystem for this execute context, bound
- * to the lifetime of this context.
+ * Create a new execute context using the fs.FileSystem for this execute
+ * context, bound to the lifetime of this context.
+ *
+ * @param {string} pathSpec
+ * @param {Object} arg
+ * @return {Promise<ExecuteContext>}
  */
-ExecuteContext.prototype.createContext = function(name, pathSpec, arg) {
-  var cx = this.fileSystem.createContext(name, pathSpec, arg);
-  cx.dependsOn(this);
-  return cx;
+ExecuteContext.prototype.createExecuteContext = function(pathSpec, arg) {
+  return this.fileSystem.createExecuteContext(pathSpec, arg).then(
+    function(cx) {
+      cx.dependsOn(this);
+      return cx;
+    });
+};
+
+/**
+ * Create a new open context using the fs.FileSystem for this execute
+ * context, bound to the lifetime of this context.
+ *
+ * @param {string} pathSpec
+ * @param {Object} arg
+ * @return {Promise<OpenContext>}
+ */
+ExecuteContext.prototype.createOpenContext = function(pathSpec, arg) {
+  return this.fileSystem.createOpenContext(pathSpec, arg).then(
+    function(cx) {
+      cx.dependsOn(this);
+      return cx;
+    });
 };
 
 /**

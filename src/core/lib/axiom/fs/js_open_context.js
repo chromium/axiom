@@ -14,13 +14,14 @@
 
 import AxiomError from 'axiom/core/error';
 
-import OpenContextBinding from 'axiom/bindings/fs/open_context';
+import OpenContext from 'axiom/bindings/fs/open_context';
 
 import JsEntry from 'axiom/fs/js_entry';
 import JsData from 'axiom/fs/js_data';
 import Path from 'axiom/fs/path';
 
-goog.forwardDeclare('FileSystemBinding');
+/** @typedef JsFileSystem$$module$axiom$fs$js_file_system */
+var JsFileSystem;
 
 /**
  * Construct a new context that can be used to open a file.
@@ -37,7 +38,7 @@ var JsOpenContext = function(jsfs, path, entry, arg) {
   this.targetEntry = entry;
   this.arg = arg;
 
-  this.binding = new OpenContextBinding(jsfs.binding, path.spec, arg);
+  this.binding = new OpenContext(jsfs.binding, path.spec, arg);
   this.binding.bind(this, {
     open: this.open_,
     seek: this.seek_,
@@ -52,37 +53,37 @@ export {JsOpenContext};
 export default JsOpenContext;
 
 JsOpenContext.prototype.open_ = function() {
-  if (!(this.targetEntry.mode & (JsEntry.mode.r | JsEntry.mode.w))) {
+  if (!(this.targetEntry.mode & (Path.Mode.R | Path.Mode.W))) {
     return Promise.reject(this.binding.closeError(
-        'TypeMismatch', 'openable', this.path.spec));
+        'TypeMismatch', ['openable', this.path.spec]));
   }
 
   return Promise.resolve();
 };
 
 JsOpenContext.prototype.seek_ = function(arg) {
-  if (!(this.targetEntry.mode & JsEntry.mode.k)) {
+  if (!(this.targetEntry.mode & Path.Mode.K)) {
     return Promise.reject(new AxiomError(
-        'TypeMismatch', 'seekable', this.path.spec));
+        'TypeMismatch', ['seekable', this.path.spec]));
   }
 
-  return this.targetEntry.seek(arg);
+  return this.binding.seek(arg);
 };
 
 JsOpenContext.prototype.read_ = function(arg) {
-  if (!(this.targetEntry.mode & JsEntry.mode.r)) {
+  if (!(this.targetEntry.mode & Path.Mode.R)) {
     return Promise.reject(new AxiomError(
-        'TypeMismatch', 'readable', this.path.spec));
+        'TypeMismatch', ['readable', this.path.spec]));
   }
 
-  return this.targetEntry.read(arg);
+  return this.binding.read(arg);
 };
 
 JsOpenContext.prototype.write_ = function(arg) {
-  if (!(this.targetEntry.mode & JsEntry.mode.w)) {
+  if (!(this.targetEntry.mode & Path.Mode.W)) {
     return Promise.reject(new AxiomError(
-        'TypeMismatch', 'writable', this.path.spec));
+        'TypeMismatch', ['writable', this.path.spec]));
   }
 
-  return this.targetEntry.write(arg);
+  return this.binding.write(arg);
 };

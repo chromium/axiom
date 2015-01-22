@@ -16,7 +16,8 @@ import AxiomError from 'axiom/core/error';
 import ExecuteContextBinding from 'axiom/bindings/fs/execute_context';
 import Path from 'axiom/fs/path';
 
-goog.forwardDeclare('DomFileSystem');
+/** @typedef DomFileSystem$$module$axiom$fs$dom_file_system */
+var DomFileSystem;
 
 /**
  * @constructor
@@ -24,13 +25,11 @@ goog.forwardDeclare('DomFileSystem');
  *
  * @param {DomFileSystem} domfs
  * @param {Path} path
- * @param {FileEntry} entry
  * @param {Object} arg
  */
-var DomExecuteContext = function(domfs, path, entry, arg) {
+var DomExecuteContext = function(domfs, path, arg) {
   this.domfs = domfs;
   this.path = path;
-  this.targetEntry = entry;
   this.arg = arg;
 
   this.binding = new ExecuteContextBinding(domfs.binding, path.spec, arg);

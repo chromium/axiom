@@ -247,16 +247,25 @@ BaseBinding.prototype.reset = function() {
   this.readyState = BaseBinding.state['WAIT'];
 };
 
-BaseBinding.prototype.ready = function(value) {
+/**
+ * @param {*=} opt_value
+ */
+BaseBinding.prototype.ready = function(opt_value) {
   this.assertReadyState('WAIT');
-  this.onReady.fire(value);
+  this.onReady.fire(opt_value);
 };
 
-BaseBinding.prototype.closeOk = function(value) {
+/**
+ * @param {*=} opt_value
+ */
+BaseBinding.prototype.closeOk = function(opt_value) {
   this.assertReadyState('READY');
-  this.onClose.fire('ok', value);
+  this.onClose.fire('ok', opt_value);
 };
 
+/**
+ * @param {*} value
+ */
 BaseBinding.prototype.closeErrorValue = function(value) {
   this.assertReadyState('READY', 'WAIT');
 
@@ -276,6 +285,10 @@ BaseBinding.prototype.closeErrorValue = function(value) {
   return value;
 };
 
+/**
+ * @param {string} name
+ * @param {Array<*>} arg
+ */
 BaseBinding.prototype.closeError = function(name, arg) {
   var proto = Object.create(AxiomError[name].prototype);
   return this.closeErrorValue(AxiomError[name].apply(proto, arg));

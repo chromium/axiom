@@ -19,7 +19,8 @@ import domfsUtil from 'axiom/fs/domfs_util';
 
 import Path from 'axiom/fs/path';
 
-goog.forwardDeclare('DomFileSystem');
+/** @typedef DomFileSystem$$module$axiom$fs$dom_file_system */
+var DomFileSystem;
 
 /**
  * @constructor
@@ -68,17 +69,17 @@ DomOpenContext.prototype.seek_ = function(arg) {
   var fileSize = this.file_.size;
   var start = this.position_;
 
-  if (!arg.whence)
+  if (!arg['whence'])
     return Promise.resolve(true);
 
-  if (arg.whence == 'begin') {
-    start = arg.offset;
+  if (arg['whence'] == 'begin') {
+    start = arg['offset'];
 
-  } else if (arg.whence == 'current') {
-    start += arg.offset;
+  } else if (arg['whence'] == 'current') {
+    start += arg['offset'];
 
-  } else if (arg.whence == 'end') {
-    start = fileSize + arg.offset;
+  } else if (arg['whence'] == 'end') {
+    start = fileSize + arg['offset'];
   }
 
   if (start > fileSize) {
@@ -87,8 +88,8 @@ DomOpenContext.prototype.seek_ = function(arg) {
   }
 
   if (start < 0) {
-    return Promise.reject(new AxiomError.RunTime(
-        ['invalid file offset', this.path.spec]));
+    return Promise.reject(new AxiomError.Runtime(
+        'Invalid file offset: ' + this.path.spec));
   }
 
   this.position_ = start;
@@ -160,7 +161,7 @@ DomOpenContext.prototype.read_ = function(arg) {
       }
 
       var dataType = arg.dataType || 'utf8-string';
-      var reader = new FileReader(this.file_);
+      var reader = new FileReader();
 
       reader.onload = function(e) {
         this.position_ = end + 1;

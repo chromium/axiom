@@ -19,7 +19,11 @@ import FileSystem from 'axiom/bindings/fs/file_system';
 import DomFileSystem from 'axiom/fs/dom_file_system';
 import JsFileSystem from 'axiom/fs/js_file_system';
 
-goog.forwardDeclare('ExtensionBinding');
+/** @typedef ExtensionBinding$$module$axiom$bindings$extension */
+var ExtensionBinding;
+
+/** @typedef ServiceBinding$$module$axiom$bindings$service */
+var ServiceBinding;
 
 /**
  * @constructor
@@ -89,7 +93,7 @@ FileSystemManager.prototype.bind = function(serviceBinding) {
 FileSystemManager.prototype.mountDomfs = function(type, mountName, jsDir) {
   return new Promise(function(resolve, reject) {
     var requestFs = (window.requestFileSystem ||
-                     window.webkitRequestFileSystem);
+                     window.webkitRequestFileSystem).bind(window);
     // This is currently ignored.
     var capacity = 1024 * 1024 * 1024;
 
@@ -104,12 +108,16 @@ FileSystemManager.prototype.mountDomfs = function(type, mountName, jsDir) {
     };
 
     if (type == 'temporary') {
-      navigator.webkitTemporaryStorage.requestQuota(capacity, function(bytes) {
+      var TemporaryStorage =
+          navigator['webkitTemporaryStorage'].bind(navigator);
+      TemporaryStorage.requestQuota(capacity, function(bytes) {
           requestFs(window.TEMPORARY, bytes,
                     onFileSystemFound, onFileSystemError);
         });
     } else {
-      navigator.webkitPersistentStorage.requestQuota(capacity, function(bytes) {
+      var PersistentStorage =
+          navigator['webkitPersistentStorage'].bind(navigator);
+      PersistentStorage.requestQuota(capacity, function(bytes) {
           requestFs(window.PERSISTENT, bytes,
                     onFileSystemFound, onFileSystemError);
         });

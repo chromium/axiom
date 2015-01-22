@@ -16,6 +16,11 @@ import AxiomError from 'axiom/core/error';
 import Check from 'axiom/util/check';
 import DragDropManager from 'axiom/services/views/drag_drop_manager';
 
+/** @typedef ExtensionBinding$$module$axiom$bindings$extension */
+var ExtensionBinding;
+
+/** @typedef ServiceBinding$$module$axiom$bindings$service */
+var ServiceBinding;
 
 // Invariants of the ViewManager, Containers and Views:
 // * The top level element is an 'axiom-frame' with no particular layout. It

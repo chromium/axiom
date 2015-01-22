@@ -19,9 +19,11 @@
 var Path = function(spec) {
   this.originalSpec = spec; // the path you gave.
 
+  /** @type {boolean} */
   this.isValid = true;  // True if the path was parsed, false if not.
 
   var elements = [];
+
   var specNames = Path.split(spec);
   if (!specNames) {
     this.isValid = false;
@@ -42,7 +44,10 @@ var Path = function(spec) {
     }
   }
 
+  /** @type {Array<string>} */
   this.elements = this.isValid ? elements : [];
+
+  /** @type {string} */
   this.spec = this.elements.join('/');
 };
 
@@ -50,32 +55,40 @@ export {Path};
 export default Path;
 
 /**
+ * @enum {number}
  * Enumeration of the supported file modes and their bit masks.
  */
-Path.mode = {
-  x: 0x01,  // executable
-  w: 0x02,  // writable
-  r: 0x04,  // readable
-  d: 0x08,  // directory
-  k: 0x10   // seekable
+Path.Mode = {
+  X: 0x01,  // executable
+  W: 0x02,  // writable
+  R: 0x04,  // readable
+  D: 0x08,  // directory
+  K: 0x10   // seekable
 };
 
 /**
- * Convert a most string to a bit mask.
+ * Convert a mode string to a bit mask.
  *
  * @param {string} modeStr
+ * @return {number}
  */
 Path.modeStringToInt = function(modeStr) {
   return modeStr.split('').reduce(
       function(p, v) {
-        return p | (Path.mode[v] || 0);
+        return p | (Path.Mode[v] || 0);
       }, 0);
 };
 
+/**
+ * Convert a mode bit mask to a string.
+ *
+ * @param {number} modeInt
+ * @return {string}
+ */
 Path.modeIntToString = function(modeInt) {
   var rv = '';
-  Object.keys(Path.mode).forEach(function(key) {
-      if (modeInt & Path.mode[key])
+  Object.keys(Path.Mode).forEach(function(key) {
+      if (modeInt & Path.Mode[key])
         rv += key;
     });
   return rv;
@@ -95,8 +108,11 @@ Path.separator = '/';
 /**
  * Accepts varargs of strings or arrays of strings, and returns a string of
  * all path elements joined with Path.separator.
+ *
+ * @param {...(string|Array<string>)} var_args
+ * @return {string}
  */
-Path.join = function(/* ... */) {
+Path.join = function(var_args) {
   var args = [];
 
   for (var i = 0; i < arguments.length; i++) {
@@ -110,6 +126,11 @@ Path.join = function(/* ... */) {
   return args.join(Path.separator).replace(/\/+/g, '/');
 };
 
+/**
+ * @param {string} pwd
+ * @param {string} path
+ * @return {string}
+ */
 Path.abs = function(pwd, path) {
   if (path.substr(0, 1) == '/')
     return path;
@@ -122,6 +143,7 @@ Path.abs = function(pwd, path) {
 
 /**
  * @param {string} spec
+ * @return {Array<string>}
  */
 Path.split = function(spec) {
   return spec.split(/\//g);
