@@ -126,12 +126,6 @@ DragDropState.prototype.activateDropTarget = function(path) {
     return;
   }
 
-  //TODO(rginda): Closure noticed that there's no such property as
-  //this.currentDropZone, but I'm not sure what the intention is here.
-  //if (dropZone === this.currentDropZone) {
-  //  return;
-  //}
-
   this.deactivateDropTarget();
 
   // Activate a new drop target

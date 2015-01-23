@@ -62,7 +62,6 @@ WindowManager.prototype.onExtend = function(extensionBinding) {
 WindowManager.prototype.createRootFrame = function(document) {
   var frame = document.createElement('axiom-frame');
   frame.setAttribute('fit', '');
-  frame['setWindowManager'](this);
   document.body.appendChild(frame);
 };
 
