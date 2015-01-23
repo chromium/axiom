@@ -18,7 +18,14 @@
  * @param {number=} opt_mode
  */
 var StatResult = function(opt_mode) {
+  /** @type {number} */
   this.mode = opt_mode || 0;
+  /** @type {number} */
+  this.mtime = 0;
+  /** @type {number} */
+  this.count = 0;
+  /** @type {number} */
+  this.size = 0;
 };
 
 export {StatResult};
