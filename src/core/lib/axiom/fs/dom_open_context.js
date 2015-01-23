@@ -167,12 +167,12 @@ DomOpenContext.prototype.read_ = function(arg) {
         this.position_ = end + 1;
         var data = reader.result;
 
-        //if (dataType == 'base64-string') {
+        if (dataType == 'base64-string' && typeof data == 'string') {
           // TODO: By the time we read this into a string the data may already
           // have been munged.  We need an ArrayBuffer->Base64 string
           // implementation to make this work for real.
-          //data = btoa(data);
-          //}
+          data = window.btoa(data);
+        }
         resolve({dataType: dataType, data: data});
       }.bind(this);
 
@@ -183,7 +183,7 @@ DomOpenContext.prototype.read_ = function(arg) {
       var slice = this.file_.slice(this.position_, end);
       if (dataType == 'blob') {
         resolve({dataType: dataType, data: slice});
-      }   else if (dataType == 'arraybuffer') {
+      }  else if (dataType == 'arraybuffer') {
         reader.readAsArrayBuffer(slice);
       } else {
         reader.readAsText(slice);
@@ -207,11 +207,12 @@ DomOpenContext.prototype.write_ = function(arg) {
         blob = arg.data;
       } else if (arg.data instanceof ArrayBuffer) {
         blob = new Blob([arg.data], {type: 'application/octet-stream'});
-      } else if (dataType == 'base64-string') {
+      } else if (dataType == 'base64-string' && typeof arg.data == 'string') {
         // TODO: Once we turn this into a string the data may already have
         // been munged.  We need an ArrayBuffer->Base64 string implementation to
         // make this work for real.
-        blob = new Blob([arg.data],  {type: 'application/octet-stream'});
+        blob = new Blob([window.atob(arg.data)],
+                        {type: 'application/octet-stream'});
       } else if (dataType == 'utf8-string') {
         blob = new Blob([arg.data],  {type: 'text/plain'});
       } else if (dataType == 'value') {
