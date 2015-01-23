@@ -40,14 +40,13 @@ var BaseBinding = function(opt_descriptor) {
   /** @type {?*} */
   this.closeValue = null;
 
-  this.onReady = new AxiomEvent(function(/** * */ value) {
+  this.onReady = new AxiomEvent(function(value) {
       this.readyValue = value;
       this.readyState = BaseBinding.state.READY;
       this.isOpen = true;
     }.bind(this));
 
-  this.onClose = new AxiomEvent(function(/** string */ reason,
-                                         /** * */ value) {
+  this.onClose = new AxiomEvent(function(reason, value) {
     this.closeReason = (reason == 'ok' ? 'ok' : 'error');
     this.closeValue = value;
     this.isOpen = false;
@@ -99,11 +98,9 @@ BaseBinding.prototype.bind = function(self, obj) {
     if (!target)
       throw new AxiomError.NotFound('bind-target', name);
 
-    /**
-     * The method implementation or property value being bound.
-     * @type {function(...)}
-     */
-    var impl = (self && typeof obj[name] == 'string') ? self[impl] : obj[name];
+    var impl = obj[name];
+    if (self && typeof impl == 'string')
+      impl = self[impl];
 
     if (typeof target == 'function') {
       if (!('impl' in target))

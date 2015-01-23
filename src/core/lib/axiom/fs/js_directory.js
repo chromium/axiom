@@ -39,7 +39,7 @@ var JsFileSystem;
  * @param {JsFileSystem} jsfs  The parent file system.
  */
 var JsDirectory = function(jsfs) {
-  JsEntry.call(this, jsfs, 'd');
+  JsEntry.call(this, jsfs, 'D');
 
   /** @type {Map<string, (JsEntry|FileSystem)>} */
   this.entryMap_ = new Map();

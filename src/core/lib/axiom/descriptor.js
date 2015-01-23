@@ -19,33 +19,16 @@ var descriptor = {
   'provides': {
     'filesystems': {
       'service-binding': {
-        // Create an alias to a path.
-        'alias': {'type': 'method', 'args': ['pathSpecFrom', 'pathSpecTo']},
-
-        // Create an open or execute context.
-        'createContext': {'type': 'method',
-                          'args': ['contextType', 'pathSpec', 'arg']},
-
-        // Return an array of stat metadata for each entry in a directory.
-        'list': {'type': 'method', 'args': ['pathSpec']},
-
-        // Make a new directory.
-        'mkdir': {'type': 'method', 'args': ['pathSpec']},
-
-        // Move an entry from one location to another.
-        'move': {'type': 'method', 'args': ['pathSpecFrom', 'pathSpecTo']},
-
-        // Read content of a file.
-        'readFile': {'type': 'method', 'args': ['pathSpec', 'openArg', 'readArg']},
-
-        // Write content into a file.
-        'writeFile': {'type': 'method', 'args': ['pathSpec', 'openArg', 'writeArg']},
-
-        // Get metadata for a path.
-        'stat': {'type': 'method', 'args': ['pathSpec']},
-
-        // Remove a path.
-        'unlink': {'type': 'method', 'args': ['pathSpec']},
+        'alias': {'type': 'method'},
+        'createExecuteContext': {'type': 'method'},
+        'createOpenContext': {'type': 'method'},
+        'list': {'type': 'method'},
+        'mkdir': {'type': 'method'},
+        'move': {'type': 'method'},
+        'readFile': {'type': 'method'},
+        'writeFile': {'type': 'method'},
+        'stat': {'type': 'method'},
+        'unlink': {'type': 'method'},
       },
 
       'extension-descriptor': {
@@ -53,14 +36,14 @@ var descriptor = {
       },
 
       'extension-binding': {
-        'alias': {'type': 'method', 'args': ['pathSpecFrom', 'pathSpecTo']},
-        'createContext': {'type': 'method',
-                          'args': ['contextType', 'pathSpec', 'arg']},
-        'list': {'type': 'method', 'args': ['pathSpec']},
-        'mkdir': {'type': 'method', 'args': ['pathSpec']},
-        'move': {'type': 'method', 'args': ['pathSpecFrom', 'pathSpecTo']},
-        'stat': {'type': 'method', 'args': ['pathSpec']},
-        'unlink': {'type': 'method', 'args': ['pathSpec']},
+        'alias': {'type': 'method'},
+        'createExecuteContext': {'type': 'method'},
+        'createOpenContext': {'type': 'method'},
+        'list': {'type': 'method'},
+        'mkdir': {'type': 'method'},
+        'move': {'type': 'method'},
+        'stat': {'type': 'method'},
+        'unlink': {'type': 'method'},
       }
     },
 

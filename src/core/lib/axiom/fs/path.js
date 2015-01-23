@@ -75,7 +75,10 @@ Path.Mode = {
 Path.modeStringToInt = function(modeStr) {
   return modeStr.split('').reduce(
       function(p, v) {
-        return p | (Path.Mode[v] || 0);
+        if (!(v in Path.Mode))
+          throw new Error('Unknown mode char: ' + v);
+
+        return p | Path.Mode[v];
       }, 0);
 };
 

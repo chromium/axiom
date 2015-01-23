@@ -18,14 +18,15 @@ import AxiomEvent from 'axiom/core/event';
 import BaseBinding from 'axiom/bindings/base';
 import FileSystem from 'axiom/bindings/fs/file_system';
 
-goog.forwardDeclare('OpenContext');
+/** @typedef OpenContext$$module$axiom$bindings$fs$open_context */
+var OpenContext;
 
 /**
  * @constructor @extends {BaseBinding}
  * A binding that represents a running executable on a FileSystem.
  *
  * You should only create an ExecuteContext by calling an instance of
- * FileSystem..createContext('execute', ...).
+ * FileSystem..createExecuteContext(...).
  *
  * @param {FileSystem} fileSystem The parent file system.
  * @param {string} pathSpec
@@ -96,6 +97,9 @@ export default ExecuteContext;
 
 ExecuteContext.prototype = Object.create(BaseBinding.prototype);
 
+/**
+ * @return {Promise<*>}
+ */
 ExecuteContext.prototype.executePromise = function() {
   var resolvePromise = null;
   var rejectPromise = null;
@@ -140,6 +144,8 @@ ExecuteContext.prototype.execute_ = function() {
  *
  * If the callee is closed, events are rerouted back to this instance and the
  * callee instance property is set to null.
+ *
+ * @param {ExecuteContext} executeContext
  */
 ExecuteContext.prototype.setCallee = function(executeContext) {
   if (this.callee)
@@ -169,15 +175,31 @@ ExecuteContext.prototype.setCallee = function(executeContext) {
 /**
  * Utility method to construct a new ExecuteContext, set it as the callee, and
  * execute it with the given path and arg.
+ *
+ * @param {FileSystem} fileSystem
+ * @param {string} pathSpec
+ * @param {Object} arg
+ * @return {Promise<ExecuteContext>}
  */
 ExecuteContext.prototype.call = function(fileSystem, pathSpec, arg) {
-  this.setCallee(fileSystem.createContext('execute', pathSpec, arg));
-  this.callee.execute();
-  return this.callee;
+  return fileSystem.createExecuteContext(pathSpec, arg).then(
+    function(cx) {
+      this.setCallee(cx);
+      cx.execute();
+      return cx;
+    });
 };
 
+/**
+ * Execute another path and complete the promise when the execution completes.
+ *
+ * @param {FileSystem} fileSystem
+ * @param {string} pathSpec
+ * @param {Object} arg
+ * @return {Promise<*>}
+ */
 ExecuteContext.prototype.callPromise = function(fileSystem, pathSpec, arg) {
-  return fileSystem.createContext('execute', pathSpec, arg).then(
+  return fileSystem.createExecuteContext(pathSpec, arg).then(
       function(cx) {
         this.setCallee(cx);
         return this.callee.executePromise();
@@ -389,7 +411,7 @@ ExecuteContext.prototype.signal = function(name, value) {
  * TODO(rginda): Add numeric argument onAck to support partial consumption.
  *
  * @param {*} value The value to send.
- * @param {function()} opt_onAck The optional function to invoke when the
+ * @param {function()=} opt_onAck The optional function to invoke when the
  *   recipient acknowledges receipt.
  */
 ExecuteContext.prototype.stdout = function(value, opt_onAck) {
@@ -410,7 +432,7 @@ ExecuteContext.prototype.stdout = function(value, opt_onAck) {
  * TODO(rginda): Add numeric argument onAck to support partial consumption.
  *
  * @param {*} value The value to send.
- * @param {function()} opt_onAck The optional function to invoke when the
+ * @param {function()=} opt_onAck The optional function to invoke when the
  *   recipient acknowledges receipt.
  */
 ExecuteContext.prototype.stderr = function(value, opt_onAck) {

@@ -47,7 +47,7 @@ var JsFileSystem = function(opt_rootDirectory, opt_binding) {
 
   this.binding.bind(this, {
     stat: this.stat,
-    mkdir: this.mkdir_,
+    mkdir: this.mkdir,
     unlink: this.unlink,
     list: this.list,
     createExecuteContext: this.createExecuteContext,
@@ -98,19 +98,8 @@ JsFileSystem.prototype.stat = function(pathSpec) {
 };
 
 /**
- * This version of mkdir_ is attached to the FileSystem to ensure that
- * the JsDirectory returned by `mkdir` doesn't leak through the binding.
- *
  * @param {string} pathSpec
- * @return {Promise}
- */
-JsFileSystem.prototype.mkdir_ = function(pathSpec) {
-  return this.mkdir(pathSpec).then(function() { return null; });
-};
-
-/**
- * @param {string} pathSpec
- * @return {Promise}
+ * @return {Promise<undefined>}
  */
 JsFileSystem.prototype.mkdir = function(pathSpec) {
   var path = new Path(pathSpec);
@@ -130,10 +119,10 @@ JsFileSystem.prototype.mkdir = function(pathSpec) {
         'path', Path.join(rv.prefixList.join('/'), rv.suffixList[0])));
   }
 
-  if (!rv.entry.hasMode('d'))
+  if (!rv.entry.hasMode('D'))
     return Promise.reject(new AxiomError.TypeMismatch('dir', parentPath.spec));
 
-  return rv.entry.mkdir(targetName);
+  return rv.entry.mkdir(targetName).then(function(jsdir) { return null; });
 };
 
 /**
@@ -192,7 +181,7 @@ JsFileSystem.prototype.alias = function(pathSpecFrom, pathSpecTo) {
   if (resolveTo.isFinal) {
     // If target path resolution makes it to the end and finds something other
     // than a directory, that's trouble.
-    if (resolveTo.entry.hasMode('d'))
+    if (resolveTo.entry.hasMode('D'))
       return Promise.reject(new AxiomError.Duplicate('pathSpecTo', pathSpecTo));
 
     // But if path resolution stops on a directory, that just means we should
@@ -259,7 +248,7 @@ JsFileSystem.prototype.unlink = function(pathSpec) {
         'path', Path.join(rv.prefixList.join('/'), rv.suffixList[0])));
   }
 
-  if (!rv.entry.hasMode('d'))
+  if (!rv.entry.hasMode('D'))
     return Promise.reject(new AxiomError.TypeMismatch('dir', parentPath.spec));
 
   return rv.entry.unlink(targetName);

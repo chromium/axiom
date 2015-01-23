@@ -22,6 +22,9 @@ import JsFileSystem from 'axiom/fs/js_file_system';
 /** @typedef ExtensionBinding$$module$axiom$bindings$extension */
 var ExtensionBinding;
 
+/** @typedef JsDirectory$$module$axiom$fs$js_directory */
+var JsDirectory;
+
 /** @typedef ServiceBinding$$module$axiom$bindings$service */
 var ServiceBinding;
 
@@ -46,7 +49,8 @@ FileSystemManager.prototype.bind = function(serviceBinding) {
   });
 
   serviceBinding.bind(this.jsfs_, {
-    'createContext': 'createContext',
+    'createExecuteContext': 'createExecuteContext',
+    'createOpenContext': 'createOpenContext',
     'list': 'list',
     'mkdir': 'mkdir',
     'stat': 'stat',
@@ -59,8 +63,8 @@ FileSystemManager.prototype.bind = function(serviceBinding) {
   });
 
 
-  this.jsfs_.mkdir('addon').then(
-    function(jsdir) {
+  this.jsfs_.rootDirectory.mkdir('addon').then(
+    function(/** JsDirectory */ jsdir) {
       this.addonDir_ = jsdir;
     }.bind(this)
   ).then(function() {
@@ -68,11 +72,11 @@ FileSystemManager.prototype.bind = function(serviceBinding) {
     }.bind(this)
   ).then(
     function () {
-      return this.jsfs_.mkdir('mnt');
+      return this.jsfs_.rootDirectory.mkdir('mnt');
     }.bind(this)
-  ).then(function(mntDir) {
+  ).then(function(/** JsDirectory */ mntDir) {
     return this.mountDomfs('persistent', 'html5', mntDir);
-  }.bind(this)).then(function(domfs) {
+  }.bind(this)).then(function(/** DomFileSystem */ domfs) {
     return domfs.stat('home').catch(function (err) {
       return domfs.mkdir('home');
     });
@@ -87,8 +91,9 @@ FileSystemManager.prototype.bind = function(serviceBinding) {
 /**
  * Mounts a given type if dom filesystem at /jsDir/mountName
  *
- * @param type temporary or permanent dom filesystem.
- * @param mountName
+ * @param {string} type temporary or permanent dom filesystem.
+ * @param {string} mountName
+ * @return {Promise<DomFileSystem>}
  */
 FileSystemManager.prototype.mountDomfs = function(type, mountName, jsDir) {
   return new Promise(function(resolve, reject) {
@@ -108,16 +113,14 @@ FileSystemManager.prototype.mountDomfs = function(type, mountName, jsDir) {
     };
 
     if (type == 'temporary') {
-      var TemporaryStorage =
-          navigator['webkitTemporaryStorage'].bind(navigator);
-      TemporaryStorage.requestQuota(capacity, function(bytes) {
+      var pemporaryStorage = navigator['webkitTemporaryStorage'];
+      pemporaryStorage.requestQuota(capacity, function(bytes) {
           requestFs(window.TEMPORARY, bytes,
                     onFileSystemFound, onFileSystemError);
         });
     } else {
-      var PersistentStorage =
-          navigator['webkitPersistentStorage'].bind(navigator);
-      PersistentStorage.requestQuota(capacity, function(bytes) {
+      var persistentStorage = navigator['webkitPersistentStorage'];
+      persistentStorage.requestQuota(capacity, function(bytes) {
           requestFs(window.PERSISTENT, bytes,
                     onFileSystemFound, onFileSystemError);
         });
@@ -139,7 +142,8 @@ FileSystemManager.prototype.onExtend = function(extensionBinding) {
 
   var fsb = new FileSystem();
   fsb.bind(extensionBinding, {
-    'createContext': 'createContext',
+    'createExecuteContext': 'createExecuteContext',
+    'createOpenContext': 'createOpenContext',
     'list': 'list',
     'mkdir': 'mkdir',
     'stat': 'stat',

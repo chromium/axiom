@@ -56,6 +56,13 @@ export var Shell = function(executeContext) {
 };
 
 /**
+ * Set to true to make the shell exit if a subcommand errors.
+ *
+ * This can help debug infinite-loop at startup issues.
+ */
+Shell.exitOnError = false;
+
+/**
  * The main entrypoint when invoked as a JsExecutable.
  */
 Shell.main = function(executeContext) {
@@ -161,7 +168,7 @@ Shell.prototype.findExecutable = function(path) {
     var currentPath = searchList.shift();
     return this.fileSystem.stat(currentPath).then(
       function(statResult) {
-        if (statResult.mode & Path.mode.x)
+        if (statResult.mode & Path.Mode.X)
           return {absPath: currentPath, stat: statResult};
 
         return searchNextPath();
@@ -268,8 +275,10 @@ Shell.prototype.readEvalPrintLoop = function() {
     }.bind(this)
   ).catch(
     function(value) {
-      if (this.executeContext.isReadyState('READY'))
-        return this.readEvalPrintLoop();
+      if (!Shell.exitOnError) {
+        if (this.executeContext.isReadyState('READY'))
+          return this.readEvalPrintLoop();
+      }
 
       return Promise.reject(value);
     }.bind(this)
@@ -322,7 +331,7 @@ Shell.prototype.dispatch = function(path, argv) {
   return this.builtinsFS.stat(path).then(
     function(statResult) {
       argv = this.parseArgv(statResult.argSigil, argv);
-      return this.builtinsFS.binding.createContext('execute', path, argv).then(
+      return this.builtinsFS.binding.createExecuteContext(path, argv).then(
         function(cx) {
           return this.dispatchExecuteContext(cx);
         }.bind(this));
@@ -335,8 +344,8 @@ Shell.prototype.dispatch = function(path, argv) {
       return this.findExecutable(path).then(
         function(result) {
           argv = this.parseArgv(result.stat.argSigil, argv);
-          return this.fileSystem.createContext(
-              'execute', result.absPath, argv).then(
+          return this.fileSystem.createExecuteContext(
+              result.absPath, argv).then(
             function(cx) {
               return this.dispatchExecuteContext(cx);
             }.bind(this));
@@ -359,7 +368,7 @@ Shell.prototype.parseArgv = function(argSigil, argv) {
     try {
       return JSON.parse(argv);
     } catch (ex) {
-      throw AxiomError.Runtime('Error parsing arguments: ' + ex);
+      throw new AxiomError.Runtime('Error parsing arguments: ' + ex);
     }
 
   } else {

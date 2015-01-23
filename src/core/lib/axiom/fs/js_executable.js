@@ -36,7 +36,7 @@ var JsFileSystem;
  *   "*" -> Any.
  */
 var JsExecutable = function(jsfs, callback, argSigil) {
-  JsEntry.call(this, jsfs, 'x');
+  JsEntry.call(this, jsfs, 'X');
 
   if (typeof callback != 'function')
     throw new AxiomError.TypeMismatch('function', callback);

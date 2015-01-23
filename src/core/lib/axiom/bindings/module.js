@@ -83,9 +83,6 @@ export default ModuleBinding;
 
 ModuleBinding.prototype = Object.create(BaseBinding.prototype);
 
-/** @type {string} */
-ModuleBinding.prototype.moduleId;
-
 /**
  * @param {string} serviceId
  */

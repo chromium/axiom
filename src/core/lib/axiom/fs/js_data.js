@@ -25,7 +25,7 @@ var JsFileSystem;
  * @param {string} opt_modeStr
  */
 var JsData = function(jsfs, value, opt_modeStr) {
-  JsEntry.call(this, jsfs, opt_modeStr || 'rw');
+  JsEntry.call(this, jsfs, opt_modeStr || 'RW');
   this.value_ = value;
 };
 
