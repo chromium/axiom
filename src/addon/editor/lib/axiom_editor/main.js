@@ -21,7 +21,7 @@ export var main = function(module) {
   return new Promise(function(resolve, reject) {
     var myFileSystemBinding = module.getExtensionBinding('filesystems@axiom');
     var jsfs = new JsFileSystem(null, myFileSystemBinding);
-    return jsfs.mkdir('exe').then(function(jsdir) {
+    return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
       jsdir.install(executables);
       return resolve(null);
     });
