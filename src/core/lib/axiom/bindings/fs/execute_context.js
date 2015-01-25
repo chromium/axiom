@@ -18,15 +18,21 @@ import AxiomEvent from 'axiom/core/event';
 import BaseBinding from 'axiom/bindings/base';
 import FileSystem from 'axiom/bindings/fs/file_system';
 
+/** @typedef OpenContext$$module$axiom$bindings$fs$open_context */
+var OpenContext;
+
 /**
- * A binding that represents a running executable on FileSystem.
+ * @constructor @extends {BaseBinding}
+ * A binding that represents a running executable on a FileSystem.
  *
  * You should only create an ExecuteContext by calling an instance of
- * FileSystem..createContext('execute', ...).
+ * FileSystem..createExecuteContext(...).
  *
- * @param {FileSystem} The parent file system.
+ * @param {FileSystem} fileSystem The parent file system.
+ * @param {string} pathSpec
+ * @param {Object} arg
  */
-export var ExecuteContext = function(fileSystem, pathSpec, arg) {
+var ExecuteContext = function(fileSystem, pathSpec, arg) {
   BaseBinding.call(this);
 
   /**
@@ -47,7 +53,7 @@ export var ExecuteContext = function(fileSystem, pathSpec, arg) {
   // If the parent file system is closed, we close too.
   this.dependsOn(this.fileSystem);
 
-  this.describeMethod('execute', {type: 'method', arg: []},
+  this.describeMethod('execute', {type: 'method'},
                       this.execute_.bind(this));
 
   /**
@@ -86,10 +92,14 @@ export var ExecuteContext = function(fileSystem, pathSpec, arg) {
   };
 };
 
+export {ExecuteContext};
 export default ExecuteContext;
 
 ExecuteContext.prototype = Object.create(BaseBinding.prototype);
 
+/**
+ * @return {Promise<*>}
+ */
 ExecuteContext.prototype.executePromise = function() {
   var resolvePromise = null;
   var rejectPromise = null;
@@ -111,6 +121,9 @@ ExecuteContext.prototype.executePromise = function() {
   return promise;
 };
 
+// Replaced with describeMethod later.
+ExecuteContext.prototype.execute = function() {};
+
 ExecuteContext.prototype.execute_ = function() {
   if (this.didExecute_) {
     return Promise.reject(new AxiomError.Runtime(
@@ -131,6 +144,8 @@ ExecuteContext.prototype.execute_ = function() {
  *
  * If the callee is closed, events are rerouted back to this instance and the
  * callee instance property is set to null.
+ *
+ * @param {ExecuteContext} executeContext
  */
 ExecuteContext.prototype.setCallee = function(executeContext) {
   if (this.callee)
@@ -160,15 +175,31 @@ ExecuteContext.prototype.setCallee = function(executeContext) {
 /**
  * Utility method to construct a new ExecuteContext, set it as the callee, and
  * execute it with the given path and arg.
+ *
+ * @param {FileSystem} fileSystem
+ * @param {string} pathSpec
+ * @param {Object} arg
+ * @return {Promise<ExecuteContext>}
  */
 ExecuteContext.prototype.call = function(fileSystem, pathSpec, arg) {
-  this.setCallee(fileSystem.createContext('execute', pathSpec, arg));
-  this.callee.execute();
-  return this.callee;
+  return fileSystem.createExecuteContext(pathSpec, arg).then(
+    function(cx) {
+      this.setCallee(cx);
+      cx.execute();
+      return cx;
+    });
 };
 
+/**
+ * Execute another path and complete the promise when the execution completes.
+ *
+ * @param {FileSystem} fileSystem
+ * @param {string} pathSpec
+ * @param {Object} arg
+ * @return {Promise<*>}
+ */
 ExecuteContext.prototype.callPromise = function(fileSystem, pathSpec, arg) {
-  return fileSystem.createContext('execute', pathSpec, arg).then(
+  return fileSystem.createExecuteContext(pathSpec, arg).then(
       function(cx) {
         this.setCallee(cx);
         return this.callee.executePromise();
@@ -315,7 +346,6 @@ ExecuteContext.prototype.setEnv = function(name, value) {
  * Remove the given environment variable.
  *
  * @param {string} name
- * @param {*} value
  */
 ExecuteContext.prototype.delEnv = function(name) {
   this.assertReadyState('WAIT', 'READY');
@@ -323,13 +353,35 @@ ExecuteContext.prototype.delEnv = function(name) {
 };
 
 /**
- * Create a new context using the fs.FileSystem for this execute context, bound
- * to the lifetime of this context.
+ * Create a new execute context using the fs.FileSystem for this execute
+ * context, bound to the lifetime of this context.
+ *
+ * @param {string} pathSpec
+ * @param {Object} arg
+ * @return {Promise<ExecuteContext>}
  */
-ExecuteContext.prototype.createContext = function(name, pathSpec, arg) {
-  var cx = this.fileSystem.createContext(name, pathSpec, arg);
-  cx.dependsOn(this);
-  return cx;
+ExecuteContext.prototype.createExecuteContext = function(pathSpec, arg) {
+  return this.fileSystem.createExecuteContext(pathSpec, arg).then(
+    function(cx) {
+      cx.dependsOn(this);
+      return cx;
+    });
+};
+
+/**
+ * Create a new open context using the fs.FileSystem for this execute
+ * context, bound to the lifetime of this context.
+ *
+ * @param {string} pathSpec
+ * @param {Object} arg
+ * @return {Promise<OpenContext>}
+ */
+ExecuteContext.prototype.createOpenContext = function(pathSpec, arg) {
+  return this.fileSystem.createOpenContext(pathSpec, arg).then(
+    function(cx) {
+      cx.dependsOn(this);
+      return cx;
+    });
 };
 
 /**
@@ -338,8 +390,8 @@ ExecuteContext.prototype.createContext = function(name, pathSpec, arg) {
  * The only signal defined at this time has the name 'Interrupt' and a null
  * value.
  *
- * @param {name}
- * @param {value}
+ * @param {string} name
+ * @param {string} value
  */
 ExecuteContext.prototype.signal = function(name, value) {
   this.assertReady();
@@ -359,7 +411,7 @@ ExecuteContext.prototype.signal = function(name, value) {
  * TODO(rginda): Add numeric argument onAck to support partial consumption.
  *
  * @param {*} value The value to send.
- * @param {function()} opt_onAck The optional function to invoke when the
+ * @param {function()=} opt_onAck The optional function to invoke when the
  *   recipient acknowledges receipt.
  */
 ExecuteContext.prototype.stdout = function(value, opt_onAck) {
@@ -380,7 +432,7 @@ ExecuteContext.prototype.stdout = function(value, opt_onAck) {
  * TODO(rginda): Add numeric argument onAck to support partial consumption.
  *
  * @param {*} value The value to send.
- * @param {function()} opt_onAck The optional function to invoke when the
+ * @param {function()=} opt_onAck The optional function to invoke when the
  *   recipient acknowledges receipt.
  */
 ExecuteContext.prototype.stderr = function(value, opt_onAck) {

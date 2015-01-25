@@ -13,6 +13,7 @@
 // limitations under the License.
 
 /**
+ * @constructor
  * An error value used when rejecting a promise.
  *
  * TODO(rginda): I haven't used Promises enough yet to know if rejecting a
@@ -20,66 +21,205 @@
  * resolve a promise to an error value for non-fatal failures.  If that's
  * the case we should change this to a Result class which can indicate
  * "ok" with a result value or "error" with an Err value.
+ *
+ * @param {string} name
+ * @param {*} value
  */
-export var AxiomError = function(name, value) {
+var AxiomError = function(name, value) {
   Error.call(this);
 
   // The Error ctor doesn't seem to apply the message argument correctly, so
   // we set it by hand instead.  The message property gives DevTools an
   // informative message to dump for uncaught exceptions.
+  /** @const {string} */
   this.message = name + ': ' + JSON.stringify(value);
+
   // Similar with the stack property.
+  /** @const {string} */
   this.stack = (new Error()).stack;
 
+  /** @const {string} */
   this.errorName = name;
+
+  /** @const {*} */
   this.errorValue = value;
 };
 
+export {AxiomError};
 export default AxiomError;
+
+/**
+ * Stringified error subclass name.
+ *
+ * @const {string}
+ */
+AxiomError.errorName = 'AxiomError';
+
+/**
+ * List of argument names defined for the error subclass.
+ *
+ * @const {Array<string>}
+ */
+AxiomError.argNames = [];
 
 /**
  * Subclass of a native Error.
  */
 AxiomError.prototype = Object.create(Error.prototype);
 
+/**
+ * Checks if the given error object is an instance of AxiomError.
+ *
+ * This method is also copied onto all AxiomError subclasses, where it can
+ * be used to check if the error object is an instance of the particular
+ * subclass.
+ *
+ * @this {function(...)}
+ * @param {Object} err
+ */
+AxiomError.test = function(err) {
+  return (err instanceof AxiomError && err.errorName === this.errorName);
+};
+
 AxiomError.prototype.toString = function() {
   return 'AxiomError: ' + this.message;
 };
 
-// Define a function which will construct a new error with the given name.
-// The constructor will also have a static 'test(err)' method which
-// returns true if the given AxiomError instance has the same name.
-export var mkerr = function(name, argNames) {
-  var ctor = function(/* ... */) {
-    if (arguments.length != argNames.length) {
-      throw new Error('Not enough arguments for error :' + name +
-                      ', got: ' + arguments.length + ', expected: ' +
-                      argNames.length);
-    }
+/**
+ * @param {Arguments} args
+ */
+AxiomError.prototype.init = function(args) {
+  AxiomError.apply(this, args);
 
-    var value = {};
-    for (var i = 0; i < argNames.length; i++) {
-      value[argNames[i]] = arguments[i];
-    }
+  this.errorName = this.ctor.errorName;
+  var argNames = this.ctor.argNames;
 
-    return new AxiomError(name, value);
-  };
+  if (args.length != argNames.length) {
+    throw new Error('Not enough arguments for error :' + this.errorName +
+                    ', got: ' + args.length + ', expected: ' +
+                    argNames.length);
+  }
 
-  ctor.test = function(err) {
-    return (err instanceof AxiomError && err.errorName ===  name);
-  };
-
-  AxiomError[name] = ctor;
+  this.errorValue = {};
+  for (var i = 0; i < argNames.length; i++) {
+    this.errorValue[argNames[i]] = args[i];
+  }
 };
 
-mkerr('Duplicate', ['type', 'value']);
-mkerr('Incompatible', ['type', 'value']);
-mkerr('Interrupt', []);
-mkerr('Invalid', ['type', 'value']);
-mkerr('Missing', ['type']);
-mkerr('NotFound', ['type', 'value']);
-mkerr('NotImplemented', ['msg']);
-mkerr('ParentClosed', ['reason', 'value']);
-mkerr('Runtime', ['message']);
-mkerr('TypeMismatch', ['expectedType', 'gotValue']);
-mkerr('Unknown', ['value']);
+/**
+ * @param {Object<string, function(...)>} map
+ */
+AxiomError.subclasses = function(map) {
+  for (var name in map) {
+    AxiomError.subclass(map[name], name);
+  }
+};
+
+/**
+ * @param {function(...)} ctor
+ * @param {string=} opt_name
+ */
+AxiomError.subclass = function(ctor, opt_name) {
+  var match = ctor.toString().match(/^function [^\(]*\(([^\)]*)\)/);
+  if (!match)
+    throw new Error('Error parsing AxiomError constructor: ' + ctor.toString());
+
+  var argNames = [];
+
+  if (match[1]) {
+    ctor.argNames = match[1].split(/\s*,\s*/);
+  } else {
+    ctor.argNames = [];
+  }
+
+  ctor.errorName = opt_name || ctor.name;
+  ctor.test = AxiomError.test.bind(ctor);
+  ctor.prototype = Object.create(AxiomError.prototype);
+  ctor.prototype.ctor = ctor;
+};
+
+// NOTE: See the note at the end of this file.
+
+/**
+ * @constructor @extends{AxiomError}
+ *
+ * @param {string} type
+ * @param {*} value
+ */
+AxiomError.Duplicate = function(type, value) { this.init(arguments) };
+
+/**
+ * @constructor @extends{AxiomError}
+ * @param {string} type
+ * @param {*} value
+ */
+AxiomError.Incompatible = function(type, value) { this.init(arguments) };
+
+/**
+ * @constructor @extends{AxiomError}
+ */
+AxiomError.Interrupt = function() { this.init(arguments) };
+
+/**
+ * @constructor @extends{AxiomError}
+ * @param {string} type
+ * @param {*} value
+ */
+AxiomError.Invalid = function(type, value) { this.init(arguments) };
+
+/**
+ * @constructor @extends{AxiomError}
+ * @param {string} type
+ */
+AxiomError.Missing = function(type) { this.init(arguments) };
+
+/**
+ * @constructor @extends{AxiomError}
+ * @param {string} type
+ * @param {*} value
+ */
+AxiomError.NotFound = function(type, value) { this.init(arguments) };
+
+/**
+ * @constructor @extends{AxiomError}
+ * @param {string} message
+ */
+AxiomError.NotImplemented = function(message) { this.init(arguments) };
+
+/**
+ * @constructor @extends{AxiomError}
+ * @param {string} reason
+ * @param {*} value
+ */
+AxiomError.ParentClosed = function(reason, value) { this.init(arguments) };
+
+/**
+ * @constructor @extends{AxiomError}
+ * @param {string} message
+ */
+AxiomError.Runtime = function(message) { this.init(arguments) };
+
+/**
+ * @constructor @extends{AxiomError}
+ * @param {string} expectedType
+ * @param {*} gotValue
+ */
+AxiomError.TypeMismatch = function(expectedType, gotValue) {
+  this.init(arguments);
+};
+
+/**
+ * @constructor @extends{AxiomError}
+ * @param {*} value
+ */
+AxiomError.Unknown = function(value) { this.init(arguments) };
+
+// NOTE(rginda): I wanted to be able to statically declare the above errors
+// in a way that closure would understand, but also wanted to avoid lots of
+// boilerplate repition of the error names.  So the constructors are set up
+// first and then search AxiomError properties for things starting in
+// uppercase in order to turn them into "proper" subclasses of AxiomError.
+for (var key in AxiomError) {
+  if (/^[A-Z]/.test(key))
+    AxiomError.subclass(AxiomError[key], key);
+}

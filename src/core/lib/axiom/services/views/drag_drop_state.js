@@ -12,18 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Helper class used to track the state of an active drag & drop operation.
-export var DragDropState = function (frame, view) {
-  this.frame = frame;
+/**
+ * @constructor
+ * Helper class used to track the state of an active drag & drop operation.
+ *
+ * @param {HTMLElement} view
+ */
+var DragDropState = function(view) {
   this.view = view;
 
-  // Array of element with activate drop zones.
+  /**
+   * Array of element with activate drop zones.
+   * @type {Array<HTMLElement>}
+   */
   this.currentDropZones = [];
 
   // There is no active drop target yet.
   this.activeDropTarget = null;
 };
 
+export {DragDropState};
 export default DragDropState;
 
 DragDropState.prototype.dragStart = function(path) {
@@ -34,7 +42,7 @@ DragDropState.prototype.dragStart = function(path) {
 DragDropState.prototype.dragEnd = function() {
   // Hide active drop zones.
   for(var i = 0; i < this.currentDropZones.length; i++) {
-    this.currentDropZones[i].dropZones().setAttribute('hidden', '');
+    this.currentDropZones[i]['dropZones']().setAttribute('hidden', '');
   }
   this.currentDropZones = [];
   this.deactivateDropTarget();
@@ -99,12 +107,12 @@ DragDropState.prototype.activateDropZones = function(path) {
 
   // Hide the drop zones not active anymore
   for(i = lastCommonParent + 1; i < currentPath.length; i++) {
-    currentPath[i].dropZones().setAttribute('hidden', '');
+    currentPath[i]['dropZones']().setAttribute('hidden', '');
   }
 
   // Show the newly active drop zones
   for(i = lastCommonParent + 1; i < newPath.length; i++) {
-    newPath[i].dropZones().removeAttribute('hidden');
+    newPath[i]['dropZones']().removeAttribute('hidden');
   }
 
   // Update state for next call.
@@ -118,21 +126,18 @@ DragDropState.prototype.activateDropTarget = function(path) {
     return;
   }
 
-  if (dropZone === this.currentDropZone) {
-    return;
-  }
-
   this.deactivateDropTarget();
 
   // Activate a new drop target
   var position = dropZone.position;
   var dropZones = this.getDropZones(path);
   var container = dropZones[dropZones.length - 1];
-  var anchor = container.anchorsElement().anchor(position);
+  var anchor = container['anchorsElement']().anchor(position);
   anchor.removeAttribute('hidden');
   // Note: We need a value (not just empty string) for the attribute,
   // otherwise polymer won't detect changes to the attribute value.
-  container.dropZones().zone(position).setAttribute('active', '1');
+  /** HTMLElement */ var elem = container['dropZones']()['zone'](position);
+  elem.setAttribute('active', '1');
 
   this.activeDropTarget = {
     view: this.view,
@@ -147,9 +152,10 @@ DragDropState.prototype.deactivateDropTarget = function() {
 
   var position = this.activeDropTarget.targetPosition;
   var container = this.activeDropTarget.target;
-  var anchor = container.anchorsElement().anchor(position);
+  var anchor = container['anchorsElement']().anchor(position);
   anchor.setAttribute('hidden', '');
-  container.dropZones().zone(position).removeAttribute('active');
+  /** HTMLElement */ var elem = container['dropZones']()['zone'](position);
+  elem.removeAttribute('active');
 
   this.activeDropTarget = null;
 };

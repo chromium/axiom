@@ -35,6 +35,15 @@ module.exports = function(grunt) {
                     'lib/polymer/axiom_vulcanized.js']
     },
 
+    'closure-compiler': {
+      main: {
+        cwd: 'lib/',
+        js: 'axiom/**/*.js',
+        jsOutputFile: 'out/closure/out.js',
+        options: require('./build/closure-options.json')
+      }
+    },
+
     'watch': {
       shell: {
         files: ['lib/**/*.js',

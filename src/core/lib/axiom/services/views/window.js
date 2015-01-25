@@ -12,10 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export var Window = function(id, options) {
+/**
+ * @constructor
+ */
+var Window = function(id, options) {
   this.containers_ = {};
 };
 
+export {Window};
 export default Window;
 
 Window.prototype.show = function() {};

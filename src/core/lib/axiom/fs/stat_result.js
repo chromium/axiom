@@ -1,4 +1,4 @@
-// Copyright 2014 Google Inc. All rights reserved.
+// Copyright 2015 Google Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,16 +13,20 @@
 // limitations under the License.
 
 /**
- * @constructor
- * A container is a horizontal-box, vertical-box, or tab-strip which fits in
- * a window or another container, and contains views or other containers.
+ * @constructor @struct
+ *
+ * @param {number=} opt_mode
  */
-var Container = function(options) {
-  this.options_ = options;
-  this.views_ = {};
+var StatResult = function(opt_mode) {
+  /** @type {number} */
+  this.mode = opt_mode || 0;
+  /** @type {number} */
+  this.mtime = 0;
+  /** @type {number} */
+  this.count = 0;
+  /** @type {number} */
+  this.size = 0;
 };
 
-export {Container};
-export default Container;
-
-Container.prototype.addView = function(viewId) {};
+export {StatResult};
+export default StatResult;

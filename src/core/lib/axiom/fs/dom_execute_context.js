@@ -13,24 +13,23 @@
 // limitations under the License.
 
 import AxiomError from 'axiom/core/error';
-
 import ExecuteContextBinding from 'axiom/bindings/fs/execute_context';
-
 import Path from 'axiom/fs/path';
 
+/** @typedef DomFileSystem$$module$axiom$fs$dom_file_system */
+var DomFileSystem;
+
 /**
+ * @constructor
  * Construct a new context that can be used to invoke an executable.
  *
- * @constructor
  * @param {DomFileSystem} domfs
  * @param {Path} path
- * @param {FileEntry} entry
  * @param {Object} arg
  */
-export var DomExecuteContext = function(domfs, path, entry, arg) {
+var DomExecuteContext = function(domfs, path, arg) {
   this.domfs = domfs;
   this.path = path;
-  this.targetEntry = entry;
   this.arg = arg;
 
   this.binding = new ExecuteContextBinding(domfs.binding, path.spec, arg);
@@ -39,6 +38,7 @@ export var DomExecuteContext = function(domfs, path, entry, arg) {
   });
 };
 
+export {DomExecuteContext};
 export default DomExecuteContext;
 
 DomExecuteContext.prototype.execute_ = function() {

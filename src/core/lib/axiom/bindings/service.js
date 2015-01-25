@@ -17,13 +17,16 @@ import AxiomEvent from 'axiom/core/event';
 import BaseBinding from 'axiom/bindings/base';
 import ExtensionBinding from 'axiom/bindings/extension';
 
+/** @typedef ModuleBinding$$module$axiom$bindings$module */
+var ModuleBinding;
+
 /**
- * @constructor
+ * @constructor @extends {BaseBinding}
  * @param {ModuleBinding} moduleBinding  The parent module.
  * @param {string} serviceId
  * @param {Object} serviceDescriptor
  */
-export var ServiceBinding = function(
+var ServiceBinding = function(
     moduleBinding, serviceId, serviceDescriptor) {
   BaseBinding.call(this, serviceDescriptor['service-binding']);
 
@@ -58,11 +61,12 @@ export var ServiceBinding = function(
   // On first-ready, drain any pending extensions.
   this.onReady.listenOnce(function() {
       console.log('Service ready: ' + serviceId);
-      this.pendingExtensionBindings_.forEach(this.onExtend.fire);
+      this.pendingExtensionBindings_.forEach(this.onExtend.fire, null);
       this.pendingExtensionBindings_.clear();
     }.bind(this));
 };
 
+export {ServiceBinding};
 export default ServiceBinding;
 
 ServiceBinding.prototype = Object.create(BaseBinding.prototype);
@@ -78,7 +82,8 @@ ServiceBinding.prototype.whenLoadedAndReady = function() {
 };
 
 /**
- * @param {ExtensionBinding} extensionBinding
+ * @param {ModuleBinding} sourceModuleBinding
+ * @param {Object} extensionDescriptor
  */
 ServiceBinding.prototype.extend = function(
     sourceModuleBinding, extensionDescriptor) {

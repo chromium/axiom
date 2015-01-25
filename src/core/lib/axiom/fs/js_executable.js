@@ -15,18 +15,28 @@
 import AxiomError from 'axiom/core/error';
 import JsEntry from 'axiom/fs/js_entry';
 
+/** @typedef ExecuteContext$$module$axiom$bindings$fs$execute_context */
+var ExecuteContext;
+
+/** @typedef JsExecuteContext$$module$axiom$fs$js_execute_context */
+var JsExecuteContext;
+
+/** @typedef JsFileSystem$$module$axiom$fs$js_file_system */
+var JsFileSystem;
+
 /**
+ * @constructor @extends {JsEntry}
  * An executable file in a JsFileSystem.
  *
  * @param {JsFileSystem} jsfs  The parent file system.
- * @param {function(JsExecuteContext)} callback  The function to call when the
- *   executable is invoked.
+ * @param {function(ExecuteContext, JsExecuteContext)} callback  The function
+ *   to call when the executable is invoked.
  * @param {string} argSigil  A sigil representing the argument type expected
  *   by this executable.  "$" -> String, "@" -> Array, "%" -> Object,
  *   "*" -> Any.
  */
-export var JsExecutable = function(jsfs, callback, argSigil) {
-  JsEntry.call(this, jsfs, 'x');
+var JsExecutable = function(jsfs, callback, argSigil) {
+  JsEntry.call(this, jsfs, 'X');
 
   if (typeof callback != 'function')
     throw new AxiomError.TypeMismatch('function', callback);
@@ -35,6 +45,7 @@ export var JsExecutable = function(jsfs, callback, argSigil) {
   this.argSigil_ = argSigil;
 };
 
+export {JsExecutable};
 export default JsExecutable;
 
 JsExecutable.prototype = Object.create(JsEntry.prototype);
@@ -77,7 +88,7 @@ JsExecutable.prototype.execute = function(jsExecuteContext) {
     }
   ).catch(
     function(value) {
-      if (jsExecuteContext.binding.isReadyState('READY'));
+      if (jsExecuteContext.binding.isReadyState('READY'))
         jsExecuteContext.binding.closeErrorValue(value);
     }
   );

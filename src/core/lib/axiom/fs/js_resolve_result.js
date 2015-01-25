@@ -12,7 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/** @typedef FileSystem$$module$axiom$bindings$fs$file_system */
+var FileSystem;
+
+/** @typedef JsEntry$$module$axiom$fs$js_entry */
+var JsEntry;
+
 /**
+ * @constructor
  * Represents the result of an attempt to resolve a path.
  *
  * prefixList is the array of path elements that lead up to the entry.
@@ -27,12 +34,12 @@
  *
  * If entry is null the path was invalid.
  *
- * @constructor
  * @param {Array<string>} prefixList  The list of path elements that were found.
  * @param {Array<string>} suffixList  The list of path elements that were not.
- * @param {JsEntry} entry  The entry for the final item in prefixList.
+ * @param {JsEntry|FileSystem} entry  The entry for the final item in
+ *   prefixList.
  */
-export var JsFsResolveResult = function(prefixList, suffixList, entry) {
+var JsResolveResult = function(prefixList, suffixList, entry) {
   this.prefixList = prefixList || [];
   this.suffixList = suffixList || [];
   this.entry = entry;
@@ -40,4 +47,5 @@ export var JsFsResolveResult = function(prefixList, suffixList, entry) {
   this.isFinal = (entry && this.suffixList.length === 0);
 };
 
-export default JsFsResolveResult;
+export {JsResolveResult};
+export default JsResolveResult;

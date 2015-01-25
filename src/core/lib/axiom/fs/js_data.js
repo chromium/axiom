@@ -13,19 +13,23 @@
 // limitations under the License.
 
 import AxiomError from 'axiom/core/error';
-
 import JsEntry from 'axiom/fs/js_entry';
 
+/** @typedef JsFileSystem$$module$axiom$fs$js_file_system */
+var JsFileSystem;
+
 /**
+ * @constructor @extends {JsEntry}
  * @param {JsFileSystem} jsfs
  * @param {Object} value
  * @param {string} opt_modeStr
  */
-export var JsData = function(jsfs, value, opt_modeStr) {
-  JsEntry.call(this, jsfs, opt_modeStr || 'rw');
+var JsData = function(jsfs, value, opt_modeStr) {
+  JsEntry.call(this, jsfs, opt_modeStr || 'RW');
   this.value_ = value;
 };
 
+export {JsData};
 export default JsData;
 
 JsData.prototype = Object.create(JsEntry.prototype);

@@ -15,18 +15,29 @@
 import AxiomError from 'axiom/core/error';
 
 import Path from 'axiom/fs/path';
-import FileSystemBinding from 'axiom/bindings/fs/file_system';
+import FileSystem from 'axiom/bindings/fs/file_system';
 import DomFileSystem from 'axiom/fs/dom_file_system';
 import JsFileSystem from 'axiom/fs/js_file_system';
 
+/** @typedef ExtensionBinding$$module$axiom$bindings$extension */
+var ExtensionBinding;
+
+/** @typedef JsDirectory$$module$axiom$fs$js_directory */
+var JsDirectory;
+
+/** @typedef ServiceBinding$$module$axiom$bindings$service */
+var ServiceBinding;
+
 /**
+ * @constructor
  * Registry of filesystems.
  */
-export var FileSystemManager = function() {
+var FileSystemManager = function() {
   this.extensionBindings_ = [];
   this.jsfs_ = new JsFileSystem();
 };
 
+export {FileSystemManager};
 export default FileSystemManager;
 
 /**
@@ -38,7 +49,8 @@ FileSystemManager.prototype.bind = function(serviceBinding) {
   });
 
   serviceBinding.bind(this.jsfs_, {
-    'createContext': 'createContext',
+    'createExecuteContext': 'createExecuteContext',
+    'createOpenContext': 'createOpenContext',
     'list': 'list',
     'mkdir': 'mkdir',
     'stat': 'stat',
@@ -51,8 +63,8 @@ FileSystemManager.prototype.bind = function(serviceBinding) {
   });
 
 
-  this.jsfs_.mkdir('addon').then(
-    function(jsdir) {
+  this.jsfs_.rootDirectory.mkdir('addon').then(
+    function(/** JsDirectory */ jsdir) {
       this.addonDir_ = jsdir;
     }.bind(this)
   ).then(function() {
@@ -60,11 +72,11 @@ FileSystemManager.prototype.bind = function(serviceBinding) {
     }.bind(this)
   ).then(
     function () {
-      return this.jsfs_.mkdir('mnt');
+      return this.jsfs_.rootDirectory.mkdir('mnt');
     }.bind(this)
-  ).then(function(mntDir) {
+  ).then(function(/** JsDirectory */ mntDir) {
     return this.mountDomfs('persistent', 'html5', mntDir);
-  }.bind(this)).then(function(domfs) {
+  }.bind(this)).then(function(/** DomFileSystem */ domfs) {
     return domfs.stat('home').catch(function (err) {
       return domfs.mkdir('home');
     });
@@ -79,13 +91,14 @@ FileSystemManager.prototype.bind = function(serviceBinding) {
 /**
  * Mounts a given type if dom filesystem at /jsDir/mountName
  *
- * @param type temporary or permanent dom filesystem.
- * @param mountName
+ * @param {string} type temporary or permanent dom filesystem.
+ * @param {string} mountName
+ * @return {Promise<DomFileSystem>}
  */
 FileSystemManager.prototype.mountDomfs = function(type, mountName, jsDir) {
   return new Promise(function(resolve, reject) {
     var requestFs = (window.requestFileSystem ||
-                     window.webkitRequestFileSystem);
+                     window.webkitRequestFileSystem).bind(window);
     // This is currently ignored.
     var capacity = 1024 * 1024 * 1024;
 
@@ -100,12 +113,14 @@ FileSystemManager.prototype.mountDomfs = function(type, mountName, jsDir) {
     };
 
     if (type == 'temporary') {
-      navigator.webkitTemporaryStorage.requestQuota(capacity, function(bytes) {
+      var pemporaryStorage = navigator['webkitTemporaryStorage'];
+      pemporaryStorage.requestQuota(capacity, function(bytes) {
           requestFs(window.TEMPORARY, bytes,
                     onFileSystemFound, onFileSystemError);
         });
     } else {
-      navigator.webkitPersistentStorage.requestQuota(capacity, function(bytes) {
+      var persistentStorage = navigator['webkitPersistentStorage'];
+      persistentStorage.requestQuota(capacity, function(bytes) {
           requestFs(window.PERSISTENT, bytes,
                     onFileSystemFound, onFileSystemError);
         });
@@ -120,14 +135,15 @@ FileSystemManager.prototype.mountDomfs = function(type, mountName, jsDir) {
  * and the binding should provide a 'get' function which takes (name) and
  * returns a promise to the requested filesystem.
  *
- * @param {ExtensionBinding} extension
+ * @param {ExtensionBinding} extensionBinding
  */
 FileSystemManager.prototype.onExtend = function(extensionBinding) {
   var sourceModuleId = extensionBinding.sourceModuleBinding.moduleId;
 
-  var fsb = new FileSystemBinding();
+  var fsb = new FileSystem();
   fsb.bind(extensionBinding, {
-    'createContext': 'createContext',
+    'createExecuteContext': 'createExecuteContext',
+    'createOpenContext': 'createOpenContext',
     'list': 'list',
     'mkdir': 'mkdir',
     'stat': 'stat',

@@ -13,37 +13,120 @@
 // limitations under the License.
 
 import AxiomError from 'axiom/core/error';
-
 import BaseBinding from 'axiom/bindings/base';
 
-export var FileSystem = function() {
+/** @typedef ExecuteContext$$module$axiom$bindings$fs$execute_context */
+var ExecuteContext;
+
+/** @typedef OpenContext$$module$axiom$bindings$fs$open_context */
+var OpenContext;
+
+/** @typedef StatResult$$module$axiom$fs$stat_result */
+var StatResult;
+
+/**
+ * @constructor @extends {BaseBinding}
+ */
+var FileSystem = function() {
   BaseBinding.call(this, {
-    // Create an alias entry.
-    alias: {type: 'method', args: ['pathSpecFrom', 'pathSpecTo']},
-
-    // Create an open or execute context.
-    createContext: {type: 'method', args: ['contextType', 'pathSpec', 'arg']},
-
-    // Return an array of stat metadata for each entry in a directory.
-    list: {type: 'method', args: ['pathSpec']},
-
-    // Make a new directory.
-    mkdir: {type: 'method', args: ['pathSpec']},
-
-    // Move an entry from one location to another.
-    move: {type: 'method', args: ['pathSpecFrom', 'pathSpecTo']},
-
-    // Get metadata for a path.
-    stat: {type: 'method', args: ['pathSpec']},
-
-    // Remove a path.
-    unlink: {type: 'method', args: ['pathSpec']},
+    alias: {type: 'method'},
+    createExecuteContext: {type: 'method'},
+    createOpenContext: {type: 'method'},
+    list: {type: 'method'},
+    mkdir: {type: 'method'},
+    move: {type: 'method'},
+    stat: {type: 'method'},
+    unlink: {type: 'method'},
   });
 };
 
+export {FileSystem};
 export default FileSystem;
 
 FileSystem.prototype = Object.create(BaseBinding.prototype);
+
+/**
+ * Create an alias entry.
+ *
+ * Bindable method.
+ *
+ * @param {string} pathSpecFrom
+ * @param {string} pathSpecTo
+ */
+FileSystem.prototype.alias = function(pathSpecFrom, pathSpecTo) {};
+
+/**
+ * Create an execute context.
+ *
+ * Bindable method.
+ *
+ * @param {string} pathSpec
+ * @param {Object} arg
+ * @return {!Promise<!ExecuteContext>}
+ */
+FileSystem.prototype.createExecuteContext = function(pathSpec, arg) {};
+
+/**
+ * Create an open context.
+ *
+ * Bindable method.
+ *
+ * @param {string} pathSpec
+ * @param {Object} arg
+ * @return {!Promise<!OpenContext>}
+ */
+FileSystem.prototype.createOpenContext = function(pathSpec, arg) {};
+
+/**
+ * Return an array of stat metadata for each entry in a directory.
+ *
+ * Bindable method.
+ *
+ * @param {string} pathSpec
+ * @return {Promise<Object<string, StatResult>>}
+ */
+FileSystem.prototype.list = function(pathSpec) {};
+
+/**
+ * Make a new directory.
+ *
+ * Bindable method.
+ *
+ * @param {string} pathSpec
+ * @return {Promise<undefined>}
+ */
+FileSystem.prototype.mkdir = function(pathSpec) {};
+
+/**
+ * Move an entry from one location to another.
+ *
+ * Bindable method.
+ *
+ * @param {string} pathSpecFrom
+ * @param {string} pathSpecTo
+ * @return {Promise<undefined>}
+ */
+FileSystem.prototype.move = function (pathSpecFrom, pathSpecTo) {};
+
+/**
+ * Get metadata for a path.
+ *
+ * Bindable method.
+ *
+ * @param {string} pathSpec
+ * @return {Promise<StatResult>}
+ */
+FileSystem.prototype.stat = function(pathSpec) {};
+
+/**
+ * Remove a path.
+ *
+ * Bindable method.
+ *
+ * @param {string} pathSpec
+ * @return {Promise<undefined>}
+ */
+FileSystem.prototype.unlink = function(pathSpec) {};
 
 /**
  * Read the entire contents of a file.
@@ -68,7 +151,7 @@ FileSystem.prototype.readFile = function(path, openArg, readArg) {
 
   readArg = readArg || {};
 
-  return this.createContext('open', path, openArg).then(
+  return this.createOpenContext(path, openArg).then(
     function(ocx) {
       return ocx.open().then(
         function() {
@@ -104,7 +187,7 @@ FileSystem.prototype.writeFile = function(path, openArg, writeArg) {
 
   writeArg = writeArg || {};
 
-  return this.createContext('open', path, openArg).then(
+  return this.createOpenContext(path, openArg).then(
     function(ocx) {
       return ocx.open().then(
         function() {

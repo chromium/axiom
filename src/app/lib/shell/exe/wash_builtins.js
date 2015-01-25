@@ -41,7 +41,7 @@ export var WashBuiltins = function(shellInstance) {
 
       return shellInstance.fileSystem.stat(path).then(
         function(statResult) {
-          if (!(statResult.mode & Path.mode.d))
+          if (!(statResult.mode & Path.Mode.D))
             return Promise.reject(new AxiomError.TypeMismatch('dir', path));
 
           if (!/\/$/.test(path))

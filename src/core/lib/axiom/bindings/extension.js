@@ -15,14 +15,20 @@
 import AxiomEvent from 'axiom/core/event';
 import BaseBinding from 'axiom/bindings/base';
 
+/** @typedef ModuleBinding$$module$axiom$bindings$module */
+var ModuleBinding;
+
+/** @typedef ServiceBinding$$module$axiom$bindings$service */
+var ServiceBinding;
+
 /**
- * @constructor
+ * @constructor @extends{BaseBinding}
  * @param {ServiceBinding} targetServiceBinding
  * @param {Object} targetServiceDescriptor
  * @param {ModuleBinding} sourceModuleBinding
  * @param {Object} extensionDescriptor
  */
-export var ExtensionBinding = function(
+var ExtensionBinding = function(
     targetServiceBinding, targetServiceDescriptor,
     sourceModuleBinding, extensionDescriptor) {
   BaseBinding.call(this, targetServiceDescriptor['extension-binding']);
@@ -59,6 +65,7 @@ export var ExtensionBinding = function(
     }.bind(this));
 };
 
+export {ExtensionBinding};
 export default ExtensionBinding;
 
 ExtensionBinding.prototype = Object.create(BaseBinding.prototype);
@@ -93,7 +100,7 @@ ExtensionBinding.subclass = function(
 ExtensionBinding.prototype.whenLoadedAndReady = function() {
   if (this.isReadyState('WAIT')) {
     console.log('Loading and waiting for extension: ' +
-                this.sourceModule.moduleId + ' => ' +
+                this.sourceModuleBinding.moduleId + ' => ' +
                 this.targetServiceBinding.serviceId);
     this.onLoadRequest.fire();
     return this.whenReady();
