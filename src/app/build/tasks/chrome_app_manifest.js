@@ -37,6 +37,7 @@ var makeManifest = function(version, mode) {
     app: {
       background: {
         scripts: [
+          "js/init.js",
           "js/amd_loader.js",
           "js/hterm.amd.min.js",
           "js/axiom_npm_deps.amd.js",
