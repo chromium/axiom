@@ -82,6 +82,7 @@ module.exports = function(grunt) {
           { expand: true,
             cwd: 'boot/',
             src: ['amd_loader.js',
+                  'init.js',
                   'chrome_app_background.js'],
             dest: 'out/chrome_app/js/'
           },
