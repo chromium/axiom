@@ -42,6 +42,7 @@ var makeManifest = function(version, mode) {
           "js/axiom_npm_deps.amd.js",
           "js/axiom.amd.js",
           "js/shell.amd.js",
+          "js/shell_npm_deps.amd.js",
           "js/chrome_app_background.js"
         ]
       }
