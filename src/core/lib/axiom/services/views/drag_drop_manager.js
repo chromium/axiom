@@ -18,21 +18,29 @@ import DragDropState from 'axiom/services/views/drag_drop_state';
 
 var AXIOM_VIEW_TITLE = 'AXIOM-VIEW-TITLE';
 
-/*
+/**
+ * @constructor
  * Drag & drop manager for a given AXIOM-FRAME
+ *
+ * @param {Element} frame
  */
-export var DragDropManager = function(frame) {
+var DragDropManager = function(frame) {
   this.frame = frame;
   this.dragDropState = null;
   this.trackingModeActive = false;
 };
 
+export {DragDropManager};
 export default DragDropManager;
 
 DragDropManager.prototype.activate = function() {
   this.registerEventListeners();
 };
 
+/**
+ * @param {string} type
+ * @param {Object} detail
+ */
 DragDropManager.prototype.fire = function(type, detail) {
   this.frame.dispatchEvent(new CustomEvent(type, { detail: detail }));
 };
@@ -100,7 +108,7 @@ DragDropManager.prototype.dragStart = function (event) {
   var view = event.target['axiom-view'];
 
   // Use state to keep track of current drag-drop operation.
-  this.dragDropState = new DragDropState(this, view);
+  this.dragDropState = new DragDropState(view);
   this.dragDropState.dragStart(event.path);
 
   // Fire custom 'drag-start' event
@@ -151,10 +159,16 @@ DragDropManager.prototype.dragEnter = function (event) {
   }
 };
 
-DragDropManager.prototype.dragLeave = function (event) {
+/**
+ * @param {Event} event
+ */
+DragDropManager.prototype.dragLeave = function(event) {
 };
 
-DragDropManager.prototype.dragOver = function (event) {
+/**
+ * @param {Event} event
+ */
+DragDropManager.prototype.dragOver = function(event) {
   //console.log('dragOver', event);
   if (this.dragDropState) {
     this.dragDropState.dragOver(event.path);
@@ -165,7 +179,10 @@ DragDropManager.prototype.dragOver = function (event) {
   }
 };
 
-DragDropManager.prototype.drop = function (event) {
+/**
+ * @param {Event} event
+ */
+DragDropManager.prototype.drop = function(event) {
   //console.log('drop', event);
   if (this.dragDropState) {
     var target = this.dragDropState.activeDropTarget;
@@ -175,10 +192,15 @@ DragDropManager.prototype.drop = function (event) {
   }
 };
 
-// This event is invoked when the mouse cursor enters the area of a view
-// title. In response, we create a "draggable" overlay that will be used
-// in case a drag-drop operations is started. The title overlay is deleted
-// once the mouse cursor leaves the view title area.
+/**
+ * This event is invoked when the mouse cursor enters the area of a view
+ * title. In response, we create a "draggable" overlay that will be used
+ * in case a drag-drop operations is started. The title overlay is deleted
+ * once the mouse cursor leaves the view title area.
+ *
+ * @param {Element} frame
+ * @param {Element} view
+ */
 DragDropManager.prototype.mouseOverTitle = function(frame, view) {
   // Skip if we are already tracking mouse events. When dragging splitters,
   // for example, this prevents "accidental" creation of title overlays, as
@@ -214,7 +236,7 @@ DragDropManager.prototype.mouseOverTitle = function(frame, view) {
   title.id = 'frame-title-track';
   title.setAttribute('draggable', true);
   title.style.zIndex = 250;
-  var titleRect = view.headerElement().getBoundingClientRect();
+  var titleRect = view['headerElement']().getBoundingClientRect();
   setTitleRect(title, titleRect);
   // TODO(rpaquay): hack so that drag drop manager knows what view is dragged.
   title['axiom-view'] = view;
@@ -304,7 +326,7 @@ DragDropManager.prototype.mouseOverTitle = function(frame, view) {
     // Track only if the view is still in the DOM.
     if (view.parentElement) {
       // Any change in bounding client rect requires a resize of the title.
-      var newTitleRect = view.headerElement().getBoundingClientRect();
+      var newTitleRect = view['headerElement']().getBoundingClientRect();
       if (newTitleRect.top !== titleRect.top ||
           newTitleRect.left !== titleRect.left ||
           newTitleRect.width !== titleRect.width ||
@@ -322,16 +344,25 @@ DragDropManager.prototype.mouseOverTitle = function(frame, view) {
   document.body.appendChild(title);
 };
 
+/**
+ * @param {Event} event
+ */
 DragDropManager.prototype.trackStart = function(event) {
   //console.log('trackStart', this);
   this.trackingModeActive = true;
 };
 
+/**
+ * @param {Event} event
+ */
 DragDropManager.prototype.trackEnd = function(event) {
   //console.log('trackEnd', this);
   this.trackingModeActive = false;
 };
 
+/**
+ * @param {Element} title
+ */
 DragDropManager.prototype.deleteTitleElement = function(title) {
   //console.log('delete title element', title);
   // Do not delete title bar if it is in drap-drop mode, because that would

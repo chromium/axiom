@@ -153,7 +153,7 @@ TerminalView.prototype.execute_ = function(pathSpec, arg, env) {
 
   var fileSystemBinding = environment.getServiceBinding('filesystems@axiom');
 
-  return fileSystemBinding.createContext('execute', pathSpec, arg).then(
+  return fileSystemBinding.createExecuteContext(pathSpec, arg).then(
     function(cx) {
       this.executeContext = cx;
       this.executeContext.setEnvs(env);

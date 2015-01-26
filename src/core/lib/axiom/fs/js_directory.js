@@ -14,25 +14,38 @@
 
 import AxiomError from 'axiom/core/error';
 
-import FileSystemBinding from 'axiom/bindings/fs/file_system';
+import FileSystem from 'axiom/bindings/fs/file_system';
 import Path from 'axiom/fs/path';
 
 import JsEntry from 'axiom/fs/js_entry';
 import JsExecutable from 'axiom/fs/js_executable';
 import JsResolveResult from 'axiom/fs/js_resolve_result';
 
+/** @typedef ExecuteContext$$module$axiom$bindings$fs$execute_context */
+var ExecuteContext;
+
+/** @typedef JsExecuteContext$$module$axiom$fs$js_execute_context */
+var JsExecuteContext;
+
+/** @typedef JsFileSystem$$module$axiom$fs$js_file_system */
+var JsFileSystem;
+
 /**
+ * @constructor @extends {JsEntry}
  * A directory in a JsFileSystem.
  *
- * A directory can contain JsEntry subclasses and/or FileSystemBindings.
+ * A directory can contain JsEntry subclasses and/or FileSystems.
  *
  * @param {JsFileSystem} jsfs  The parent file system.
  */
-export var JsDirectory = function(jsfs) {
-  JsEntry.call(this, jsfs, 'd');
+var JsDirectory = function(jsfs) {
+  JsEntry.call(this, jsfs, 'D');
+
+  /** @type {Map<string, (JsEntry|FileSystem)>} */
   this.entryMap_ = new Map();
 };
 
+export {JsDirectory};
 export default JsDirectory;
 
 JsDirectory.prototype = Object.create(JsEntry.prototype);
@@ -44,7 +57,7 @@ JsDirectory.prototype = Object.create(JsEntry.prototype);
  * the path can be resolved.
  *
  * @param {Path} path An object representing the path to resolve.
- * @param {integer} opt_index The optional index into the path elements where
+ * @param {number=} opt_index The optional index into the path elements where
  *   we should start resolving.  Defaults to 0, the first path element.
  * @return {JsResolveResult}
  */
@@ -58,7 +71,7 @@ JsDirectory.prototype.resolve = function(path, opt_index) {
         this);
   }
 
-  var entry = this.entryMap_.get(path.elements[index]);
+  var entry = this.entryMap_.get(path.elements[index]) || null;
 
   if (index == path.elements.length - 1)
     return new JsResolveResult(path.elements, null, entry);
@@ -83,13 +96,13 @@ JsDirectory.prototype.entryExists = function(name) {
 /**
  * Link the given entry into this directory.
  *
- * This method is not directly reachable through the FileSystemBinding.
+ * This method is not directly reachable through the FileSystem.
  *
  * @param {string} name  A name to give the entry.
- * @param {JsEntry}
+ * @param {JsEntry} entry
  */
 JsDirectory.prototype.link = function(name, entry) {
-  if (!entry instanceof JsEntry)
+  if (!(entry instanceof JsEntry))
     throw new AxiomError.TypeMismatch('instanceof JsEntry', entry);
 
   if (this.entryMap_.has(name))
@@ -99,25 +112,29 @@ JsDirectory.prototype.link = function(name, entry) {
 };
 
 /**
- * Link the given FileSystemBinding into this directory.
+ * Link the given FileSystem into this directory.
  *
- * This method is not directly reachable through the FileSystemBinding.
+ * This method is not directly reachable through the FileSystem.
  *
  * @param {string} name  A name to give the file system.
- * @param {FileSystemBinding}
+ * @param {FileSystem} fileSystem
  */
-JsDirectory.prototype.mount = function(name, fileSystemBinding) {
-  if (!fileSystemBinding instanceof FileSystemBinding) {
-    throw new AxiomError.TypeMismatch('instanceof FileSystemBinding',
-                                      fileSystemBinding);
+JsDirectory.prototype.mount = function(name, fileSystem) {
+  if (!(fileSystem instanceof FileSystem)) {
+    throw new AxiomError.TypeMismatch('instanceof FileSystem',
+                                      fileSystem);
   }
 
   if (this.entryMap_.has(name))
     throw new AxiomError.Duplicate('directory-name', name);
 
-  this.entryMap_.set(name, fileSystemBinding);
+  this.entryMap_.set(name, fileSystem);
 };
 
+/**
+ * @param {Object<string, function(ExecuteContext, JsExecuteContext)>}
+ *   executables
+ */
 JsDirectory.prototype.install = function(executables) {
   for (var name in executables) {
     var callback = executables[name];
@@ -129,10 +146,10 @@ JsDirectory.prototype.install = function(executables) {
       if (sigil && '$@%*'.indexOf(sigil) == -1)
         throw new AxiomError.Invalid('sigil', sigil);
     } else {
-      sigil = executables[name].argSigil || '*';
+      sigil = executables[name]['argSigil'] || '*';
     }
 
-    this.link(name, new JsExecutable(this, callback, sigil));
+    this.link(name, new JsExecutable(this.jsfs, callback, sigil));
   }
 };
 
@@ -154,7 +171,7 @@ JsDirectory.prototype.mkdir = function(name) {
  * Remove the entry with the given name.
  *
  * @param {string} name
- * @return {Promise<>}
+ * @return {Promise}
  */
 JsDirectory.prototype.unlink = function(name) {
   if (!this.entryExists(name))
@@ -176,7 +193,7 @@ JsDirectory.prototype.list = function() {
   this.entryMap_.forEach(function(entry, name) {
     var promise;
 
-    if (entry instanceof FileSystemBinding) {
+    if (entry instanceof FileSystem) {
       promise = entry.stat('/');
     } else {
       promise = entry.stat();
@@ -185,7 +202,7 @@ JsDirectory.prototype.list = function() {
     promises.push(promise.then(function(statResult) {
       rv[name] = statResult;
     }));
-  });
+    }, null);
 
   return Promise.all(promises).then(function() {
     return rv;

@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/**
+ * @param {*} cond
+ * @param {string=} message
+ * @param {string=} text
+ */
 function verify(cond, message, text) {
   if (!message)
     message = 'Assertion failed';
@@ -27,42 +32,79 @@ function verify(cond, message, text) {
  * Runtime checks.
  */
 export var Check = {
+  /**
+   * @param {*} cond
+   * @param {string=} message
+   * @param {string=} text
+   */
   'true': function(cond, message, text) {
     verify(cond, message, text);
   },
 
+  /**
+   * @param {string} message
+   */
   'fail': function(message) {
     verify(false, message);
   },
 
+  /**
+   * @param {*} value
+   * @param {*} expectedValue
+   * @param {string=} message
+   */
   'eq': function(value, expectedValue, message) {
     if (value === expectedValue)
       return;
 
-    verify(false, 'Value ' + value + ' is not the expected value ' + expectedValue, message);
+    verify(false, 'Value ' + value + ' is not the expected value ' +
+           expectedValue, message);
   },
 
+  /**
+   * @param {*} value
+   * @param {*} expectedValue
+   * @param {string=} message
+   */
   'ne': function(value, expectedValue, message) {
     if (value !== expectedValue)
       return;
 
-    verify(false, 'Value ' + value + ' should not be equal to ' + expectedValue, message);
+    verify(false, 'Value ' + value + ' should not be equal to ' +
+           expectedValue, message);
   },
 
+  /**
+   * @param {*} value
+   * @param {*} expectedValue
+   * @param {string=} message
+   */
   'ge': function(value, expectedValue, message) {
     if (value >= expectedValue)
       return;
 
-    verify(false, 'Value ' + value + ' is expected to be >= ' + expectedValue, message);
+    verify(false, 'Value ' + value + ' is expected to be >= ' + expectedValue,
+           message);
   },
 
+  /**
+   * @param {*} value
+   * @param {*} expectedValue
+   * @param {string=} message
+   */
   'le': function(value, expectedValue, message) {
     if (value <= expectedValue)
       return;
 
-    verify(false, 'Value ' + value + ' is expected to be <= ' + expectedValue, message);
+    verify(false, 'Value ' + value + ' is expected to be <= ' + expectedValue,
+           message);
   },
 
+  /**
+   * @param {*} value
+   * @param {Array<*>} expectedValues
+   * @param {string=} message
+   */
   'in': function(value, expectedValues, message) {
     for (var i = 0; i < expectedValues.length; i++) {
       if (value === expectedValues[i])
@@ -76,7 +118,8 @@ export var Check = {
       expectedValuesPrint += expectedValues[i];
     }
     expectedValuesPrint += ']';
-    verify(false, 'Value ' + value + ' is one of ' + expectedValuesPrint, message);
+    verify(false, 'Value ' + value + ' is one of ' + expectedValuesPrint,
+           message);
   }
 };
 

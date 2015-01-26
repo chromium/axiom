@@ -17,13 +17,15 @@ import AxiomError from 'axiom/core/error';
 import ExtensionBinding from 'axiom/bindings/extension';
 
 /**
+ * @constructor
  * Registry of commands.
  */
-export var CommandManager = function() {
+var CommandManager = function() {
   this.commands_ = {};
   this.extensionBindings_ = [];
 };
 
+export {CommandManager};
 export default CommandManager;
 
 CommandManager.prototype.bind = function(serviceBinding) {
@@ -62,7 +64,7 @@ CommandManager.prototype.onExtend = function(extensionBinding) {
 CommandManager.prototype.dispatch = function(name, arg) {
   var command = this.commands_[name];
   if (!command)
-    return Promise.reject(AxiomError.NotFound('command', name));
+    return Promise.reject(new AxiomError.NotFound('command', name));
 
   var binding = command.extensionBinding;
   return binding.whenLoadedAndReady().then(

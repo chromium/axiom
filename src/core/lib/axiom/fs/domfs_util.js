@@ -27,13 +27,13 @@ domfsUtil.statEntry = function(entry) {
        if (entry.isFile) {
          resolve({
            dataType: 'blob',
-           mode: Path.mode.r | Path.mode.w | Path.mode.k,
+           mode: Path.Mode.R | Path.Mode.W | Path.Mode.K,
            mtime: new Date(metadata.modificationTime).getTime(),
            size: metadata.size
          });
        } else {
          resolve({
-           mode: Path.mode.r | Path.mode.d,
+           mode: Path.Mode.R | Path.Mode.D,
            mtime: new Date(metadata.modificationTime).getTime(),
          });
        }
@@ -53,14 +53,15 @@ domfsUtil.statEntry = function(entry) {
  * @param {DirectoryEntry} root The directory to consider as the root of the
  *     path.
  * @param {string} path The path of the target directory, relative to root.
+ * @return {Promise<Object>}
  */
-domfsUtil.listDirectory = function(root, path, onSuccess, opt_onError) {
+domfsUtil.listDirectory = function(root, path) {
   return new Promise(function(resolve, reject) {
     var entries = {};
     var promises = [];
     var rv = {};
 
-var onFileError = domfsUtil.rejectFileError.bind(null, path, reject);
+    var onFileError = domfsUtil.rejectFileError.bind(null, path, reject);
     var onDirectoryFound = function(dirEntry) {
       var reader = dirEntry.createReader();
       reader.readEntries(function(results) {

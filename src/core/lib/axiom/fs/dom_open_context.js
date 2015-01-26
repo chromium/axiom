@@ -19,16 +19,18 @@ import domfsUtil from 'axiom/fs/domfs_util';
 
 import Path from 'axiom/fs/path';
 
+/** @typedef DomFileSystem$$module$axiom$fs$dom_file_system */
+var DomFileSystem;
+
 /**
+ * @constructor
  * Construct a new context that can be used to open a file.
  *
- * @constructor
  * @param {DomFileSystem} domfs
  * @param {Path} path
- * @param {Entry} FileEntry
  * @param {Object} arg
  */
-export var DomOpenContext = function(domfs, path, arg) {
+var DomOpenContext = function(domfs, path, arg) {
   this.domfs = domfs;
   this.path = path;
   this.arg = arg;
@@ -53,6 +55,9 @@ export var DomOpenContext = function(domfs, path, arg) {
   });
 };
 
+export {DomOpenContext};
+export default DomOpenContext;
+
 /**
  * If the arg object does not have a 'whence' property, this call succeeds
  * with no side effects.
@@ -64,17 +69,17 @@ DomOpenContext.prototype.seek_ = function(arg) {
   var fileSize = this.file_.size;
   var start = this.position_;
 
-  if (!arg.whence)
+  if (!arg['whence'])
     return Promise.resolve(true);
 
-  if (arg.whence == 'begin') {
-    start = arg.offset;
+  if (arg['whence'] == 'begin') {
+    start = arg['offset'];
 
-  } else if (arg.whence == 'current') {
-    start += arg.offset;
+  } else if (arg['whence'] == 'current') {
+    start += arg['offset'];
 
-  } else if (arg.whence == 'end') {
-    start = fileSize + arg.offset;
+  } else if (arg['whence'] == 'end') {
+    start = fileSize + arg['offset'];
   }
 
   if (start > fileSize) {
@@ -83,8 +88,8 @@ DomOpenContext.prototype.seek_ = function(arg) {
   }
 
   if (start < 0) {
-    return Promise.reject(new AxiomError.RunTime(
-        ['invalid file offset', this.path.spec]));
+    return Promise.reject(new AxiomError.Runtime(
+        'Invalid file offset: ' + this.path.spec));
   }
 
   this.position_ = start;
@@ -156,17 +161,17 @@ DomOpenContext.prototype.read_ = function(arg) {
       }
 
       var dataType = arg.dataType || 'utf8-string';
-      var reader = new FileReader(this.file_);
+      var reader = new FileReader();
 
       reader.onload = function(e) {
         this.position_ = end + 1;
         var data = reader.result;
 
-        if (dataType == 'base64-string') {
+        if (dataType == 'base64-string' && typeof data == 'string') {
           // TODO: By the time we read this into a string the data may already
           // have been munged.  We need an ArrayBuffer->Base64 string
           // implementation to make this work for real.
-          data = btoa(data);
+          data = window.btoa(data);
         }
         resolve({dataType: dataType, data: data});
       }.bind(this);
@@ -178,7 +183,7 @@ DomOpenContext.prototype.read_ = function(arg) {
       var slice = this.file_.slice(this.position_, end);
       if (dataType == 'blob') {
         resolve({dataType: dataType, data: slice});
-      }   else if (dataType == 'arraybuffer') {
+      }  else if (dataType == 'arraybuffer') {
         reader.readAsArrayBuffer(slice);
       } else {
         reader.readAsText(slice);
@@ -202,11 +207,12 @@ DomOpenContext.prototype.write_ = function(arg) {
         blob = arg.data;
       } else if (arg.data instanceof ArrayBuffer) {
         blob = new Blob([arg.data], {type: 'application/octet-stream'});
-      } else if (dataType == 'base64-string') {
+      } else if (dataType == 'base64-string' && typeof arg.data == 'string') {
         // TODO: Once we turn this into a string the data may already have
         // been munged.  We need an ArrayBuffer->Base64 string implementation to
         // make this work for real.
-        blob = new Blob([atob(arg.data)],  {type: 'application/octet-stream'});
+        blob = new Blob([window.atob(arg.data)],
+                        {type: 'application/octet-stream'});
       } else if (dataType == 'utf8-string') {
         blob = new Blob([arg.data],  {type: 'text/plain'});
       } else if (dataType == 'value') {
@@ -236,5 +242,3 @@ DomOpenContext.prototype.write_ = function(arg) {
     }.bind(this));
   }.bind(this));
 };
-
-export default DomOpenContext;

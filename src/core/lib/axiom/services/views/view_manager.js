@@ -16,6 +16,11 @@ import AxiomError from 'axiom/core/error';
 import Check from 'axiom/util/check';
 import DragDropManager from 'axiom/services/views/drag_drop_manager';
 
+/** @typedef ExtensionBinding$$module$axiom$bindings$extension */
+var ExtensionBinding;
+
+/** @typedef ServiceBinding$$module$axiom$bindings$service */
+var ServiceBinding;
 
 // Invariants of the ViewManager, Containers and Views:
 // * The top level element is an 'axiom-frame' with no particular layout. It
@@ -38,7 +43,7 @@ var AXIOM_FRAME = 'AXIOM-FRAME';
 var AXIOM_SPLITTER = 'AXIOM-SPLITTER';
 var AXIOM_VIEW = 'AXIOM-VIEW';
 
-/*
+/**
  * Check the given 'axiom-view' element is valid.
  * @param {Element} view
  */
@@ -54,7 +59,7 @@ var checkValidView = function(view) {
   */
 };
 
-/*
+/**
  * Check the given 'axiom-container' element is valid.
  * @param {Element} container
  */
@@ -88,7 +93,7 @@ var checkValidContainer = function(container) {
   }
 };
 
-/*
+/**
  * Check the given 'axiom-frame' element is valid.
  * @param {Element} frame
  */
@@ -107,10 +112,10 @@ var checkValidFrame = function(frame) {
   }
 };
 
-/*
+/**
  * Calls a function on each view contained in a frame.
  * @param {Element} frame
- * @param {function} callback
+ * @param {function(HTMLElement)} callback
  */
 var forEachFrameViews = function(frame, callback) {
   Check.eq(frame.tagName, AXIOM_FRAME);
@@ -121,23 +126,24 @@ var forEachFrameViews = function(frame, callback) {
   }
 };
 
-/*
+/**
  * Polymer splitter elements don't re-ajust themselves automically
  * with changes to the DOM. The purpose of this function is to
  * force all splitter elements to refresh themselves.
  *
- * @param {Element} frame
+ * @param {Element} container
  */
 var fixupSplitters = function(container) {
   Check.eq(container.tagName, AXIOM_CONTAINER);
 
   var splitters = container.querySelectorAll(AXIOM_SPLITTER);
   for (var i = 0; i < splitters.length; i++) {
-    splitters[i].directionChanged();
+    splitters[i]['directionChanged']();
   }
 };
 
-/*
+/**
+ * @constructor
  * Simple encapsulation around 'axiom-view' elements.
  * @param {Element} rawView
  */
@@ -190,14 +196,16 @@ ViewWrapper.prototype.isFirstChild = function() {
 };
 
 /**
+ * @constructor
  * Registry of views that can be placed in windows.
  */
-export var ViewManager = function(moduleManager) {
+var ViewManager = function(moduleManager) {
   this.moduleManager_ = moduleManager;
   this.views_ = new Map();
   this.extensionBindings_ = new Set();
 };
 
+export {ViewManager};
 export default ViewManager;
 
 /**
@@ -239,10 +247,11 @@ ViewManager.prototype.onExtend = function(extensionBinding) {
  *
  * @param {string} viewId  The view id
  * @param {string} tagName  The custom element to create
+ * @return {Promise<undefined>}
  */
 ViewManager.prototype.register = function(viewId, tagName) {
   if (this.views_.has(viewId))
-    return Promise.reject(AxiomError.Duplicate('view', viewId));
+    return Promise.reject(new AxiomError.Duplicate('view', viewId));
 
   this.views_.set(viewId, {
     tagName: tagName,
@@ -253,10 +262,11 @@ ViewManager.prototype.register = function(viewId, tagName) {
  * Unregisters a view given its id.
  *
  * @param {string} viewId  The view id
+ * @return {Promise<undefined>}
  */
 ViewManager.prototype.unregister = function(viewId) {
   if (!this.views_.has(viewId))
-    return Promise.reject(AxiomError.NotFound('view', viewId));
+    return Promise.reject(new AxiomError.NotFound('view', viewId));
 
   this.views_.delete(viewId);
 };
@@ -266,11 +276,12 @@ ViewManager.prototype.unregister = function(viewId) {
  *
  * @param {string} viewId  The view id
  * @param {Object} args
+ * @return {Promise<HTMLElement>}
  */
 ViewManager.prototype.show = function(viewId, args) {
   var view = this.views_.get(viewId);
   if (!view)
-    return Promise.reject(AxiomError.NotFound('view', viewId));
+    return Promise.reject(new AxiomError.NotFound('view', viewId));
 
   var windowsService = this.moduleManager_.getServiceBinding('windows@axiom');
   return windowsService.whenLoadedAndReady().then(function() {
@@ -299,37 +310,38 @@ ViewManager.prototype.show = function(viewId, args) {
  * Hides a view.
  *
  * @param {string} viewId  The view id
+ * @return {Promise<undefined>}
  */
 ViewManager.prototype.hide = function(viewId) {
   var view = this.views_.get(viewId);
   if (!view)
-    return Promise.reject(AxiomError.NotFound('view', viewId));
+    return Promise.reject(new AxiomError.NotFound('view', viewId));
 };
 
-/*
+/**
  * @param {Element} view
  */
 ViewManager.prototype.closeView = function(view) {
   if (view.parentElement) {
     this.detachView(view);
   }
-  if (view.firstElementChild && view.firstElementChild.viewClosed) {
-    view.firstElementChild.viewClosed();
+  if (view.firstElementChild && view.firstElementChild['viewClosed']) {
+    view.firstElementChild['viewClosed']();
   }
   // TODO(rpaquay): Remove from views_?
 };
 
 ViewManager.prototype.trackStart = function(frame) {
   forEachFrameViews(frame, function(view) {
-    view.enterDragMode();
+    view['enterDragMode']();
   });
-  frame.enterDragMode();
+  frame['enterDragMode']();
 };
 
 ViewManager.prototype.trackEnd = function(frame) {
-  frame.leaveDragMode();
+  frame['leaveDragMode']();
   forEachFrameViews(frame, function(view) {
-    view.leaveDragMode();
+    view['leaveDragMode']();
   });
 };
 
@@ -351,7 +363,7 @@ ViewManager.prototype.drop = function(frame, detail) {
   detail.view.removeAttribute('dragdrop');
 };
 
-/*
+/**
  * @param {Document} document
  * @return {Promise}  A promise resolvinf to the 'axiom-frame' element.
  */
@@ -398,7 +410,7 @@ ViewManager.prototype.createRootFrame = function(document) {
   });
 };
 
-/*
+/**
  * @param {Document} document
  * @param {string} tagName
  * @return {Element}  The 'axiom-view' element.
@@ -417,7 +429,7 @@ ViewManager.prototype.createViewElement = function(document, tagName) {
   return viewElement;
 };
 
-/*
+/**
  * @param {Document} document
  * @return {Element} The 'axiom-splitter' element.
  */
@@ -433,7 +445,7 @@ ViewManager.prototype.createSplitter = function(document) {
   return splitter;
 };
 
-/*
+/**
  * @param {Element} view  Update the view element attributes so that it fits
  * the whole parent frame.
  */
@@ -444,7 +456,7 @@ ViewManager.prototype.makeSingleViewFrame = function(view) {
   return view;
 };
 
-/*
+/**
  * Return the parent 'axiom-frame' element of a given child element.
  * @param {Element} element
  */
@@ -473,7 +485,7 @@ ViewManager.prototype.insertView = function(view, target, position) {
   }
 };
 
-/*
+/**
  * Moves a view from it current container to a new location relative to a
  * target element.
  *
@@ -524,7 +536,7 @@ ViewManager.prototype.moveView = function(view, target, position) {
   this.insertView(view, target, position);
 };
 
-/*
+/**
  * @param {Element} view  The 'axiom-view' element to move.
  * @param {Element} targetContainer  The container the view moves into.
  * @param {string} position  The position in the container ('left', 'right',
@@ -576,7 +588,7 @@ ViewManager.prototype.moveViewIntoContainer =
   }
 };
 
-/*
+/**
  * @param {Element} view
  * @param {Element} targetView
  * @param {string} position
@@ -629,7 +641,7 @@ ViewManager.prototype.moveViewNextToView =
   }
 };
 
-/*
+/**
  * @param {Element} view
  * @param {Element} frame
  * @param {string} position
@@ -703,7 +715,7 @@ ViewManager.prototype.moveViewIntoFrame = function(view, frame, position) {
   }
 };
 
-/*
+/**
  * @param {Element} rawView
  */
 ViewManager.prototype.detachView = function(rawView) {
@@ -754,7 +766,7 @@ ViewManager.prototype.detachView = function(rawView) {
   return view;
 };
 
-/*
+/**
  * Ensure the set of element inside [container] are layed out according to
  * the invariants of a Container constraints.
  *

@@ -61,7 +61,7 @@ export var main = function(executeContext) {
         names.forEach(function(name) {
           var stat = listResult[name];
           rv += name;
-          rv += (stat.mode & Path.mode.d) ? '/' : ' ';
+          rv += (stat.mode & Path.Mode.D) ? '/' : ' ';
           for (var i = 0; i < longest - name.length; i++) {
             rv += ' ';
           }
