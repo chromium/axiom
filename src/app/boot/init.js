@@ -4,5 +4,3 @@ window.__polymerReady__ = new Promise(function(resolve, reject) {
     resolve();
   });
 });
-
-console.log('and this works');
