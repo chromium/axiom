@@ -108,7 +108,7 @@ module.exports = function(grunt) {
           { expand: true,
             cwd: 'out/concat/lib',
             src: [pkg.name + '_npm_deps.amd.js'],
-            dest: 'out/web_app/js/'
+            dest: 'out/chrome_app/js/'
           }
         ]
       },
