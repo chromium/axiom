@@ -16,6 +16,9 @@ module.exports = function(grunt) {
   // Load the grunt related dev deps listed in package.json.
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
+  // Load global custom tasks.
+  grunt.loadTasks('../grunt/tasks/');
+
   // Load our custom tasks.
   grunt.loadTasks('./build/tasks/');
 
