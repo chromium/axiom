@@ -14,9 +14,7 @@
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-copy": "^0.6.0",
     "grunt-contrib-jshint": "~0.10.0",
-    "matchdep": "~0.3.0"
-  },
-  "dependencies": {
+    "matchdep": "~0.3.0",
     "axiom": "^1.0.0",
     "shell": "^1.0.0"
   }

@@ -21,9 +21,7 @@
     "matchdep": "~0.3.0",
     "grunt-if-missing": "~1.0.0",
     "grunt-sync": "~0.2.2",
-    "grunt-contrib-watch": "~0.6.1"
-  },
-  "dependencies": {
+    "grunt-contrib-watch": "~0.6.1",
     "axiom": "^1.0.0",
     "shell": "^1.0.0"
   }

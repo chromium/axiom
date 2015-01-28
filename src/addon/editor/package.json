@@ -19,6 +19,8 @@
     "grunt-contrib-uglify": "~0.5.0",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-es6-module-transpiler": "^0.6.0",
-    "matchdep": "~0.3.0"
+    "matchdep": "~0.3.0",
+    "axiom": "^1.0.0",
+    "shell": "^1.0.0"
   }
 }
