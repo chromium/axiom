@@ -41,6 +41,12 @@ module.exports = function(grunt) {
         js: 'axiom/**/*.js',
         jsOutputFile: 'out/closure/out.js',
         options: require('./build/closure-options.json')
+      },
+      tmp: {
+        cwd: 'out/tmp/',
+        js: '**/*.js',
+        jsOutputFile: 'out/closure_tmp/out.js',
+        options: require('./build/closure-options.json')
       }
     },
 
@@ -51,7 +57,13 @@ module.exports = function(grunt) {
                 'lib/**/*.css',
                 'node_modules/axiom/dist/**/*'],
         tasks: ['dist'],
+      },
+      tmp: {
+        files: ['lib/**/*.js',
+                '../app/lib/**/*.js'],
+        tasks: ['clear', 'closure_tmp'],
       }
+
     },
 
     npm_adapt: {
@@ -90,6 +102,25 @@ module.exports = function(grunt) {
           }
         ]
       },
+
+      closure_copy_app: {
+        files: [
+          {
+            expand: true,
+            cwd: '../app/lib/shell/',
+            src: ['**/*.js'],
+            dest: 'out/tmp'
+          },
+          {
+            expand: true,
+            cwd: 'lib/axiom/',
+            src: ['**/*.js'],
+            dest: 'out/tmp'
+          }
+
+        ]
+      },
+
       polymer_out: {
         files: [
           { expand: true,
@@ -216,6 +247,10 @@ module.exports = function(grunt) {
       }
     }
   });
+
+  grunt.loadNpmTasks('grunt-clear');
+
+  grunt.registerTask('closure_tmp', ['copy:closure_copy_app', 'closure-compiler:tmp']);
 
   grunt.registerTask('build_polymer', ['bower:install', 'sync:bower_components',
                      'clean:polymer', 'vulcanize', 'copy:polymer_out',
