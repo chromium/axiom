@@ -19,6 +19,9 @@ import JsEntry from 'axiom/fs/js_entry';
 import Path from 'axiom/fs/path';
 import domfsUtil from 'axiom/fs/domfs_util';
 
+/**
+ * @suppress {newCheckTypesClosureClean}
+ */
 import minimist from 'minimist';
 import Termcap from 'shell/util/termcap';
 import WashBuiltins from 'shell/exe/wash_builtins';
