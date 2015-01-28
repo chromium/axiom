@@ -59,7 +59,7 @@ module.exports = function(grunt) {
           'lib/',
           'node_modules/axiom/lib/',
           'node_modules/shell/lib/'
-      ],
+        ],
         files: [{
           expand: true,
           cwd: 'lib/',
