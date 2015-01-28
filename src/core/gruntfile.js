@@ -133,7 +133,10 @@ module.exports = function(grunt) {
         type: "cjs",
         // Defines the "root" directories used by the transpiler to resolve
         // import to files.
-        fileResolver: ['lib/', 'node_modules/semver/'],
+        fileResolver: [
+          'lib/',
+          'node_modules/semver/'
+        ],
         files: [{
           expand: true,
           cwd: 'lib/',
