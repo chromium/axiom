@@ -17,7 +17,7 @@ module.exports = function(grunt) {
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
   // Load global custom tasks.
-  grunt.loadTasks('../grunt/tasks/');
+  grunt.loadTasks('../grunt/');
 
   // Load our custom tasks.
   grunt.loadTasks('./build/tasks/');
@@ -186,9 +186,16 @@ module.exports = function(grunt) {
     // Convert our ES6 import/export keywords into plain js.  We generate an
     // AMD version for use in the browser, and a CommonJS version for use in
     // node.js.
-    transpile: {
+    es6_transpile: {
       amd: {
         type: "amd",
+        // Defines the "root" directories used by the transpiler to resolve
+        // import to files.
+        fileResolver: [
+          'lib/',
+          'node_modules/axiom/lib/',
+          'out/amd/lib/npm',
+          'node_modules/hterm/dist/cjs/lib/'],
         files: [{
           expand: true,
           cwd: 'lib/',
@@ -271,8 +278,8 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
-                               'npm_adapt', 'concat', 'uglify',
+  grunt.registerTask('build', ['jshint', 'clean:transpile', 'npm_adapt',
+                               'es6_transpile', 'concat', 'uglify',
                                'copy:chrome_app', 'copy:web_app']);
   grunt.registerTask('dist', ['build', 'copy:dist']);
 

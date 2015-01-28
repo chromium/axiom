@@ -28,9 +28,6 @@ import JsResolveResult from 'axiom/fs/js_resolve_result';
 /** @typedef ExecuteContext$$module$axiom$bindings$fs$execute_context */
 var ExecuteContext;
 
-/** @typedef FileSystem$$module$axiom$bindings$fs$file_system */
-var FileSystem;
-
 /** @typedef OpenContext$$module$axiom$bindings$fs$open_context */
 var OpenContext;
 
