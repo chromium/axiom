@@ -18,7 +18,10 @@ import environment from 'shell/environment';
 
 import hterm from 'hterm/public';
 
-export var TerminalView = function() {
+/**
+ * @constructor
+ */
+var TerminalView = function() {
   TerminalView.sequence++;
   this.id = 'terminal-' + TerminalView.sequence;
 
@@ -90,6 +93,7 @@ export var TerminalView = function() {
     }.bind(this));
 };
 
+export {TerminalView};
 export default TerminalView;
 
 TerminalView.sequence = 0;

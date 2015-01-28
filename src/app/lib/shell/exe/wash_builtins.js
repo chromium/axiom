@@ -17,6 +17,8 @@ import JsEntry from 'axiom/fs/js_entry';
 import Path from 'axiom/fs/path';
 
 /**
+ * @constructor
+ *
  * Shell builtins with special access to the current shell instance.
  *
  * These are not installed in the local JSFS filesystem because builtins
@@ -26,7 +28,7 @@ import Path from 'axiom/fs/path';
  * @param {Shell} shellInstance The instance of the shell these builtins should
  *   act on.
  */
-export var WashBuiltins = function(shellInstance) {
+var WashBuiltins = function(shellInstance) {
   this.callbacks = {
     'pwd()': function(executeContext) {
       executeContext.ready();
@@ -103,4 +105,5 @@ export var WashBuiltins = function(shellInstance) {
   };  // this.callbacks = {
 };
 
+export {WashBuiltins};
 export default WashBuiltins;

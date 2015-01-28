@@ -17,11 +17,16 @@ import AxiomError from 'axiom/core/error';
 import environment from 'shell/environment';
 import TerminalView from 'shell/views/terminal';
 
-export var ShellCommands = function(moduleManager) {
+/**
+ * @constructor @extends {BaseBinding};
+ * @param {ModuleManager} moduleManager
+ */
+var ShellCommands = function(moduleManager) {
   this.moduleManager = moduleManager;
   this.extensionBinding = null;
 };
 
+export {ShellCommands};
 export default ShellCommands;
 
 ShellCommands.prototype.bind = function(extensionBinding) {

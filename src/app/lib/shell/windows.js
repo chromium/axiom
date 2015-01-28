@@ -17,11 +17,17 @@ import AxiomError from 'axiom/core/error';
 // For jshint...
 /* global chrome */
 
-export var ShellWindows = function(moduleManager) {
+/**
+ * @constructor
+ * 
+ * @param {ModuleManager} moduleManager
+ */
+var ShellWindows = function(moduleManager) {
   this.moduleManager_ = moduleManager;
   this.extensionBinding_ = null;
 };
 
+export {ShellWindows};
 export default ShellWindows;
 
 ShellWindows.prototype.bind = function(extensionBinding) {

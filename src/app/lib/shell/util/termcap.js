@@ -13,6 +13,8 @@
 // limitations under the License.
 
 /**
+ * @constructor
+ *
  * Class used to convert lib.replaceVars-like strings into actual terminal
  * escape.
  *
