@@ -29,12 +29,18 @@ import readlineMain from 'shell/exe/readline';
 import rmMain from 'shell/exe/rm';
 import washMain from 'shell/exe/wash';
 
-export var ShellFS = function(moduleManager) {
+/**
+ * @constructor
+ * 
+ * @param {ModuleManager} moduleManager
+ */
+var ShellFS = function(moduleManager) {
   this.moduleManager = moduleManager;
   this.fileSystemExtensionBinding = null;
   this.jsfs = null;
 };
 
+export {ShellFS};
 export default ShellFS;
 
 ShellFS.prototype.bind = function(fileSystemExtensionBinding) {

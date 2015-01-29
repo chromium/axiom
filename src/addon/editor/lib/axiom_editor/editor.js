@@ -6,7 +6,14 @@ import AxiomError from 'axiom/core/error';
 
 import environment from 'shell/environment';
 
-export var EditorView = function(filePath) {
+/**
+ * @constructor
+ * An implementation of ace for editing files in an Axiom view.
+ *
+ * @param {string} filePath
+ */
+var EditorView = function(filePath) {
+
   EditorView.sequence++;
   this.id = 'editor-' + EditorView.sequence;
   this.filePath = filePath;
@@ -56,6 +63,7 @@ export var EditorView = function(filePath) {
     }.bind(this));
 };
 
+export {EditorView};
 export default EditorView;
 
 EditorView.sequence = 0;

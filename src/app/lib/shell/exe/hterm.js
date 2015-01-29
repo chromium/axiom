@@ -17,8 +17,11 @@ import TerminalView from 'shell/views/terminal';
 /**
  * Simple callback for a JsExecutable which echos the argument list to stdout
  * and exits.
+ *
+ * @this {JsExecutable}
+ * @param {ExecuteContext} cx
  */
-export var main = function(cx) {
+var main = function(cx) {
   cx.ready();
   var tv = new TerminalView(this.moduleManager);
   var command = cx.arg['command'] || '/addon/shell/exe/wash';
@@ -31,6 +34,7 @@ export var main = function(cx) {
   return Promise.resolve(null);
 };
 
+export {main};
 export default main;
 
 /**

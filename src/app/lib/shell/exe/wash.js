@@ -25,9 +25,13 @@ import WashBuiltins from 'shell/exe/wash_builtins';
 import environment from 'shell/environment';
 
 /**
+ * @constructor
+ *
  * The shell read-eval-print loop.
+ * 
+ * @param {ExecuteContext} executeContext
  */
-export var Shell = function(executeContext) {
+var Shell = function(executeContext) {
   this.executeContext = executeContext;
   executeContext.onSignal.addListener(this.onSignal_.bind(this));
 
@@ -445,3 +449,5 @@ Shell.prototype.onSignal_ = function(name) {
   if (name == 'interrupt')
     this.readEvalPrintLoop();
 };
+
+export {Shell};

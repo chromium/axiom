@@ -17,9 +17,12 @@ import AxiomError from 'axiom/core/error';
 import Termcap from 'shell/util/termcap';
 
 /**
+ * @constructor
  * A partial clone of GNU readline.
+ *
+ * @param {ExecuteContext} executeContext
  */
-export var Readline = function(executeContext) {
+var Readline = function(executeContext) {
   this.executeContext = executeContext;
   this.executeContext.onStdIn.addListener(this.onStdIn_, this);
 
@@ -55,6 +58,8 @@ export var Readline = function(executeContext) {
   this.bindings = {};
   this.addKeyBindings(Readline.defaultBindings);
 };
+
+export {Readline};
 
 export var main = function(executeContext) {
   var inputHistory = executeContext.arg.inputHistory;
@@ -341,6 +346,9 @@ Readline.prototype.onStdIn_ = function(value) {
 
 Readline.prototype.commands = {};
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['clear-home'] = function(string) {
   this.print('%clear-terminal()%set-row-column(row, column)',
              {row: 0, column: 0});
@@ -349,6 +357,9 @@ Readline.prototype.commands['clear-home'] = function(string) {
   this.print('%get-row-column()');
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['redraw-line'] = function(string) {
   if (!this.cursorHome_) {
     console.warn('readline: Home cursor position unknown, won\'t redraw.');
@@ -420,10 +431,16 @@ Readline.prototype.commands['redraw-line'] = function(string) {
   this.dispatch('reposition-cursor');
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['abort-line'] = function() {
   this.resolve_(null);
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['reposition-cursor'] = function(string) {
   // Count the number or rows it took to render the current line at the
   // current terminal width.
@@ -438,6 +455,9 @@ Readline.prototype.commands['reposition-cursor'] = function(string) {
              });
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['self-insert'] = function(string) {
   if (this.linePosition == this.line.length) {
     this.line += string;
@@ -453,6 +473,9 @@ Readline.prototype.commands['self-insert'] = function(string) {
   this.dispatch('redraw-line');
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['accept-line'] = function() {
   this.historyIndex_ = 0;
   if (this.line && this.line != this.history_[1])
@@ -461,6 +484,9 @@ Readline.prototype.commands['accept-line'] = function() {
   this.resolve_(this.line);
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['beginning-of-history'] = function() {
   this.historyIndex_ = this.history_.length - 1;
   this.line = this.history_[this.historyIndex_];
@@ -469,6 +495,9 @@ Readline.prototype.commands['beginning-of-history'] = function() {
   this.dispatch('redraw-line');
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['end-of-history'] = function() {
   this.historyIndex_ = this.history_.length - 1;
   this.line = this.history_[this.historyIndex_];
@@ -477,6 +506,9 @@ Readline.prototype.commands['end-of-history'] = function() {
   this.dispatch('redraw-line');
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['previous-history'] = function() {
   if (this.historyIndex_ == this.history_.length - 1) {
     this.print('%bell()');
@@ -490,6 +522,9 @@ Readline.prototype.commands['previous-history'] = function() {
   this.dispatch('redraw-line');
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['next-history'] = function() {
   if (this.historyIndex_ === 0) {
     this.print('%bell()');
@@ -503,6 +538,9 @@ Readline.prototype.commands['next-history'] = function() {
   this.dispatch('redraw-line');
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['kill-word'] = function() {
   var start = this.linePosition;
   var length =  this.getWordEnd() - start;
@@ -511,6 +549,9 @@ Readline.prototype.commands['kill-word'] = function() {
   this.dispatch('redraw-line');
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['backward-kill-word'] = function() {
   var start = this.getWordStart();
   var length = this.linePosition - start;
@@ -520,12 +561,18 @@ Readline.prototype.commands['backward-kill-word'] = function() {
   this.dispatch('redraw-line');
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['kill-line'] = function() {
   this.killSlice(this.linePosition, -1);
 
   this.dispatch('redraw-line');
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['yank'] = function() {
   var text = this.killRing_[0];
   this.line = (this.line.substr(0, this.linePosition) +
@@ -536,6 +583,9 @@ Readline.prototype.commands['yank'] = function() {
   this.dispatch('redraw-line');
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['yank-last-arg'] = function() {
   if (this.history_.length < 2)
     return;
@@ -546,6 +596,9 @@ Readline.prototype.commands['yank-last-arg'] = function() {
     this.dispatch('self-insert', last.substr(i));
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['delete-char-or-eof'] = function() {
   if (!this.line.length) {
     this.dispatch('abort-line');
@@ -554,6 +607,9 @@ Readline.prototype.commands['delete-char-or-eof'] = function() {
   }
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['delete-char'] = function() {
   if (this.linePosition < this.line.length) {
     this.line = (this.line.substr(0, this.linePosition) +
@@ -564,6 +620,9 @@ Readline.prototype.commands['delete-char'] = function() {
   }
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['backward-delete-char'] = function() {
   if (this.linePosition > 0) {
     this.linePosition -= 1;
@@ -575,6 +634,9 @@ Readline.prototype.commands['backward-delete-char'] = function() {
   }
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['backward-char'] = function() {
   if (this.linePosition > 0) {
     this.linePosition -= 1;
@@ -584,6 +646,9 @@ Readline.prototype.commands['backward-char'] = function() {
   }
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['forward-char'] = function() {
   if (this.linePosition < this.line.length) {
     this.linePosition += 1;
@@ -593,17 +658,26 @@ Readline.prototype.commands['forward-char'] = function() {
   }
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['backward-word'] = function() {
   this.linePosition = this.getWordStart();
   this.dispatch('reposition-cursor');
 };
 
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['forward-word'] = function() {
   this.linePosition = this.getWordEnd();
   this.dispatch('reposition-cursor');
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['beginning-of-line'] = function() {
   if (this.linePosition === 0) {
     this.print('%bell()');
@@ -614,6 +688,9 @@ Readline.prototype.commands['beginning-of-line'] = function() {
   this.dispatch('reposition-cursor');
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['end-of-line'] = function() {
   if (this.linePosition == this.line.length) {
     this.print('%bell()');
@@ -624,6 +701,9 @@ Readline.prototype.commands['end-of-line'] = function() {
   this.dispatch('reposition-cursor');
 };
 
+/**
+ * @this {Readline}
+ */
 Readline.prototype.commands['undo'] = function() {
   if ((this.nextUndoIndex_ == this.undo_.length)) {
     this.print('%bell()');

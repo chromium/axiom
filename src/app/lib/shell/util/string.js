@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export var string = {};
+var string = {};
 export default string;
 
 /**
@@ -53,6 +53,7 @@ string.zpad = function(number, length) {
  *
  * @param {integer} length The desired amount of whitespace.
  * @param {string} A string of spaces of the requested length.
+ * @this {string}
  */
 string.getWhitespace = function(length) {
   if (length === 0)
@@ -68,3 +69,5 @@ string.getWhitespace = function(length) {
 
   return f.whitespace.substr(0, length);
 };
+
+export {string};
