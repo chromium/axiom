@@ -42,7 +42,7 @@ export var environment = {
   // avoid the name collision.
   requireModule: function(name) {
     /* global __axiomRequire__ */
-    return __axiomRequire__(name);
+    return null;//__axiomRequire__(name);
   }
 };
 

@@ -16,7 +16,7 @@ import AxiomError from 'axiom/core/error';
 
 import environment from 'shell/environment';
 
-import hterm from 'hterm/public';
+// import hterm from 'hterm/public';
 
 /**
  * @constructor
@@ -37,7 +37,7 @@ var TerminalView = function() {
   var container = TerminalView.getIframeContainer();
   container.appendChild(this.htermElem_);
 
-  this.hterm_ = new hterm.Terminal();
+  this.hterm_ = {};//new hterm.Terminal();
   this.hterm_.decorate(this.htermElem_);
   this.hterm_.config.set('use-default-window-copy', true);
   this.hterm_.config.set('ctrl-c-copy', true);
