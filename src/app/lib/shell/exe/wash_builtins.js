@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// import Shell from 'shell/exe/wash';
 import AxiomError from 'axiom/core/error';
 import JsEntry from 'axiom/fs/js_entry';
 import Path from 'axiom/fs/path';
@@ -25,8 +26,6 @@ import Path from 'axiom/fs/path';
  * are scoped to this shell instance, but the JSFS filesystem is shared across
  * all wash shells.
  *
- * @param {Shell} shellInstance The instance of the shell these builtins should
- *   act on.
  */
 var WashBuiltins = function(shellInstance) {
   this.callbacks = {
