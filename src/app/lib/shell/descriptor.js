@@ -32,7 +32,7 @@ export var descriptor = {
 
     'commands@axiom': {
       'define-commands': {
-        'launch-app': {}
+        'launch-hterm': {}
       },
     }
   }

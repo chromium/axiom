@@ -38,7 +38,7 @@ ShellCommands.prototype.call = function(name, arg) {
 };
 
 ShellCommands.commands = {
-  'launch-app': function(arg) {
+  'launch-hterm': function(arg) {
     console.log('Lauching app!');
     var fs = environment.getServiceBinding('filesystems@axiom');
     fs.whenLoadedAndReady().then(
