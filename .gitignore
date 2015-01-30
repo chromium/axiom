@@ -1,1 +1,7 @@
 *~
+*.log
+
+# Visual Studio artifacts
+*.sln
+*.suo
+*.vs-chromium-project
