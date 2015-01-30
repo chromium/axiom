@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import ExecuteContext from 'axiom/bindings/fs/execute_context';
+
+import JsExecutable from 'axiom/fs/js_executable';
+
 import TerminalView from 'shell/views/terminal';
 
 /**

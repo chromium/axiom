@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import ExecuteContext from 'axiom/bindings/fs/execute_context';
+
 import AxiomError from 'axiom/core/error';
 
 import JsFileSystem from 'axiom/fs/js_file_system';
@@ -249,7 +251,7 @@ Shell.prototype.readEvalPrint = function() {
 
       if (typeof result != 'string') {
         return Promise.reject(new AxiomError.Runtime(
-            'Unexpected type from readline: ' + (typeof value)));
+            'Unexpected type from readline: ' + (typeof result)));
       }
 
       return this.evaluate(result).then(

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import ExecuteContext from 'axiom/bindings/fs/execute_context';
+
 import AxiomError from 'axiom/core/error';
 
 import Termcap from 'shell/util/termcap';

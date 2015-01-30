@@ -13,7 +13,9 @@
 // limitations under the License.
 
 import AxiomError from 'axiom/core/error';
+import ModuleManager from 'axiom/core/module_manager';
 
+import JsDirectory from 'axiom/fs/js_directory';
 import JsFileSystem from 'axiom/fs/js_file_system';
 import DomFileSystem from 'axiom/fs/dom_file_system';
 

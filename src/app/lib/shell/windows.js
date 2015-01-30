@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import AxiomError from 'axiom/core/error';
+import ModuleManager from 'axiom/core/module_manager';
 
 // For jshint...
 /* global chrome */

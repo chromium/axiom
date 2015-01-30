@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import BaseBinding from 'axiom/bindings/base';
+
 import AxiomError from 'axiom/core/error';
+import ModuleManager from 'axiom/core/module_manager';
 
 import environment from 'shell/environment';
 import TerminalView from 'shell/views/terminal';

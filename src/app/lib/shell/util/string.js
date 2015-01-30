@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/**
+ * @constructor
+ */
 var string = {};
 export default string;
 
@@ -19,7 +22,7 @@ export default string;
  * Left pad a string to a given length using a given character.
  *
  * @param {string} str The string to pad.
- * @param {integer} length The desired length.
+ * @param {number} length The desired length.
  * @param {string} opt_ch The optional padding character, defaults to ' '.
  * @return {string} The padded string.
  */
@@ -36,8 +39,8 @@ string.lpad = function(str, length, opt_ch) {
 /**
  * Left pad a number to a given length with leading zeros.
  *
- * @param {string|integer} number The number to pad.
- * @param {integer} length The desired length.
+ * @param {string|number} number The number to pad.
+ * @param {number} length The desired length.
  * @return {string} The padded number as a string.
  */
 string.zpad = function(number, length) {
@@ -51,7 +54,7 @@ string.zpad = function(number, length) {
  * ever requested.  It shouldn't be used to generate an insanely huge amount of
  * whitespace.
  *
- * @param {integer} length The desired amount of whitespace.
+ * @param {number} length The desired amount of whitespace.
  * @param {string} A string of spaces of the requested length.
  * @this {string}
  */
