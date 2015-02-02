@@ -1,1 +1,6 @@
 *~
+
+# VS artifacts
+*.suo
+*.sln
+project.vs-chromium-project
