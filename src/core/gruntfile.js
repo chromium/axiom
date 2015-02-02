@@ -226,6 +226,26 @@ module.exports = function(grunt) {
           'lib/polymer/axiom_vulcanized.html': ['lib/polymer/axiom.html']
         },
       }
+    },
+
+    // Testing using Karma + Jasmine + Chrome
+    karma: {
+      unit: {
+        options: {
+          // Test framework used to write tests
+          frameworks: ['jasmine'],
+          // Where to look for source files to load.
+          // (Order of entries is significant)
+          files: [
+            'test/fixtures/*.js',
+            'out/concat/lib/' + pkg.name + '_npm_deps.amd.js',
+            'out/concat/lib/' + pkg.name + '.amd.js',
+            'test/**/*.js'
+          ],
+          // Launch Chrome for running tests
+          browsers: ['Chrome'],
+        }
+      }
     }
   });
 
@@ -236,5 +256,6 @@ module.exports = function(grunt) {
                                'npm_adapt', 'build_polymer', 'concat',
                                'uglify']);
   grunt.registerTask('dist', ['build', 'copy:dist']);
+  grunt.registerTask('test', ['build', 'karma:unit']);
   grunt.registerTask('default', ['build']);
 };
