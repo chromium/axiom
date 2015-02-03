@@ -44,5 +44,8 @@
     "uselessCode",
     "useOfGoogBase",
     "visibility"
+  ],
+  "externs": [
+    "lib/externs/chrome_extensions.js"
   ]
 }

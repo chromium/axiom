@@ -63,11 +63,11 @@ ShellWindows.prototype.createChromeAppWindow = function(id) {
       },
       function(appWindow) {
         if (chrome.runtime.lastError) {
-          reject(AxiomError.Runtime(chrome.runtime.lastError.message));
+          reject(new AxiomError.Runtime(chrome.runtime.lastError.message));
           return;
         }
         if (!appWindow) {
-          reject(AxiomError.Runtime('Error creating window "' + id +
+          reject(new AxiomError.Runtime('Error creating window "' + id +
                                     '" (invalid url?)'));
           return;
         }
