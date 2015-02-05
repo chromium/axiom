@@ -46,6 +46,6 @@
     "visibility"
   ],
   "externs": [
-    "lib/externs/chrome_extensions.js"
+    "../../externs/chrome_extensions.js"
   ]
 }
