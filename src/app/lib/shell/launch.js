@@ -14,8 +14,7 @@
 
 import shellMain from 'shell/main';
 
-// For jshint...
-/* global chrome */
+var axiomCommands = null;
 
 // Generic logger of failed promises.
 var logCatch = function(err) {
@@ -24,38 +23,23 @@ var logCatch = function(err) {
     console.log(err.stack);
 };
 
-/**
- * True if we were launched before initialization completed.
- */
-var didLaunchEarly = false;
-
-/**
- * A reference to the axiom 'commands' service.
- */
-var axiomCommands = null;
-
-/**
- * Called when the user clicks the app-launcher icon.
- */
-var onLaunched = function() {
-  if (!axiomCommands || !axiomCommands.isReadyState('READY')) {
-    didLaunchEarly = true;
-    return;
-  }
-
-  axiomCommands.dispatch('launch-app').catch(logCatch);
+var init = function() {
+  // Start initialization...
+  shellMain().then(
+    function(moduleManager) {
+      axiomCommands = moduleManager.getServiceBinding('commands@axiom');
+      return axiomCommands.whenReady().then(
+        function() {
+          axiomCommands.dispatch('launch-hterm').catch(logCatch);
+        });
+    }).catch(logCatch);
 };
 
-// Register onLaunched...
-chrome.app.runtime.onLaunched.addListener(onLaunched);
+var onLaunched = function() {
+  axiomCommands.whenReady().then(
+    function() {
+      axiomCommands.dispatch('launch-hterm').catch(logCatch);
+  });
+};
 
-// And start initialization...
-shellMain().then(
-  function(moduleManager) {
-    axiomCommands = moduleManager.getServiceBinding('commands@axiom');
-    return axiomCommands.whenReady().then(
-      function() {
-        if (didLaunchEarly)
-          onLaunched();
-      });
-  }).catch(logCatch);
+init();

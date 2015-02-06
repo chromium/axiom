@@ -12,21 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import shellMain from 'shell/main';
-
-// Generic logger of failed promises.
-var logCatch = function(err) {
-  console.log('logCatch: ' + err.toString(), err);
-  if ('stack' in err)
-    console.log(err.stack);
-};
-
-// Start initialization...
-shellMain().then(
-  function(moduleManager) {
-    var axiomCommands = moduleManager.getServiceBinding('commands@axiom');
-    return axiomCommands.whenReady().then(
-      function() {
-        axiomCommands.dispatch('launch-app').catch(logCatch);
-      });
-  }).catch(logCatch);
+__axiomRequire__('shell/launch');

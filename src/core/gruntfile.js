@@ -144,9 +144,15 @@ module.exports = function(grunt) {
     // Convert our ES6 import/export keywords into plain js.  We generate an
     // AMD version for use in the browser, and a CommonJS version for use in
     // node.js.
-    transpile: {
+    es6_transpile: {
       amd: {
         type: "amd",
+        // Defines the "root" directories used by the transpiler to resolve
+        // import to files.
+        fileResolver: [
+          'lib/',
+          'node_modules/semver/'
+        ],
         files: [{
           expand: true,
           cwd: 'lib/',
@@ -156,6 +162,12 @@ module.exports = function(grunt) {
       },
       cjs: {
         type: "cjs",
+        // Defines the "root" directories used by the transpiler to resolve
+        // import to files.
+        fileResolver: [
+          'lib/',
+          'node_modules/semver/'
+        ],
         files: [{
           expand: true,
           cwd: 'lib/',
@@ -245,6 +257,26 @@ module.exports = function(grunt) {
           'lib/polymer/axiom_vulcanized.html': ['lib/polymer/axiom.html']
         },
       }
+    },
+
+    // Testing using Karma + Jasmine + Chrome
+    karma: {
+      unit: {
+        options: {
+          // Test framework used to write tests
+          frameworks: ['jasmine'],
+          // Where to look for source files to load.
+          // (Order of entries is significant)
+          files: [
+            'test/fixtures/*.js',
+            'out/concat/lib/' + pkg.name + '_npm_deps.amd.js',
+            'out/concat/lib/' + pkg.name + '.amd.js',
+            'test/**/*.js'
+          ],
+          // Launch Chrome for running tests
+          browsers: ['Chrome'],
+        }
+      }
     }
   });
 
@@ -255,9 +287,10 @@ module.exports = function(grunt) {
   grunt.registerTask('build_polymer', ['bower:install', 'sync:bower_components',
                      'clean:polymer', 'vulcanize', 'copy:polymer_out',
                      'clean:polymer_lib']);
-  grunt.registerTask('build', ['jshint', 'clean:transpile', 'transpile',
+  grunt.registerTask('build', ['jshint', 'clean:transpile', 'es6_transpile',
                                'npm_adapt', 'build_polymer', 'concat',
                                'uglify']);
   grunt.registerTask('dist', ['build', 'copy:dist']);
+  grunt.registerTask('test', ['build', 'karma:unit']);
   grunt.registerTask('default', ['build']);
 };

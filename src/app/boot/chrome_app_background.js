@@ -12,4 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-__axiomRequire__('shell/chrome/background');
+chrome.app.runtime.onLaunched.addListener(function() {
+  chrome.app.window.create('html/main_window.html', {
+    'id': 'main-window',
+    'bounds': {
+      'width': 800,
+      'height': 400
+    }
+  });
+});
