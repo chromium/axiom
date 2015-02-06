@@ -217,6 +217,11 @@ Readline.prototype.addRawKeyBinding = function(bytes, commandName) {
   this.bindings[bytes] = commandName;
 };
 
+/**
+ *
+ * @param {string} str
+ * @param {Object=} opt_vars
+ */
 Readline.prototype.print = function(str, opt_vars) {
   this.executeContext.stdout(this.tc_.output(str, opt_vars || {}));
 };
@@ -231,6 +236,11 @@ Readline.prototype.setPrompt = function(str, vars) {
     this.dispatch('redraw-line');
 };
 
+/**
+ *
+ * @param {string} name
+ * @param {*=} arg
+ */
 Readline.prototype.dispatch = function(name, arg) {
   this.commands[name].call(this, arg);
 };

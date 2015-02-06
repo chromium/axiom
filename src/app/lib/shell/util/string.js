@@ -14,6 +14,7 @@
 
 /**
  * @constructor
+ * @extends {string}
  */
 var string = {};
 export default string;

@@ -38,8 +38,9 @@ ShellWindows.prototype.bind = function(extensionBinding) {
 };
 
 ShellWindows.prototype.createWindow = function(id) {
-  if (id !== 'main-window')
-    return Promise.reject(AxiomError.NotFound('window', [id]));
+  if (id !== 'main-window') {
+    return Promise.reject(new AxiomError.NotFound('window', [id]));
+  }
 
   if (chrome && chrome.app && chrome.app.window)
     return this.createChromeAppWindow(id);
@@ -47,6 +48,9 @@ ShellWindows.prototype.createWindow = function(id) {
     return this.createWebAppWindow(id);
 };
 
+/**
+ * @param {string} id
+ */
 ShellWindows.prototype.createChromeAppWindow = function(id) {
   return new Promise(function(resolve, reject) {
     var appWindow = chrome.app.window.get(id);
@@ -58,12 +62,15 @@ ShellWindows.prototype.createChromeAppWindow = function(id) {
     chrome.app.window.create(
       'html/' + id.replace(/-/g, '_') + '.html',
       {
-        id: id,
-        bounds: { width: 800, height: 600 }
+        // TODO(ericarnold): Is there a better way to do this?
+        // See https://code.google.com/p/closure-compiler/issues/detail?id=1179
+        bounds: { height: 600, left: undefined, top: undefined, width: 800 }
       },
       function(appWindow) {
         if (chrome.runtime.lastError) {
-          reject(new AxiomError.Runtime(chrome.runtime.lastError.message));
+          var message = chrome.runtime.lastError.message ?
+              chrome.runtime.lastError.message : 'unknown';
+          reject(new AxiomError.Runtime(message));
           return;
         }
         if (!appWindow) {

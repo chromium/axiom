@@ -149,7 +149,7 @@ Shell.prototype.loadWashHistory = function() {
           this.inputHistory = history;
       } catch (ex) {
         this.errorln('Error loading: ' + this.historyFile);
-        this.pringErrorValue(ex);
+        this.printErrorValue(ex);
       }
 
       return Promise.resolve(null);

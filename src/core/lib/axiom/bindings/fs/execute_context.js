@@ -310,7 +310,7 @@ ExecuteContext.prototype.getEnvs = function() {
  * defaultValue if it is not set.
  *
  * @param {string} name
- * @param {*} defaultValue
+ * @param {*=} defaultValue
  */
 ExecuteContext.prototype.getEnv = function(name, defaultValue) {
   if (this.env_.hasOwnProperty(name))
