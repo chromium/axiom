@@ -16,9 +16,12 @@ module.exports = function(grunt) {
   // Load the grunt related dev deps listed in package.json.
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
+  // Load our custom tasks.
+  grunt.loadTasks('./build/tasks/');
+
   grunt.initConfig({
     clean: {
-      all: ['tmp', 'dist']
+      all: ['tmp', 'dist', 'out']
     },
 
     'closure-compiler': {
@@ -43,6 +46,30 @@ module.exports = function(grunt) {
       }
     },
 
+    // Convert our ES6 import/export keywords into plain js.  We generate an
+    // AMD version for use in the browser, and a CommonJS version for use in
+    // node.js.
+    es6_transpile: {
+      amd: {
+        type: "amd",
+        // Defines the "root" directories used by the transpiler to resolve
+        // import to files.
+        fileResolver: [
+          'lib/',
+          'node_modules/semver/'
+        ],
+        files: [{
+          expand: true,
+          cwd: 'lib/',
+          src: [
+            'axiom/core/**/*.js',
+            'axiom/fs/*.js'
+        ],
+          dest: 'out/amd/lib/'
+        }]
+      }
+    },
+
     // Testing using Karma + Jasmine + Chrome
     karma: {
       unit: {
@@ -53,8 +80,7 @@ module.exports = function(grunt) {
           // (Order of entries is significant)
           files: [
             'test/fixtures/*.js',
-            //'out/concat/lib/' + pkg.name + '_npm_deps.amd.js',
-            //'out/concat/lib/' + pkg.name + '.amd.js',
+            'out/amd/lib/**/*.js',
             'test/**/*.js'
           ],
           // Launch Chrome for running tests
@@ -66,6 +92,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('check', ['closure-compiler:check']);
   grunt.registerTask('check-watch', ['watch']);
-  grunt.registerTask('test', ['karma:unit']);
+  grunt.registerTask('test', ['es6_transpile', 'karma:unit']);
 
 };
