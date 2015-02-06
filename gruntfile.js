@@ -41,10 +41,31 @@ module.exports = function(grunt) {
         files: ['lib/**/*.js'],
         tasks: ['check']
       }
+    },
+
+    // Testing using Karma + Jasmine + Chrome
+    karma: {
+      unit: {
+        options: {
+          // Test framework used to write tests
+          frameworks: ['jasmine'],
+          // Where to look for source files to load.
+          // (Order of entries is significant)
+          files: [
+            'test/fixtures/*.js',
+            //'out/concat/lib/' + pkg.name + '_npm_deps.amd.js',
+            //'out/concat/lib/' + pkg.name + '.amd.js',
+            'test/**/*.js'
+          ],
+          // Launch Chrome for running tests
+          browsers: ['Chrome'],
+        }
+      }
     }
   });
 
   grunt.registerTask('check', ['closure-compiler:check']);
   grunt.registerTask('check-watch', ['watch']);
+  grunt.registerTask('test', ['karma:unit']);
 
 };
