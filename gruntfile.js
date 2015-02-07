@@ -19,9 +19,16 @@ module.exports = function(grunt) {
   // Load our custom tasks.
   grunt.loadTasks('./build/tasks/');
 
+  var browsers = grunt.option('browsers');
+  if (browsers) {
+    browsers = browsers.split(/\s*,\s*/g);
+  } else {
+    browsers = ['Chrome'];
+  }
+
   grunt.initConfig({
     clean: {
-      all: ['tmp', 'dist', 'out']
+      all: ['tmp', 'dist']
     },
 
     'closure-compiler': {
@@ -36,62 +43,69 @@ module.exports = function(grunt) {
       }
     },
 
-    'watch': {
-      'check': {
+    watch: {
+      check: {
         options: {
           atBegin: true
         },
         files: ['lib/**/*.js'],
         tasks: ['check']
+      },
+      test: {
+        options: {
+          atBegin: true
+        },
+        files: ['lib/**/*.js', 'test/**/*.js'],
+        tasks: ['es6_transpile', 'karma:once']
+      },
+      check_test: {
+        options: {
+          atBegin: true
+        },
+        files: ['lib/**/*.js', 'test/**/*.js'],
+        tasks: ['check', 'es6_transpile', 'karma:once']
       }
     },
 
-    // Convert our ES6 import/export keywords into plain js.  We generate an
-    // AMD version for use in the browser, and a CommonJS version for use in
-    // node.js.
     es6_transpile: {
       amd: {
         type: "amd",
         // Defines the "root" directories used by the transpiler to resolve
         // import to files.
-        fileResolver: [
-          'lib/',
-          'node_modules/semver/'
-        ],
+        fileResolver: ['lib/'],
         files: [{
           expand: true,
           cwd: 'lib/',
           src: [
             'axiom/core/**/*.js',
             'axiom/fs/*.js'
-        ],
-          dest: 'out/amd/lib/'
+          ],
+          dest: 'tmp/amd/lib/'
         }]
       }
     },
 
-    // Testing using Karma + Jasmine + Chrome
     karma: {
-      unit: {
-        options: {
-          // Test framework used to write tests
-          frameworks: ['jasmine'],
-          // Where to look for source files to load.
-          // (Order of entries is significant)
-          files: [
-            'test/fixtures/*.js',
-            'out/amd/lib/**/*.js',
-            'test/**/*.js'
-          ],
-          // Launch Chrome for running tests
-          browsers: ['Chrome'],
-        }
+      options: {
+        browsers: browsers,
+        frameworks: ['jasmine'],
+        files: [
+          'test/fixtures/*.js',
+          'tmp/amd/lib/**/*.js',
+          'test/**/*.js'
+        ]
+      },
+      once: {
+        singleRun: true
       }
     }
   });
 
   grunt.registerTask('check', ['closure-compiler:check']);
-  grunt.registerTask('check-watch', ['watch']);
-  grunt.registerTask('test', ['es6_transpile', 'karma:unit']);
+  grunt.registerTask('check-watch', ['watch:check']);
 
+  grunt.registerTask('test', ['es6_transpile', 'karma:once']);
+  grunt.registerTask('test-watch', ['watch:test']);
+
+  grunt.registerTask('check-test-watch', ['watch:check_test']);
 };
