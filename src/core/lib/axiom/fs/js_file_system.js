@@ -72,7 +72,7 @@ JsFileSystem.prototype.resolve = function(path) {
 
 /**
  * @param {string} pathSpec
- * @return {!Promise<!StatResult>}
+ * @return {Promise<!StatResult>}
  */
 JsFileSystem.prototype.stat = function(pathSpec) {
   if (!pathSpec)
@@ -84,7 +84,7 @@ JsFileSystem.prototype.stat = function(pathSpec) {
 
   var rv = this.resolve(path);
   if (rv.entry instanceof FileSystem)
-    return rv.entry.stat(Path.join(rv.suffixList));
+    // return rv.entry.stat(Path.join(rv.suffixList));
 
   if (!rv.isFinal) {
     return Promise.reject(new AxiomError.NotFound(
