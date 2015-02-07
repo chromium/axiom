@@ -147,9 +147,6 @@ import_.initializeAddon = function(
   } catch(ex) {
     return Promise.reject(ex);
   }
-
-  // Should not be reachable.
-  return Promise.reject(null);
 };
 
 import_.saveImport = function(url) {
