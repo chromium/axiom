@@ -41,14 +41,14 @@ module.exports = function(grunt) {
       }
     },
 
-    'closure-compiler': {
-      main: {
-        cwd: 'lib/',
-        js: 'axiom_editor/**/*.js',
-        jsOutputFile: 'out/closure/out.js',
-        options: require('./build/closure-options.json')
-      }
-    },
+    // 'closure-compiler': {
+    //   main: {
+    //     cwd: 'lib/',
+    //     js: 'axiom_editor/**/*.js',
+    //     jsOutputFile: 'out/closure/out.js',
+    //     options: require('./build/closure-options.json')
+    //   }
+    // },
 
     // Convert our ES6 import/export keywords into plain js.  We generate an
     // AMD version for use in the browser, and a CommonJS version for use in

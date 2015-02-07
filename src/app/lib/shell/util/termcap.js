@@ -69,6 +69,9 @@ Termcap.prototype.output = function(str, opt_vars) {
  *  '%meta(DELETE)': 'kill-word',
  *
  * See the inputVars and inputFunctions below for the list of valid stuff.
+ * 
+ * @param {string} str
+ * @param {Object=} opt_vars
  */
 Termcap.prototype.input = function(str, opt_vars) {
   var vars;

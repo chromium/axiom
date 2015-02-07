@@ -40,7 +40,7 @@ ShellCommands.prototype.bind = function(extensionBinding) {
 
 ShellCommands.prototype.call = function(name, arg) {
   if (!(name in ShellCommands.commands))
-    return Promise.reject(AxiomError.NotFound('command-name', [name]));
+    return Promise.reject(new AxiomError.NotFound('command-name', [name]));
 
   return ShellCommands.commands[name].call(this, arg, name);
 };

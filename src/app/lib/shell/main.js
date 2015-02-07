@@ -24,7 +24,7 @@ import ShellWindows from 'shell/windows';
 /**
  * @type {Promise}
  */
-var __polymerReady__;
+var __polymerReady__ = window['__polymerReady__'];
 
 var initShell = function() {
   return axiomMain().then(function(moduleManager) {
@@ -51,7 +51,7 @@ var initShell = function() {
 };
 
 export var main = function() {
-  return window.__polymerReady__.then(initShell);
+  return __polymerReady__.then(initShell);
 };
 
 export default main;
