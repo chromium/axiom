@@ -19,6 +19,7 @@
  * global state.
  */
 var axiomModuleManager;
+var __axiomRequire__;
 
 export var environment = {
   setModuleManager: function(mm) {
@@ -42,7 +43,7 @@ export var environment = {
   // avoid the name collision.
   requireModule: function(name) {
     /* global __axiomRequire__ */
-    return null;//__axiomRequire__(name);
+    return __axiomRequire__(name);
   }
 };
 
