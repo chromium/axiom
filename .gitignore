@@ -6,4 +6,4 @@ tmp/
 # VS artifacts
 *.suo
 *.sln
-project.vs-chromium-project
+vs-chromium-project.txt

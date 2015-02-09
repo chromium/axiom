@@ -59,10 +59,11 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           cwd: 'tmp/amd/lib/',
-          src: ['**/*.js'],
+          src: ['**/*.js',
+                '**/*.js.map'
+          ],
           dest: 'tmp/app/js/'
-        },
-        ]
+        }]
       }
     },
 
@@ -160,6 +161,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', ['check', 'test']);
 
-  grunt.registerTask('web_app', ['copy:app_files',
+  grunt.registerTask('web_app', ['transpile',
+                                 'copy:app_files',
                                  'make_app_index']);
 };
