@@ -54,6 +54,30 @@ module.exports = function(grunt) {
       }
     },
 
+    copy: {
+      app_files: {
+        files: [{
+          expand: true,
+          cwd: 'tmp/amd/lib/',
+          src: ['**/*.js'],
+          dest: 'tmp/app/js/'
+        },
+        ]
+      }
+    },
+
+    make_app_index: {
+      app: {
+        dest: 'tmp/app/index.html',
+        title: 'Console',
+        cwd: 'tmp/app/',
+        modules: [
+          '**/*.js',
+          '!**/*.test.js'
+        ]
+      }
+    },
+
     watch: {
       check: {
         options: {
@@ -135,4 +159,7 @@ module.exports = function(grunt) {
   grunt.registerTask('check-test-watch', ['clean', 'watch:check_test']);
 
   grunt.registerTask('default', ['check', 'test']);
+
+  grunt.registerTask('web_app', ['copy:app_files',
+                                 'make_app_index']);
 };
