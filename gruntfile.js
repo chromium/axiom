@@ -63,6 +63,14 @@ module.exports = function(grunt) {
                 '**/*.js.map'
           ],
           dest: 'tmp/app/js/'
+        },
+        {
+          expand: true,
+          cwd: 'loader/',
+          src: ['**/*.js',
+                '**/*.js.map'
+          ],
+          dest: 'tmp/app/js/'
         }]
       }
     },
@@ -73,7 +81,8 @@ module.exports = function(grunt) {
         title: 'Console',
         cwd: 'tmp/app/',
         modules: [
-          '**/*.js',
+          'js/axiom_amd.js',
+          'js/**/*.js',
           '!**/*.test.js'
         ]
       }
@@ -161,7 +170,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', ['check', 'test']);
 
-  grunt.registerTask('web_app', ['transpile',
+  grunt.registerTask('web_app', ['es6_transpile',
                                  'copy:app_files',
                                  'make_app_index']);
 };
