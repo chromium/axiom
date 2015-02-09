@@ -315,7 +315,7 @@ Readline.prototype.onStdIn_ = function(value) {
 
   var ary = string.match(/^\x1b\[(\d+);(\d+)R$/);
   if (ary) {
-      this.onCursorReport(parseInt(ary[1], 10), parseInt(ary[2], 10));
+    this.onCursorReport(parseInt(ary[1], 10), parseInt(ary[2], 10));
     return;
   }
 

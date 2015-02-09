@@ -6,8 +6,7 @@
     "misplacedTypeAnnotation",
     "reportUnknownTypes",
     "internetExplorerChecks",
-    "newCheckTypes",
-    "newCheckTypesClosureClean"
+    "newCheckTypes"
   ],
   "jscomp_error": [
     "accessControls",
