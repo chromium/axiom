@@ -113,6 +113,12 @@ module.exports = function(grunt) {
           },
           {
             expand: true,
+            cwd: '../app/lib/hterm/',
+            src: ['**/*.js'],
+            dest: 'out/tmp/hterm'
+          },
+          {
+            expand: true,
             cwd: 'lib/axiom/',
             src: ['**/*.js'],
             dest: 'out/tmp/axiom'

@@ -16,7 +16,7 @@ import AxiomError from 'axiom/core/error';
 
 import environment from 'shell/environment';
 
-// import hterm from 'hterm/public';
+import hterm from 'hterm/public';
 
 /**
  * @constructor
@@ -37,16 +37,16 @@ var TerminalView = function() {
   var container = TerminalView.getIframeContainer();
   container.appendChild(this.htermElem_);
 
-  this.hterm_ = {};//new hterm.Terminal();
-  // this.hterm_.decorate(this.htermElem_);
-  // this.hterm_.config.set('use-default-window-copy', true);
-  // this.hterm_.config.set('ctrl-c-copy', true);
-  // this.hterm_.config.set('pass-meta-number', true);
-  // this.hterm_.config.set('pass-alt-number', true);
-  // this.hterm_.installKeyboard();
-  // this.hterm_.io.onVTKeystroke = this.hterm_.io.sendString =
+  this.hterm_ = new hterm.Terminal();
+  this.hterm_.decorate(this.htermElem_);
+  this.hterm_.config.set('use-default-window-copy', true);
+  this.hterm_.config.set('ctrl-c-copy', true);
+  this.hterm_.config.set('pass-meta-number', true);
+  this.hterm_.config.set('pass-alt-number', true);
+  this.hterm_.installKeyboard();
+  this.hterm_.io.onVTKeystroke = this.hterm_.io.sendString =
   this.onSendString_.bind(this);
-  // this.hterm_.io.onTerminalResize = this.onTerminalResize_.bind(this);
+  this.hterm_.io.onTerminalResize = this.onTerminalResize_.bind(this);
 
   this.elem_ = null;
 
