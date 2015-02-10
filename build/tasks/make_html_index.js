@@ -24,7 +24,6 @@ module.exports = function(grunt) {
 
     var scriptrefs = grunt.file.expand(this.data, this.data.scriptrefs);
     scriptrefs.forEach(function(scriptref) {
-      var moduleName = scriptref.replace(/.js$/, '');
       mainsrc += '  <script src="' + scriptref + '"></script>\n';
     }.bind(this));
 
