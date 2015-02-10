@@ -71,6 +71,12 @@ module.exports = function(grunt) {
                 '**/*.js.map'
           ],
           dest: 'tmp/app/js/'
+        },
+        {
+          expand: true,
+          cwd: 'node_modules/hterm/dist/amd/lib/',
+          src: ['hterm.amd.js'],
+          dest: 'tmp/app/js/'
         }]
       }
     },
