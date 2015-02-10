@@ -27,7 +27,6 @@
 /** @const */
 var jasmine = {};
 
-
 /**
  * @param {string} name
  * @return {!jasmine.Spy} spy

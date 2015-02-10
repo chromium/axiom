@@ -23,7 +23,7 @@ module.exports = function(grunt) {
   if (browsers) {
     browsers = browsers.split(/\s*,\s*/g);
   } else {
-    browsers = ['Chrome'];
+    browsers = ['PhantomJS'];
   }
 
   grunt.initConfig({
@@ -47,8 +47,8 @@ module.exports = function(grunt) {
 
     make_main_module: {
       test: {
-        dest: 'tmp/test/test_main.js',
         require: '__axiomRequire__',
+        dest: 'tmp/test/test_main.js',
         cwd: 'lib/',
         modules: ['**/*.test.js']
       }
@@ -67,14 +67,14 @@ module.exports = function(grunt) {
           atBegin: true
         },
         files: ['lib/**/*.js', 'test/**/*.js'],
-        tasks: ['es6_transpile', 'make_main_module:test', 'karma:once']
+        tasks: ['transpile', 'make_main_module:test', 'karma:once']
       },
       check_test: {
         options: {
           atBegin: true
         },
         files: ['lib/**/*.js', 'test/**/*.js'],
-        tasks: ['check', 'es6_transpile', 'make_main_module:test', 'karma:once']
+        tasks: ['check', 'transpile', 'make_main_module:test', 'karma:once']
       }
     },
 
@@ -103,6 +103,10 @@ module.exports = function(grunt) {
         browsers: browsers,
         frameworks: ['jasmine'],
         files: [
+          'node_modules/es6-collections/index.js',
+          'node_modules/es6-promise/dist/es6-promise.js',
+          'polyfill/promise.js',
+          'polyfill/bind.js',
           'loader/axiom_amd.js',
           'tmp/amd/lib/**/*.js',
           'tmp/test/test_main.js',
@@ -115,15 +119,16 @@ module.exports = function(grunt) {
   });
 
   // Just transpile.
-  grunt.registerTask('transpile', ['clean', 'es6_transpile']);
+  grunt.registerTask('transpile', ['clean',
+                                   'make_dir_module',
+                                   'es6_transpile']);
 
   // Static check with closure compiler.
-  grunt.registerTask('check', ['closure-compiler:check']);
+  grunt.registerTask('check', ['make_dir_module', 'closure-compiler:check']);
   grunt.registerTask('check-watch', ['watch:check']);
 
   // Transpile and test.
-  grunt.registerTask('test', ['clean',
-                              'es6_transpile',
+  grunt.registerTask('test', ['transpile',
                               'make_main_module:test',
                               'karma:once']);
   grunt.registerTask('test-watch', ['clean',
