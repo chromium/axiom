@@ -15,7 +15,7 @@
 // Makes a new html file which loads a list of js files.
 
 module.exports = function(grunt) {
-  grunt.registerMultiTask('make_app_index', function() {
+  grunt.registerMultiTask('make_html_index', function () {
     var mainsrc = '';
 
     var files = grunt.file.expand(this.data, this.data.modules);

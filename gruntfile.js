@@ -55,14 +55,14 @@ module.exports = function(grunt) {
     },
 
     copy: {
-      app_files: {
+      samples_web_app_files: {
         files: [{
           expand: true,
           cwd: 'tmp/amd/lib/',
           src: ['**/*.js',
                 '**/*.js.map'
           ],
-          dest: 'tmp/app/js/'
+          dest: 'tmp/samples/web_app/js/'
         },
         {
           expand: true,
@@ -70,22 +70,22 @@ module.exports = function(grunt) {
           src: ['**/*.js',
                 '**/*.js.map'
           ],
-          dest: 'tmp/app/js/'
+          dest: 'tmp/samples/web_app/js/'
         },
         {
           expand: true,
           cwd: 'node_modules/hterm/dist/amd/lib/',
           src: ['hterm.amd.js'],
-          dest: 'tmp/app/js/'
+          dest: 'tmp/samples/web_app/js/'
         }]
       }
     },
 
-    make_app_index: {
-      app: {
-        dest: 'tmp/app/index.html',
+    make_html_index: {
+      samples_web_app: {
+        dest: 'tmp/samples/web_app/index.html',
         title: 'Console',
-        cwd: 'tmp/app/',
+        cwd: 'tmp/samples/web_app/',
         modules: [
           'js/axiom_amd.js',
           'js/**/*.js',
@@ -176,7 +176,9 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', ['check', 'test']);
 
-  grunt.registerTask('web_app', ['es6_transpile',
-                                 'copy:app_files',
-                                 'make_app_index']);
+  grunt.registerTask('samples_web_app', ['copy:samples_web_app_files',
+                                         'make_html_index:samples_web_app']);
+
+  grunt.registerTask('samples', ['es6_transpile',
+                                 'samples_web_app']);
 };
