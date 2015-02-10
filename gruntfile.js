@@ -119,16 +119,15 @@ module.exports = function(grunt) {
   });
 
   // Just transpile.
-  grunt.registerTask('transpile', ['clean',
-                                   'make_dir_module',
-                                   'es6_transpile']);
+  grunt.registerTask('transpile', ['clean', 'es6_transpile']);
 
   // Static check with closure compiler.
-  grunt.registerTask('check', ['make_dir_module', 'closure-compiler:check']);
+  grunt.registerTask('check', ['closure-compiler:check']);
   grunt.registerTask('check-watch', ['watch:check']);
 
   // Transpile and test.
-  grunt.registerTask('test', ['transpile',
+  grunt.registerTask('test', ['clean',
+                              'es6_transpile',
                               'make_main_module:test',
                               'karma:once']);
   grunt.registerTask('test-watch', ['clean',
