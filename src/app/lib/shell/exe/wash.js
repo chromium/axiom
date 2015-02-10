@@ -19,7 +19,7 @@ import JsEntry from 'axiom/fs/js_entry';
 import Path from 'axiom/fs/path';
 import domfsUtil from 'axiom/fs/domfs_util';
 
-// import minimist from 'minimist';
+import minimist from 'minimist';
 import Termcap from 'shell/util/termcap';
 import WashBuiltins from 'shell/exe/wash_builtins';
 import environment from 'shell/environment';
@@ -386,7 +386,7 @@ Shell.prototype.parseArgv = function(argSigil, argv) {
       return argv ? argv.split(/\s+/g) : [];
 
     // TODO(rginda, ericarnold): Figure out how to solve minimist as an AMD
-    // if (argSigil == '%') return minimist(argv.split(/\s+/g), {});
+    if (argSigil == '%') return minimist(argv.split(/\s+/g), {});
   }
 };
 

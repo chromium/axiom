@@ -114,7 +114,7 @@ FileSystem.prototype.move = function (pathSpecFrom, pathSpecTo) {};
  * Bindable method.
  *
  * @param {string} pathSpec
- * @return {Promise<StatResult>}
+ * @return {!Promise<!StatResult>}
  */
 FileSystem.prototype.stat = function(pathSpec) {};
 
