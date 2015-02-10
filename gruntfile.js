@@ -91,7 +91,8 @@ module.exports = function(grunt) {
             'axiom/core/**/*.js',
             'axiom/fs/*.js',
             'axiom/fs/base/*.js',
-            'axiom/fs/js/*.js'
+            'axiom/fs/js/*.js',
+            'axiom/fs/dom/*.js'
           ],
           dest: 'tmp/amd/lib/'
         }]
