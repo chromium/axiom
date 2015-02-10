@@ -18,16 +18,22 @@ var Terminal = function() {
   this.config = new Config();
   this.decorate = function(obj) {};
   this.installKeyboard = function() {};
+  this.uninstallKeyboard = function() {};
 
   this.io = {
+    rowCount: 0,
+    columnCount: 0,
     onVTKeystroke: null,
     onTerminalResize: null,
+
     /**
      * @param {string} str
+     * @param {Function=} callback
      */
     print: function(str, callback) {},
     /**
      * @param {string} str
+     * @param {Function=} callback
      */
     println: function(str, callback) {}
   }

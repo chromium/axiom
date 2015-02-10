@@ -165,10 +165,10 @@ TerminalView.prototype.execute_ = function(pathSpec, arg, env) {
       this.executeContext.onStdOut.addListener(this.onStdOut_, this);
       this.executeContext.onStdErr.addListener(this.onStdOut_, this);
       this.executeContext.onTTYRequest.addListener(this.onTTYRequest_, this);
-      // this.executeContext.setTTY({
-      //   rows: this.hterm_.io.rowCount,
-      //   columns: this.hterm_.io.columnCount
-      // });
+      this.executeContext.setTTY({
+        rows: this.hterm_.io.rowCount,
+        columns: this.hterm_.io.columnCount
+      });
 
       this.executeContext.onReady.addListener(function() {
         console.log('TerminalView: execute ready');
@@ -176,7 +176,7 @@ TerminalView.prototype.execute_ = function(pathSpec, arg, env) {
 
       this.executeContext.onClose.addListener(function(reason, value) {
         console.log('TerminalView: execute closed: ' + reason, value);
-        // this.hterm_.uninstallKeyboard();
+        this.hterm_.uninstallKeyboard();
       }.bind(this));
 
       this.executeContext.execute();
@@ -184,11 +184,11 @@ TerminalView.prototype.execute_ = function(pathSpec, arg, env) {
 };
 
 TerminalView.prototype.print = function(str) {
-  // this.hterm_.io.print(str);
+  this.hterm_.io.print(str);
 };
 
 TerminalView.prototype.println = function(str) {
-  // this.hterm_.io.println(str);
+  this.hterm_.io.println(str);
 };
 
 /**
