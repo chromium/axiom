@@ -54,6 +54,47 @@ module.exports = function(grunt) {
       }
     },
 
+    copy: {
+      samples_web_app_files: {
+        files: [{
+          expand: true,
+          cwd: 'tmp/amd/lib/',
+          src: ['**/*.js',
+                '**/*.js.map',
+                '!**/*.test.js',
+                '!**/*.test.js.map'
+        ],
+          dest: 'tmp/samples/web_app/js/'
+        },
+        {
+          expand: true,
+          cwd: 'loader/',
+          src: ['**/*.js',
+                '**/*.js.map'
+          ],
+          dest: 'tmp/samples/web_app/js/'
+        },
+        {
+          expand: true,
+          cwd: 'node_modules/hterm/dist/amd/lib/',
+          src: ['hterm.amd.js'],
+          dest: 'tmp/samples/web_app/js/'
+        }]
+      }
+    },
+
+    make_html_index: {
+      samples_web_app: {
+        dest: 'tmp/samples/web_app/index.html',
+        title: 'Console',
+        cwd: 'tmp/samples/web_app/',
+        scriptrefs: [
+          'js/axiom_amd.js',
+          'js/**/*.js'
+        ]
+      }
+    },
+
     watch: {
       check: {
         options: {
@@ -135,4 +176,10 @@ module.exports = function(grunt) {
   grunt.registerTask('check-test-watch', ['clean', 'watch:check_test']);
 
   grunt.registerTask('default', ['check', 'test']);
+
+  grunt.registerTask('samples_web_app', ['copy:samples_web_app_files',
+                                         'make_html_index:samples_web_app']);
+
+  grunt.registerTask('samples', ['es6_transpile',
+                                 'samples_web_app']);
 };
