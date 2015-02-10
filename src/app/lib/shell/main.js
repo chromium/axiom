@@ -21,6 +21,11 @@ import ShellCommands from 'shell/commands';
 import ShellFS from 'shell/file_system';
 import ShellWindows from 'shell/windows';
 
+/**
+ * @type {Promise}
+ */
+var __polymerReady__ = window['__polymerReady__'];
+
 var initShell = function() {
   return axiomMain().then(function(moduleManager) {
     environment.setModuleManager(moduleManager);
@@ -46,7 +51,7 @@ var initShell = function() {
 };
 
 export var main = function() {
-  return window.__polymerReady__.then(initShell);
+  return __polymerReady__.then(initShell);
 };
 
 export default main;

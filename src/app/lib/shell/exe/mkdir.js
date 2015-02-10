@@ -24,7 +24,7 @@ export var main = function(executeContext) {
   executeContext.ready();
 
   var arg = executeContext.arg;
-  if (!arg._ || (arg._.length === 0) || arg.h || arg.help) {
+  if (!arg._ || (arg._.length === 0) || arg['h'] || arg['help']) {
     executeContext.stdout(MKDIR_CMD_USAGE_STRING + '\n');
     return Promise.resolve(null);
   }

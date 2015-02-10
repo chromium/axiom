@@ -16,6 +16,9 @@ import AxiomError from 'axiom/core/error';
 
 import Termcap from 'shell/util/termcap';
 
+/** @typedef ExecuteContext$$module$axiom$bindings$fs$execute_context */
+var ExecuteContext;
+
 /**
  * @constructor
  * A partial clone of GNU readline.
@@ -215,6 +218,11 @@ Readline.prototype.addRawKeyBinding = function(bytes, commandName) {
   this.bindings[bytes] = commandName;
 };
 
+/**
+ *
+ * @param {string} str
+ * @param {Object=} opt_vars
+ */
 Readline.prototype.print = function(str, opt_vars) {
   this.executeContext.stdout(this.tc_.output(str, opt_vars || {}));
 };
@@ -229,6 +237,11 @@ Readline.prototype.setPrompt = function(str, vars) {
     this.dispatch('redraw-line');
 };
 
+/**
+ *
+ * @param {string} name
+ * @param {*=} arg
+ */
 Readline.prototype.dispatch = function(name, arg) {
   this.commands[name].call(this, arg);
 };
@@ -257,9 +270,10 @@ Readline.prototype.killSlice = function(start, length) {
   this.line = (this.line.substr(0, start) + this.line.substr(start + length));
 };
 
-Readline.prototype.dispatchMessage = function(msg) {
-  msg.dispatch(this, Readline.on);
-};
+// TODO(rginda): Readline.on does not exist.
+// Readline.prototype.dispatchMessage = function(msg) {
+//   msg.dispatch(this, Readline.on);
+// };
 
 /**
  * Called when the terminal replys with the current cursor position.
@@ -277,9 +291,11 @@ Readline.prototype.onCursorReport = function(row, column) {
       this.promptLength_ =
           this.cursorPrompt_.column - this.cursorHome_.column;
     } else {
-      var top = this.columns - this.cursorPrompt_.column;
+      var tty = this.executeContext.getTTY();
+
+      var top = tty.columns - this.cursorPrompt_.column;
       var bottom = this.cursorHome_.column;
-      var middle = this.columns * (this.cursorPrompt_.row -
+      var middle = tty.columns * (this.cursorPrompt_.row -
                                    this.cursorHome_.row);
       this.promptLength_ = top + middle + bottom;
     }
@@ -300,7 +316,7 @@ Readline.prototype.onStdIn_ = function(value) {
 
   var ary = string.match(/^\x1b\[(\d+);(\d+)R$/);
   if (ary) {
-    this.onCursorReport(parseInt(ary[1]), parseInt(ary[2]));
+    this.onCursorReport(parseInt(ary[1], 10), parseInt(ary[2], 10));
     return;
   }
 
@@ -406,7 +422,7 @@ Readline.prototype.commands['redraw-line'] = function(string) {
 
   this.previousLineHeight_ = totalLineHeight;
 
-  if (totalLineLength >= this.columns) {
+  if (totalLineLength >= tty.columns) {
     // This line overflowed the terminal width.  We need to see if it also
     // overflowed the height causing a scroll that would invalidate our idea
     // of the cursor home row.

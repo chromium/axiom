@@ -16,6 +16,10 @@ import AxiomError from 'axiom/core/error';
 import JsEntry from 'axiom/fs/js_entry';
 import Path from 'axiom/fs/path';
 
+
+/** @typedef Shell$$module$shell$exe$wash */
+var Shell;
+
 /**
  * @constructor
  *
