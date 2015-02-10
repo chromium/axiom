@@ -13,9 +13,16 @@
 // limitations under the License.
 
 import AxiomError from 'axiom/core/error';
+import ModuleManager from 'axiom/core/module_manager';
 
 import environment from 'shell/environment';
 import TerminalView from 'shell/views/terminal';
+
+/** @typedef BaseBinding$$module$axiom$bindings$base */
+var BaseBinding;
+
+/** @typedef ModuleManager$$module$axiom$core$module_manager */
+var ModuleManager;
 
 /**
  * @constructor @extends {BaseBinding};
@@ -37,7 +44,7 @@ ShellCommands.prototype.bind = function(extensionBinding) {
 
 ShellCommands.prototype.call = function(name, arg) {
   if (!(name in ShellCommands.commands))
-    return Promise.reject(AxiomError.NotFound('command-name', [name]));
+    return Promise.reject(new AxiomError.NotFound('command-name', [name]));
 
   return ShellCommands.commands[name].call(this, arg, name);
 };

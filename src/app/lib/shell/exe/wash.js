@@ -19,10 +19,13 @@ import JsEntry from 'axiom/fs/js_entry';
 import Path from 'axiom/fs/path';
 import domfsUtil from 'axiom/fs/domfs_util';
 
-import minimist from 'minimist';
+// import minimist from 'minimist';
 import Termcap from 'shell/util/termcap';
 import WashBuiltins from 'shell/exe/wash_builtins';
 import environment from 'shell/environment';
+
+/** @typedef ExecuteContext$$module$axiom$bindings$fs$execute_context */
+var ExecuteContext;
 
 /**
  * @constructor
@@ -143,7 +146,7 @@ Shell.prototype.loadWashHistory = function() {
           this.inputHistory = history;
       } catch (ex) {
         this.errorln('Error loading: ' + this.historyFile);
-        this.pringErrorValue(ex);
+        this.printErrorValue(ex);
       }
 
       return Promise.resolve(null);
@@ -245,7 +248,7 @@ Shell.prototype.readEvalPrint = function() {
 
       if (typeof result != 'string') {
         return Promise.reject(new AxiomError.Runtime(
-            'Unexpected type from readline: ' + (typeof value)));
+            'Unexpected type from readline: ' + (typeof result)));
       }
 
       return this.evaluate(result).then(
@@ -382,8 +385,8 @@ Shell.prototype.parseArgv = function(argSigil, argv) {
     if (argSigil == '@')
       return argv ? argv.split(/\s+/g) : [];
 
-    if (argSigil == '%')
-      return minimist(argv.split(/\s+/g), {});
+    // TODO(rginda, ericarnold): Figure out how to solve minimist as an AMD
+    // if (argSigil == '%') return minimist(argv.split(/\s+/g), {});
   }
 };
 

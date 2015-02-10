@@ -81,15 +81,12 @@ import_.processAddonNodes = function(cx, sourceUrl, document) {
   for (var i = 0; i < addonNodes.length; i++) {
     var addonNode = addonNodes[i];
     var desc = addonNode.getAttribute('x-descriptor-module');
-    if (!desc)
-    console.stderr('Missing x-descriptor-module');
+    if (!desc) console.log('Missing x-descriptor-module');
 
     var main = addonNode.getAttribute('x-main-module');
-    if (!main)
-    console.stderr('Missing x-main-module');
+    if (!main) console.log('Missing x-main-module');
 
-    if (desc && main)
-    addonList.push([desc, main]);
+    if (desc && main) addonList.push([desc, main]);
   }
 
   var nextAddon = function() {
@@ -150,9 +147,6 @@ import_.initializeAddon = function(
   } catch(ex) {
     return Promise.reject(ex);
   }
-
-  // Should not be reachable.
-  return Promise.reject(null);
 };
 
 import_.saveImport = function(url) {

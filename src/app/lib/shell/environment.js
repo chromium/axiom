@@ -19,6 +19,7 @@
  * global state.
  */
 var axiomModuleManager;
+var __axiomRequire__;
 
 export var environment = {
   setModuleManager: function(mm) {

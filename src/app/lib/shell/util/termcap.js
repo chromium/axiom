@@ -23,7 +23,8 @@
  * Instances of this class are able to translate both outgoing strings and
  * incoming key sequences.
  */
-export var Termcap = function() {};
+var Termcap = function() {};
+export {Termcap};
 export default Termcap;
 
 /**
@@ -34,6 +35,8 @@ export default Termcap;
  * the default prompt for wash: '%set-attr(FG_BOLD, FG_CYAN)wash$ %set-attr()'.
  *
  * See the outputVars and outputFunctions below for the list of valid stuff.
+ * @param {string} str
+ * @param {Object=} opt_vars
  */
 Termcap.prototype.output = function(str, opt_vars) {
   var vars;
@@ -66,6 +69,9 @@ Termcap.prototype.output = function(str, opt_vars) {
  *  '%meta(DELETE)': 'kill-word',
  *
  * See the inputVars and inputFunctions below for the list of valid stuff.
+ * 
+ * @param {string} str
+ * @param {Object=} opt_vars
  */
 Termcap.prototype.input = function(str, opt_vars) {
   var vars;

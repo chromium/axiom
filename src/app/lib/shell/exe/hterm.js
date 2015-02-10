@@ -14,6 +14,12 @@
 
 import TerminalView from 'shell/views/terminal';
 
+/** @typedef ExecuteContext$$module$axiom$bindings$fs$execute_context */
+var ExecuteContext;
+
+/** @typedef JsExecutable$$module$axiom$fs$js_executable */
+var JsExecutable;
+
 /**
  * Simple callback for a JsExecutable which echos the argument list to stdout
  * and exits.
@@ -23,7 +29,7 @@ import TerminalView from 'shell/views/terminal';
  */
 var main = function(cx) {
   cx.ready();
-  var tv = new TerminalView(this.moduleManager);
+  var tv = new TerminalView();
   var command = cx.arg['command'] || '/addon/shell/exe/wash';
   var arg = cx.arg['arg'] || {};
   var env = cx.arg['env'] || {
