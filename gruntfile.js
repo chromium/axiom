@@ -60,8 +60,10 @@ module.exports = function(grunt) {
           expand: true,
           cwd: 'tmp/amd/lib/',
           src: ['**/*.js',
-                '**/*.js.map'
-          ],
+                '**/*.js.map',
+                '!**/*.test.js',
+                '!**/*.test.js.map'
+        ],
           dest: 'tmp/samples/web_app/js/'
         },
         {
@@ -86,10 +88,9 @@ module.exports = function(grunt) {
         dest: 'tmp/samples/web_app/index.html',
         title: 'Console',
         cwd: 'tmp/samples/web_app/',
-        modules: [
+        scriptrefs: [
           'js/axiom_amd.js',
-          'js/**/*.js',
-          '!**/*.test.js'
+          'js/**/*.js'
         ]
       }
     },

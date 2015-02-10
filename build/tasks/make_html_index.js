@@ -15,18 +15,19 @@
 // Makes a new html file which loads a list of js files.
 
 module.exports = function(grunt) {
-  grunt.registerMultiTask('make_html_index', function () {
-    var mainsrc = '';
+  grunt.registerMultiTask('make_html_index', function() {
 
-    var files = grunt.file.expand(this.data, this.data.modules);
     mainsrc = '<!DOCTYPE html>\n';
     mainsrc += '<html>\n';
     mainsrc += '<head>\n';
     mainsrc += '<title>' + this.data.title + '</title>\n';
-    files.forEach(function (file) {
-      var moduleName = file.replace(/.js$/, '');
-      mainsrc +=  '  <script src="' + file + '"></script>\n';
+
+    var scriptrefs = grunt.file.expand(this.data, this.data.scriptrefs);
+    scriptrefs.forEach(function(scriptref) {
+      var moduleName = scriptref.replace(/.js$/, '');
+      mainsrc += '  <script src="' + scriptref + '"></script>\n';
     }.bind(this));
+
     mainsrc += '</head>\n';
     mainsrc += '<body fullbleed unresolved>\n';
     mainsrc += '</body>\n';
