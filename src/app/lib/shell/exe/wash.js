@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ExecuteContext from 'axiom/bindings/fs/execute_context';
-
 import AxiomError from 'axiom/core/error';
 
 import JsFileSystem from 'axiom/fs/js_file_system';
@@ -25,6 +23,9 @@ import domfsUtil from 'axiom/fs/domfs_util';
 import Termcap from 'shell/util/termcap';
 import WashBuiltins from 'shell/exe/wash_builtins';
 import environment from 'shell/environment';
+
+/** @typedef ExecuteContext$$module$axiom$bindings$fs$execute_context */
+var ExecuteContext;
 
 /**
  * @constructor

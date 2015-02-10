@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import AxiomError from 'axiom/core/error';
-import ModuleManager from 'axiom/core/module_manager';
 
 import JsDirectory from 'axiom/fs/js_directory';
 import JsFileSystem from 'axiom/fs/js_file_system';
@@ -30,6 +29,12 @@ import mkdirMain from 'shell/exe/mkdir';
 import readlineMain from 'shell/exe/readline';
 import rmMain from 'shell/exe/rm';
 import washMain from 'shell/exe/wash';
+
+/** @typedef ModuleManager$$module$axiom$core$module_manager */
+var ModuleManager;
+
+/** @typedef JsDirectory$$module$axiom$fs$js_directory */
+var JsDirectory;
 
 /**
  * @constructor

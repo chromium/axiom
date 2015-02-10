@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ExecuteContext from 'axiom/bindings/fs/execute_context';
-
-import JsExecutable from 'axiom/fs/js_executable';
-
 import TerminalView from 'shell/views/terminal';
+
+/** @typedef ExecuteContext$$module$axiom$bindings$fs$execute_context */
+var ExecuteContext;
+
+/** @typedef JsExecutable$$module$axiom$fs$js_executable */
+var JsExecutable;
 
 /**
  * Simple callback for a JsExecutable which echos the argument list to stdout
