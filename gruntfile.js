@@ -38,6 +38,7 @@ module.exports = function(grunt) {
              'axiom/fs/*.js',
              'axiom/fs/base/*.js',
              'axiom/fs/js/*.js',
+             'axiom/fs/dom/*.js',
              '../third_party/closure-compiler/contrib/externs/jasmine.js'
             ],
         jsOutputFile: 'tmp/closure/out.js',
