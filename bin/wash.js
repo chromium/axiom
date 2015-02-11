@@ -8,15 +8,29 @@ if (!process.env.NODE_PATH) {
 global.Promise = require('es6-promise').Promise;
 require('es6-collections');
 
-var JsFileSystem = require('axiom/fs/js/file_system.js').default;
-var washExecutables = require('wash/exe_modules').default;
+var JsFileSystem = require('axiom/fs/js/file_system').default;
+var washExecutables = require('wash/exe_modules').dir;
+
+var aliveInterval = setInterval(function() {}, 60 * 1000);
+
+function startWash() {
+
+}
 
 function main() {
   var jsfs = new JsFileSystem();
-  jsfs.mkdir('exe').then(function(jsdir) {
+  console.log('ready?');
+  return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
+    console.log('go!: ' + jsdir + ', ' + washExecutables);
     jsdir.install(washExecutables);
-    console.log(jsfs);
+    return startWash();
+  }).catch(function(err) {
+    console.log(err);
+    throw err;
   });
 }
 
-main();
+main().then(function() {
+  console.log('exit');
+  clearTimeout(aliveInterval);
+});

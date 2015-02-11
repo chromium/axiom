@@ -20,6 +20,7 @@ module.exports = function(grunt) {
         'export var dir = {};\nexport default dir;\n';
 
     var files = grunt.file.expand(this.data, this.data.modules);
+    var index = 0;
     files.forEach(function(file) {
       var moduleName = file.replace(/.js$/, '');
       var dirName = moduleName;
@@ -29,8 +30,9 @@ module.exports = function(grunt) {
         }
       }
 
-      mainsrc += 'import m from "' + moduleName + '";\n' +
-          'dir["' + dirName + '"] = m;\n';
+      mainsrc += 'import m' + index + ' from "' + moduleName + '";\n' +
+          'dir["' + dirName + '"] = m' + index + ';\n';
+      index++;
     }.bind(this));
 
     grunt.file.write(this.data.dest, mainsrc);
