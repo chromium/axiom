@@ -12,40 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import wash from 'wash/exe/wash';
+import JsFileSystem from 'axiom/fs/js/file_system';
+import ExecuteContext from 'axiom/fs/base/execute_context';
 
-console.log("Shell Launch");
+import htermMain from 'shell/exe/hterm';
+//import washMain from 'shell/exe/wash';
 
-/*
-import shellMain from 'shell/main';
+console.log('Lauching app!');
 
-var axiomCommands = null;
+var fs = new JsFileSystem();
 
-// Generic logger of failed promises.
-var logCatch = function(err) {
-  console.log('logCatch: ' + err.toString(), err);
-  if ('stack' in err)
-    console.log(err.stack);
-};
-
-var init = function() {
-  // Start initialization...
-  shellMain().then(
-    function(moduleManager) {
-      axiomCommands = moduleManager.getServiceBinding('commands@axiom');
-      return axiomCommands.whenReady().then(
-        function() {
-          axiomCommands.dispatch('launch-hterm').catch(logCatch);
-        });
-    }).catch(logCatch);
-};
-
-var onLaunched = function() {
-  axiomCommands.whenReady().then(
-    function() {
-      axiomCommands.dispatch('launch-hterm').catch(logCatch);
+// Add executables to new filesystem
+fs.rootDirectory.mkdir('exe')
+  .then(function( /** JsDirectory */ jsdir) {
+    jsdir.install({
+      'hterm': htermMain,
+      //'wash': washMain,
+    });
+  })
+  .then(function() {
+    // Execute "hterm" app, passing "wash" as command line processor
+    return fs.createExecuteContext(
+      'exe/hterm', {
+        command: 'exe/wash',
+        arg: { init: true }
+      });
+  }).then(function (/** ExecutionContext */cx) {
+      cx.execute();
+  }).catch(function(e) {
+    console.log('Error lauching app:', e);
   });
-};
-
-init();
-*/
