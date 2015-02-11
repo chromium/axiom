@@ -34,15 +34,20 @@ module.exports = function(grunt) {
     'closure-compiler': {
       check: {
         cwd: 'lib/',
-        js: ['axiom/core/*.js',
-             'axiom/fs/*.js',
-             'axiom/fs/base/*.js',
-             'axiom/fs/js/*.js',
-             'axiom/fs/dom/*.js',
+        js: ['**/*.js',
              '../third_party/closure-compiler/contrib/externs/jasmine.js'
             ],
         jsOutputFile: 'tmp/closure/out.js',
         options: require('./build/closure-options.json')
+      }
+    },
+
+    make_dir_module: {
+      wash: {
+        strip: 2,
+        dest: 'lib/wash/exe_modules.js',
+        cwd: 'lib',
+        modules: ['wash/exe/*.js']
       }
     },
 
@@ -123,17 +128,22 @@ module.exports = function(grunt) {
     es6_transpile: {
       amd: {
         type: "amd",
-        // Defines the "root" directories used by the transpiler to resolve
-        // import to files.
         fileResolver: ['lib/'],
         files: [{
           expand: true,
           cwd: 'lib/',
-          src: [
-            'axiom/core/**/*.js',
-            'axiom/fs/**/*.js'
-          ],
+          src: ['**/*.js'],
           dest: 'tmp/amd/lib/'
+        }]
+      },
+      cjs: {
+        type: "cjs",
+        fileResolver: ['lib/'],
+        files: [{
+          expand: true,
+          cwd: 'lib/',
+          src: ['**/*.js'],
+          dest: 'tmp/cjs/lib/'
         }]
       }
     },
@@ -155,19 +165,26 @@ module.exports = function(grunt) {
       once: {
         singleRun: true
       }
+    },
+
+    shell: {
+      wash: {
+        command: 'node ./bin/wash.js'
+      }
     }
   });
 
   // Just transpile.
-  grunt.registerTask('transpile', ['clean', 'es6_transpile']);
+  grunt.registerTask('transpile', ['clean',
+                                   'make_dir_module',
+                                   'es6_transpile']);
 
   // Static check with closure compiler.
-  grunt.registerTask('check', ['closure-compiler:check']);
+  grunt.registerTask('check', ['make_dir_module', 'closure-compiler:check']);
   grunt.registerTask('check-watch', ['watch:check']);
 
   // Transpile and test.
-  grunt.registerTask('test', ['clean',
-                              'es6_transpile',
+  grunt.registerTask('test', ['transpile',
                               'make_main_module:test',
                               'karma:once']);
   grunt.registerTask('test-watch', ['clean',
@@ -176,6 +193,7 @@ module.exports = function(grunt) {
   // Static check, transpile, test, repeat on changes.
   grunt.registerTask('check-test-watch', ['clean', 'watch:check_test']);
 
+  grunt.registerTask('wash', ['transpile', 'shell:wash']);
   grunt.registerTask('default', ['check', 'test']);
 
   grunt.registerTask('samples_web_app', ['copy:samples_web_app_files',
