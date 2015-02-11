@@ -6,31 +6,53 @@ if (!process.env.NODE_PATH) {
 }
 
 global.Promise = require('es6-promise').Promise;
-require('es6-collections');
 
 var JsFileSystem = require('axiom/fs/js/file_system').default;
 var washExecutables = require('wash/exe_modules').dir;
 
 var aliveInterval = setInterval(function() {}, 60 * 1000);
 
-function startWash() {
+var fs = require('fs');
+var rawout = new fs.SyncWriteStream(1, {autoclose: false});
+var rawerr = new fs.SyncWriteStream(2, {autoclose: false});
 
+function startWash(jsfs) {
+  return jsfs.createExecuteContext('/exe/wash', {}).then(
+    function(cx) {
+      cx.onStdOut.addListener(function(value) {
+        rawout.write(value);
+      });
+
+      cx.onStdErr.addListener(function(value) {
+        rawerr.write(value);
+      });
+
+      cx.onReady.addListener(function(value) {
+        console.log('wash ready');
+      });
+
+      cx.onClose.addListener(function(reason, value) {
+        console.log('wash closed: ' + reason + ', ' + value);
+      });
+
+      console.log('starting wash');
+      cx.setEnv('@PATH', ['/exe']);
+      return cx.execute();
+    });
 }
 
 function main() {
   var jsfs = new JsFileSystem();
-  console.log('ready?');
   return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
-    console.log('go!: ' + jsdir + ', ' + washExecutables);
     jsdir.install(washExecutables);
-    return startWash();
-  }).catch(function(err) {
-    console.log(err);
-    throw err;
+    return startWash(jsfs);
   });
 }
 
-main().then(function() {
-  console.log('exit');
+main().then(function(value) {
+  console.log('exit:', value);
+  clearTimeout(aliveInterval);
+}).catch(function(err) {
+  console.log('Uncaught exception:', err);
   clearTimeout(aliveInterval);
 });
