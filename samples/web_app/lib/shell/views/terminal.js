@@ -143,7 +143,7 @@ TerminalView.viewClosed = function(followObject) {
 };
 
 TerminalView.prototype.execute = function(cx, pathSpec, arg, env) {
-  if (this.executeContext && this.executeContext.isReadyState('READY'))
+  if (this.executeContext && this.executeContext.isEphemeral('Ready'))
     throw new AxiomError.Runtime('Already executing');
 
   return cx.jsfs.createExecuteContext(pathSpec, arg).then(
@@ -221,7 +221,7 @@ TerminalView.prototype.onTTYRequest_ = function(request) {
  * We just forward them on to the default command.
  */
 TerminalView.prototype.onSendString_ = function(str) {
-  if (this.executeContext.isReadyState('READY')) {
+  if (this.executeContext.isEphemeral('Ready')) {
     var interruptChar = this.executeContext.getTTY().interrupt;
     if (interruptChar && str == interruptChar) {
       console.log('interrupt');
@@ -240,6 +240,6 @@ TerminalView.prototype.onSendString_ = function(str) {
  * We just forward them on to the default command.
  */
 TerminalView.prototype.onTerminalResize_ = function(columns, rows) {
-  if (this.executeContext && this.executeContext.isReadyState('READY'))
+  if (this.executeContext && this.executeContext.isEphemeral('Ready'))
     this.executeContext.setTTY({columns: columns, rows: rows});
 };
