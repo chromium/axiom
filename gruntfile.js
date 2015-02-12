@@ -167,10 +167,8 @@ module.exports = function(grunt) {
       }
     },
 
-    shell: {
-      wash: {
-        command: 'node ./bin/wash.js'
-      }
+    run_wash: {
+      main: {}
     }
   });
 
@@ -193,7 +191,10 @@ module.exports = function(grunt) {
   // Static check, transpile, test, repeat on changes.
   grunt.registerTask('check-test-watch', ['clean', 'watch:check_test']);
 
-  grunt.registerTask('wash', ['transpile', 'shell:wash']);
+  // Build, then run wash from node.js
+  grunt.registerTask('wash', ['clean', 'make_dir_module', 'es6_transpile:cjs',
+                              'run_wash']);
+
   grunt.registerTask('default', ['check', 'test']);
 
   grunt.registerTask('samples_web_app', ['copy:samples_web_app_files',
