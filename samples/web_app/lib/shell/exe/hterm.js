@@ -36,7 +36,7 @@ var main = function(cx) {
     '@PATH': ['/exe/'],
     '$TERM': 'xterm-256color'
   };
-  tv.execute(cx,command, arg, env);
+  //tv.execute(cx,command, arg, env);
   return Promise.resolve(null);
 };
 

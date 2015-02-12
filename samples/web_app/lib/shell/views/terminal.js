@@ -51,6 +51,14 @@ var TerminalView = function() {
   this.executeContext = null;
 
   var viewElem = document.createElement('div');
+  viewElem.style.cssText = (
+      'position: absolute; ' +
+      'top: 0px; ' +
+      'left: 0px; ' +
+      'height: 100%;' +
+      'width: 100%');
+  document.body.appendChild(viewElem);
+
   this.viewElem_ = viewElem;
   var object = document.createElement('object');
   object.style.cssText = (

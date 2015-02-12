@@ -93,6 +93,12 @@ module.exports = function(grunt) {
                 '**/*.js.map'
           ],
           dest: 'tmp/samples/web_app/js/boot'
+        },
+        {
+          expand: true,
+          cwd: 'samples/web_app/css/',
+          src: ['**/*.css'],
+          dest: 'tmp/samples/web_app/css'
         }]
       }
     },
@@ -109,6 +115,9 @@ module.exports = function(grunt) {
           'js/*.js',
           'js/shell/**/*.js',
           'js/boot/startup.js' // last entry since we are synchronous (for now)
+        ],
+        cssrefs: [
+          'css/**/*.css'
         ]
       }
     },
