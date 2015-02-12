@@ -16,7 +16,8 @@ import JsFileSystem from 'axiom/fs/js/file_system';
 import ExecuteContext from 'axiom/fs/base/execute_context';
 
 import htermMain from 'shell/exe/hterm';
-//import washMain from 'shell/exe/wash';
+import washMain from 'wash/exe/wash';
+import readlineMain from 'wash/exe/readline';
 
 console.log('Lauching app!');
 
@@ -27,7 +28,8 @@ fs.rootDirectory.mkdir('exe')
   .then(function( /** JsDirectory */ jsdir) {
     jsdir.install({
       'hterm': htermMain,
-      //'wash': washMain,
+      'wash': washMain,
+      'readline': readlineMain,
     });
   })
   .then(function() {
