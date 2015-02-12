@@ -134,19 +134,13 @@ TerminalView.viewClosed = function(followObject) {
   }
 };
 
-TerminalView.prototype.execute = function(pathSpec, arg, env) {
-  this.execute_.bind(this, pathSpec, arg, env);
-};
-
-TerminalView.prototype.execute_ = function(pathSpec, arg, env) {
+TerminalView.prototype.execute = function(cx, pathSpec, arg, env) {
   if (this.executeContext && this.executeContext.isReadyState('READY'))
     throw new AxiomError.Runtime('Already executing');
 
-  var fileSystemBinding = environment.getServiceBinding('filesystems@axiom');
-
-  return fileSystemBinding.createExecuteContext(pathSpec, arg).then(
-    function(cx) {
-      this.executeContext = cx;
+  return cx.jsfs.createExecuteContext(pathSpec, arg).then(
+    function(cx2) {
+      this.executeContext = cx2;
       this.executeContext.setEnvs(env);
       this.executeContext.onClose.addListener(this.onExecuteClose_, this);
       this.executeContext.onStdOut.addListener(this.onStdOut_, this);
