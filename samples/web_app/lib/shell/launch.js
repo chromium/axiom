@@ -18,6 +18,7 @@ import ExecuteContext from 'axiom/fs/base/execute_context';
 import htermMain from 'shell/exe/hterm';
 import washMain from 'wash/exe/wash';
 import readlineMain from 'wash/exe/readline';
+import washExecutables from 'wash/exe_modules';
 
 console.log('Lauching app!');
 
@@ -27,10 +28,9 @@ var fs = new JsFileSystem();
 fs.rootDirectory.mkdir('exe')
   .then(function( /** JsDirectory */ jsdir) {
     jsdir.install({
-      'hterm': htermMain,
-      'wash': washMain,
-      'readline': readlineMain,
+      'hterm': htermMain
     });
+    jsdir.install(washExecutables);
   })
   .then(function() {
     // Execute "hterm" app, passing "wash" as command line processor

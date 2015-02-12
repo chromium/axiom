@@ -33,7 +33,7 @@ var main = function(cx) {
   var command = cx.arg['command'];
   var arg = cx.arg['arg'] || {};
   var env = cx.arg['env'] || {
-    '@PATH': ['/exe/'],
+    '@PATH': ['/exe'],
     '$TERM': 'xterm-256color'
   };
   tv.execute(cx,command, arg, env);
