@@ -14,8 +14,6 @@
 
 import AxiomError from 'axiom/core/error';
 
-import environment from 'shell/environment';
-
 import hterm from 'hterm/public';
 
 /**
@@ -52,45 +50,34 @@ var TerminalView = function() {
 
   this.executeContext = null;
 
-  var viewsBinding = environment.getServiceBinding('views@axiom');
-  this.whenReady = viewsBinding.whenLoadedAndReady().then(function() {
-      return viewsBinding.register(this.id, 'div');
-    }.bind(this)).then(function() {
-      return viewsBinding.show(this.id);
-    }.bind(this)).then(function(viewElem) {
-      this.viewElem_ = viewElem;
-      var object = document.createElement('object');
-      object.style.cssText = (
-          'display: block; ' +
-          'position: absolute; ' +
-          'top: 0; ' +
-          'left: 0; ' +
-          'height: 100%; ' +
-          'width: 100%; ' +
-          'overflow: hidden; ' +
-          'pointer-events: none;');
+  var viewElem = document.createElement('div');
+  this.viewElem_ = viewElem;
+  var object = document.createElement('object');
+  object.style.cssText = (
+      'display: block; ' +
+      'position: absolute; ' +
+      'top: 0; ' +
+      'left: 0; ' +
+      'height: 100%; ' +
+      'width: 100%; ' +
+      'overflow: hidden; ' +
+      'pointer-events: none;');
 
-      var onResize = function() {
-        TerminalView.resizeIframes();
-      }.bind(this);
+  var onResize = function() {
+    TerminalView.resizeIframes();
+  }.bind(this);
 
-      object.onload = function() {
-        this.contentDocument.defaultView.addEventListener(
-            'resize', onResize);
-        onResize();
-      };
+  object.onload = function() {
+    this.contentDocument.defaultView.addEventListener(
+        'resize', onResize);
+    onResize();
+  };
 
-      object.type = 'text/html';
-      object.data = 'about:blank';
+  object.type = 'text/html';
+  object.data = 'about:blank';
 
-      this.htermElem_.followObject = object;
-      this.viewElem_.appendChild(object);
-
-      // TODO(rpaquay): Find a better way than adding a member to the element?
-      this.viewElem_.viewClosed = function() {
-        TerminalView.viewClosed(object);
-      };
-    }.bind(this));
+  this.htermElem_.followObject = object;
+  this.viewElem_.appendChild(object);
 };
 
 export {TerminalView};
@@ -148,7 +135,7 @@ TerminalView.viewClosed = function(followObject) {
 };
 
 TerminalView.prototype.execute = function(pathSpec, arg, env) {
-  this.whenReady.then(this.execute_.bind(this, pathSpec, arg, env));
+  this.execute_.bind(this, pathSpec, arg, env);
 };
 
 TerminalView.prototype.execute_ = function(pathSpec, arg, env) {
