@@ -16,8 +16,6 @@ import JsFileSystem from 'axiom/fs/js/file_system';
 import ExecuteContext from 'axiom/fs/base/execute_context';
 
 import htermMain from 'shell/exe/hterm';
-import washMain from 'wash/exe/wash';
-import readlineMain from 'wash/exe/readline';
 import washExecutables from 'wash/exe_modules';
 
 console.log('Lauching app!');
@@ -40,7 +38,7 @@ fs.rootDirectory.mkdir('exe')
         arg: { init: true }
       });
   }).then(function (/** ExecutionContext */cx) {
-      cx.execute();
+      return cx.execute();
   }).catch(function(e) {
     console.log('Error lauching app:', e);
   });
