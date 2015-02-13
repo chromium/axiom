@@ -1,42 +1,59 @@
 #!/usr/bin/env nodejs
 
 if (!process.env.NODE_PATH) {
-  console.log('Please set NODE_PATH to an absolute path to axiom/tmp/cjs/lib');
+  console.log('Please set NODE_PATH to an absolute /path/to/axiom/tmp/cjs/lib');
   process.exit(-1);
 }
 
 global.Promise = require('es6-promise').Promise;
 
+require('source-map-support').install();
+
+var AxiomError = require('axiom/core/error').default;
 var JsFileSystem = require('axiom/fs/js/file_system').default;
+var TTYState = require('axiom/fs/tty_state').default;
 var washExecutables = require('wash/exe_modules').dir;
 
-var aliveInterval = setInterval(function() {}, 60 * 1000);
+if ('setRawMode' in process.stdin) {
+  // Stdin seems to be missing setRawMode under grunt.
+  process.stdin.setRawMode(true);
+}
 
-var fs = require('fs');
-var rawout = new fs.SyncWriteStream(1, {autoclose: false});
-var rawerr = new fs.SyncWriteStream(2, {autoclose: false});
+function onResize(cx) {
+  var tty = new TTYState();
+  tty.isatty = process.stdout.isTTY;
+  tty.rows = process.stdout.rows;
+  tty.columns = process.stdout.columns;
+  cx.setTTY(tty);
+}
 
 function startWash(jsfs) {
   return jsfs.createExecuteContext('/exe/wash', {}).then(
     function(cx) {
       cx.onStdOut.addListener(function(value) {
-        rawout.write(value);
+        process.stdout.write(value);
       });
 
       cx.onStdErr.addListener(function(value) {
-        rawerr.write(value);
-      });
-
-      cx.onReady.addListener(function(value) {
-        console.log('wash ready');
+        process.stderr.write(value);
       });
 
       cx.onClose.addListener(function(reason, value) {
         console.log('wash closed: ' + reason + ', ' + value);
       });
 
-      console.log('starting wash');
+      process.stdin.on('data', function(buffer) {
+        if (buffer == '\x03')
+          cx.closeError(new AxiomError.Interrupt());
+
+        cx.stdin(buffer.toString());
+      });
+
+      onResize(cx);
+      process.stdout.on('resize', onResize.bind(null, cx));
+
       cx.setEnv('@PATH', ['/exe']);
+
       return cx.execute();
     });
 }
@@ -49,10 +66,17 @@ function main() {
   });
 }
 
-main().then(function(value) {
-  console.log('exit:', value);
-  clearTimeout(aliveInterval);
-}).catch(function(err) {
-  console.log('Uncaught exception:', err);
-  clearTimeout(aliveInterval);
-});
+module.exports = { main: main };
+
+if (/wash.js$/.test(process.argv[1])) {
+  // Keep node from exiting due to lack of events.
+  var aliveInterval = setInterval(function() {}, 60 * 1000);
+
+  main().then(function(value) {
+    console.log('exit:', value);
+    process.exit();
+  }).catch(function(err) {
+    console.log('Uncaught exception:', err, err.stack);
+    process.exit();
+  });
+}
