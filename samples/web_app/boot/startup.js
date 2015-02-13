@@ -12,19 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var startup = function() {
-  console.log("Startup.");
-  __axiomRequire__('shell/launch');
-}
+(function() {
+  var startup = function() {
+    console.log("Startup.");
+    __axiomRequire__('shell/launch');
+  }
 
-if (document.readyState === 'complete') {
-  startup();
-} else {
-  var onReadyStateChange = function() {
-    if (document.readyState === 'complete') {
-      document.removeEventListener('readystatechange', onReadyStateChange);
-      startup();
-    }
-  };
-  document.addEventListener('readystatechange', onReadyStateChange);
-}
+  if (document.readyState === 'complete') {
+    startup();
+  } else {
+    var onReadyStateChange = function() {
+      if (document.readyState === 'complete') {
+        document.removeEventListener('readystatechange', onReadyStateChange);
+        startup();
+      }
+    };
+    document.addEventListener('readystatechange', onReadyStateChange);
+  }
+})();
