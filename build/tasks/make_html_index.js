@@ -22,13 +22,22 @@ module.exports = function(grunt) {
     mainsrc += '<head>\n';
     mainsrc += '<title>' + this.data.title + '</title>\n';
 
-    var scriptrefs = grunt.file.expand(this.data, this.data.scriptrefs);
-    scriptrefs.forEach(function(scriptref) {
-      mainsrc += '  <script src="' + scriptref + '"></script>\n';
-    }.bind(this));
+    if (this.data.cssrefs) {
+      var cssrefs = grunt.file.expand(this.data, this.data.cssrefs);
+      cssrefs.forEach(function(cssref) {
+        mainsrc += '  <link rel="stylesheet" type="text/css" href="' + cssref + '">\n';
+      }.bind(this));
+    }
+
+    if (this.data.scriptrefs) {
+      var scriptrefs = grunt.file.expand(this.data, this.data.scriptrefs);
+      scriptrefs.forEach(function(scriptref) {
+        mainsrc += '  <script src="' + scriptref + '"></script>\n';
+      }.bind(this));
+    }
 
     mainsrc += '</head>\n';
-    mainsrc += '<body fullbleed unresolved>\n';
+    mainsrc += '<body>\n';
     mainsrc += '</body>\n';
     mainsrc += '</html>\n';
 

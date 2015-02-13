@@ -85,6 +85,20 @@ module.exports = function(grunt) {
           cwd: 'node_modules/hterm/dist/amd/lib/',
           src: ['hterm.amd.js'],
           dest: 'tmp/samples/web_app/js/'
+        },
+        {
+          expand: true,
+          cwd: 'samples/web_app/boot/',
+          src: ['**/*.js',
+                '**/*.js.map'
+          ],
+          dest: 'tmp/samples/web_app/js/boot'
+        },
+        {
+          expand: true,
+          cwd: 'samples/web_app/css/',
+          src: ['**/*.css'],
+          dest: 'tmp/samples/web_app/css'
         }]
       }
     },
@@ -96,7 +110,14 @@ module.exports = function(grunt) {
         cwd: 'tmp/samples/web_app/',
         scriptrefs: [
           'js/axiom_amd.js',
-          'js/**/*.js'
+          'js/axiom/**/*.js',
+          'js/wash/**/*.js',
+          'js/*.js',
+          'js/shell/**/*.js',
+          'js/boot/startup.js' // last entry since we are synchronous (for now)
+        ],
+        cssrefs: [
+          'css/**/*.css'
         ]
       }
     },
@@ -144,6 +165,16 @@ module.exports = function(grunt) {
           cwd: 'lib/',
           src: ['**/*.js'],
           dest: 'tmp/cjs/lib/'
+        }]
+      },
+      samples_web_app: {
+        type: "amd",
+        fileResolver: ['lib/', 'samples/web_app/lib'],
+        files: [{
+          expand: true,
+          cwd: 'samples/web_app/lib/',
+          src: ['**/*.js'],
+          dest: 'tmp/samples/web_app/js/'
         }]
       }
     },
