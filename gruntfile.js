@@ -69,7 +69,7 @@ module.exports = function(grunt) {
                 '**/*.js.map',
                 '!**/*.test.js',
                 '!**/*.test.js.map'
-        ],
+          ],
           dest: 'tmp/samples/web_app/js/'
         },
         {
@@ -169,7 +169,9 @@ module.exports = function(grunt) {
       },
       samples_web_app: {
         type: "amd",
-        fileResolver: ['lib/', 'samples/web_app/lib'],
+        fileResolver: ['lib/',
+                       'node_modules/hterm/dist/stub/',
+                       'samples/web_app/lib'],
         files: [{
           expand: true,
           cwd: 'samples/web_app/lib/',
