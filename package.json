@@ -32,6 +32,6 @@
     "source-map-support": "^0.2.9"
   },
   "dependencies": {
-    "hterm": "^2.0.0"
+    "hterm": "^2.0.2"
   }
 }
