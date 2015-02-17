@@ -1,7 +1,0 @@
-*~
-dist
-node_modules/
-out/
-dist/
-bower_components/
-*.log

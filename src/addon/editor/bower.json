@@ -1,7 +1,0 @@
-{
-  "name": "editor",
-  "private": true,
-  "dependencies": {
-    "ace-builds": "~1.1.8"
-  }
-}

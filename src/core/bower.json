@@ -1,9 +1,0 @@
-{
-  "name": "axiom",
-  "private": true,
-  "dependencies": {
-    "polymer": "Polymer/polymer#~0.4.2",
-    "core-elements": "Polymer/core-elements#~0.4.2",
-    "paper-tabs": "Polymer/paper-tabs#~0.4.2"
-  }
-}
