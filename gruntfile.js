@@ -60,6 +60,17 @@ module.exports = function(grunt) {
       }
     },
 
+    make_concat_amd_module: {
+      axiom: {
+        init: '__initAxiom__',
+        require: '__axiomRequire__',
+        loader: 'loader/axiom_amd.js',
+        dest: 'tmp/dist/axiom.concat.amd.js',
+        cwd: 'tmp/amd/lib',
+        modules: ['**/*.js']
+      }
+    },
+
     copy: {
       samples_web_app_files: {
         files: [{
@@ -214,6 +225,8 @@ module.exports = function(grunt) {
   grunt.registerTask('check', ['make_dir_module', 'closure-compiler:check']);
   grunt.registerTask('check-watch', ['watch:check']);
 
+  grunt.registerTask('dist', ['transpile', 'make_concat_amd_module:axiom']);
+
   // Transpile and test.
   grunt.registerTask('test', ['transpile',
                               'make_main_module:test',
@@ -230,6 +243,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', ['check', 'test']);
 
+  // Sample apps
   grunt.registerTask('samples_web_app', ['copy:samples_web_app_files',
                                          'make_html_index:samples_web_app']);
 
