@@ -60,17 +60,17 @@ module.exports = function(grunt) {
       }
     },
 
-    make_concat_amd_module: {
+    concat: {
       axiom: {
-        loader: 'loader/axiom_amd.js',
-        dest: 'tmp/dist/axiom.concat.amd.js',
-        cwd: 'tmp/amd/lib/axiom',
-        modules: ['**/*.js', '!**/*.test.js']
+        src: ['loader/axiom_amd.js',
+              'tmp/amd/lib/axiom/**/*.js',
+              '!tmp/amd/lib/axiom/**/*.test.js'],
+        dest: 'tmp/dist/axiom.concat.amd.js'
       },
       wash: {
+        src: ['tmp/amd/lib/wash/**/*.js',
+              '!tmp/amd/lib/wash/**/*.test.js'],
         dest: 'tmp/dist/wash.concat.amd.js',
-        cwd: 'tmp/amd/lib/wash',
-        modules: ['**/*.js', '!**/*.test.js']
       }
     },
 
@@ -236,8 +236,8 @@ module.exports = function(grunt) {
   grunt.registerTask('check-watch', ['watch:check']);
 
   grunt.registerTask('dist', ['transpile',
-                              'make_concat_amd_module:axiom', 
-                              'make_concat_amd_module:wash']);
+                              'concat:axiom', 
+                              'concat:wash']);
 
   // Transpile and test.
   grunt.registerTask('test', ['transpile',
