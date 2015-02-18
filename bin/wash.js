@@ -11,6 +11,7 @@ require('source-map-support').install();
 
 var AxiomError = require('axiom/core/error').default;
 var JsFileSystem = require('axiom/fs/js/file_system').default;
+var NodeFileSystem = require('axiom/fs/node/file_system').default;
 var TTYState = require('axiom/fs/tty_state').default;
 var washExecutables = require('wash/exe_modules').dir;
 
@@ -62,8 +63,14 @@ function main() {
   var jsfs = new JsFileSystem();
   return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
     jsdir.install(washExecutables);
+    mountNodefs(jsfs);
     return startWash(jsfs);
   });
+}
+
+function mountNodefs(jsfs) {
+  var fs = require('fs');
+  NodeFileSystem.mount(fs, 'nodefs', jsfs.rootDirectory);
 }
 
 module.exports = { main: main };
