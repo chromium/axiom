@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Console</title>
+  <link rel="stylesheet" type="text/css" href="css/index.css">
+  <script src="js/axiom.concat.amd.js"></script>
+  <script src="js/wash.concat.amd.js"></script>
+  <script>
+    window.onload = function() {
+      var status1 = document.getElementById("axiom-success");
+      var status2 = document.getElementById("wash-success");
+      var status3 = document.getElementById("axiom-fs-success");
+      try {
+        __axiomExport__(window);
+        console.log("Axiom global object:");
+        console.log(axiom);
+        console.log("Wash global object:");
+        console.log(wash);
+        if (axiom)
+          status1.innerText = "axiom global: SUCCESS";
+        else
+          status1.innerText = "axiom global: ERROR";
+        if (wash)
+          status2.innerText = "wash global: SUCCESS";
+        else
+          status2.innerText = "wash global: ERROR";
+
+        var fs = new axiom.fs.js.file_system.JsFileSystem();
+        if (fs)
+          status3.innerText = "JsFilesystem: SUCCESS";
+        else
+          status3.innerText = "JsFilesystem: ERROR";
+
+      } catch (e) {
+        status1.innerText = "Error: " + e;
+      }
+    };
+  </script>
+</head>
+  <body>
+    <p>Global module loading result:</p>
+    <p id="axiom-success"></p>
+    <p id="wash-success"></p>
+    <p id="axiom-fs-success"></p>
+  </body>
+</html>
