@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import JsFileSystem from 'axiom/fs/js/file_system';
+import DomFileSystem from 'axiom/fs/dom/file_system';
 import ExecuteContext from 'axiom/fs/base/execute_context';
 
 import htermMain from 'shell/exe/hterm';
@@ -29,6 +30,15 @@ fs.rootDirectory.mkdir('exe')
       'hterm': htermMain
     });
     jsdir.install(washExecutables);
+  })
+  .then(function() {
+    fs.rootDirectory.mkdir('mnt')
+      .then(function(jsDir) {
+        DomFileSystem.mount('permanent', 'html5', jsDir);
+      });
+  })
+  .then(function() {
+    DomFileSystem.mount('temporary', 'tmp', fs.rootDirectory);
   })
   .then(function() {
     // Execute "hterm" app, passing "wash" as command line processor
