@@ -1,5 +1,5 @@
 if (typeof define !== 'function' && typeof __axiomRequire__ !== 'function') {
-  var define, __axiomRequire__;
+  var define, __axiomRequire__, __axiomInit__;
 
   (function() {
     var registry = {}, seen = {};
@@ -43,6 +43,46 @@ if (typeof define !== 'function' && typeof __axiomRequire__ !== 'function') {
 
       return seen[name] = exports || value;
     };
+
+    function makeGlobals(requireFunction, global) {
+      var createdModules = {};
+      var root = global;
+
+      function ensureModule(moduleName) {
+        var current = root;
+        var names = moduleName.split('/');
+        // Ensure parent modules are created
+        for (var i = 0; i < names.length; i++) {
+          var childName = names[i];
+          var child = current[childName];
+          if (!child) {
+            child = current[childName] = {};
+          }
+          current = child;
+        }
+        return current;
+      }
+
+      for (var name in registry) {
+        var moduleGlobal = ensureModule(name);
+        var exports = requireFunction(name);
+        for (var key in exports) {
+          if (moduleGlobal.hasOwnProperty(key)) {
+            throw new Error('Property "' + key + '" of module "' + name +
+                            '" conflicts with submodule of same name.');
+          }
+          moduleGlobal[key] = exports[key];
+        }
+      }
+
+      return root;
+    }
+
+    __axiomInit__ = function(opt_global) {
+      if (!opt_global)
+        opt_global = window;
+      return makeGlobals(__axiomRequire__, opt_global);
+    }
 
     define.registry = registry;
     define.seen = seen;

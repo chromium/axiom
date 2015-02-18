@@ -45,36 +45,29 @@ module.exports = function(grunt) {
 
   grunt.registerMultiTask('make_concat_amd_module', function() {
 
-    var initName = this.data.init;
-    var requireName = this.data.require;
     var mainsrc = '';
 
-    // Function header
-    mainsrc += 'function ' + initName + '(opt_define) {\n';
-    mainsrc += '  var define = opt_define;\n';
-    mainsrc += '  if (!define) {\n';
-    var loaderContents = grunt.file.read(this.data.loader);
-    mainsrc += indentSource(loaderContents, "    ");
-    mainsrc += '\n';
-    mainsrc += '  }\n';
+    // Loader
+    if (this.data.loader) {
+      var loaderContents = grunt.file.read(this.data.loader);
+      mainsrc += loaderContents += '\n';
+    }
 
+    // 
+    mainsrc += '(function() {\n';
     // Append source contents of all modules
+    var moduleNameList = [];
     var files = grunt.file.expand(this.data, this.data.modules);
     files.forEach(function(file) {
       var moduleContents = grunt.file.read(path.join(this.data.cwd, file));
       var moduleName = file.replace(/.js$/, '');
+      moduleNameList.push(moduleName);
       mainsrc += indentSource(moduleContents, "  ");
       mainsrc += '\n';
     }.bind(this));
 
+    mainsrc += '})();\n';
 
-    // Function footer
-    mainsrc += '  if (!opt_define)\n';
-    mainsrc += '    return ' + requireName + '(\'axiom\').default\n';
-    mainsrc += '};  /* ' + initName + ' */\n';
-
-    // Define global "axiom" variable
-    mainsrc += 'var axiom = ' + initName + '(define);\n';
     grunt.file.write(this.data.dest, mainsrc);
   });
 };

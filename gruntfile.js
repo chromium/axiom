@@ -62,12 +62,15 @@ module.exports = function(grunt) {
 
     make_concat_amd_module: {
       axiom: {
-        init: '__initAxiom__',
-        require: '__axiomRequire__',
         loader: 'loader/axiom_amd.js',
         dest: 'tmp/dist/axiom.concat.amd.js',
-        cwd: 'tmp/amd/lib',
-        modules: ['**/*.js']
+        cwd: 'tmp/amd/lib/axiom',
+        modules: ['**/*.js', '!**/*.test.js']
+      },
+      wash: {
+        dest: 'tmp/dist/wash.concat.amd.js',
+        cwd: 'tmp/amd/lib/wash',
+        modules: ['**/*.js', '!**/*.test.js']
       }
     },
 
