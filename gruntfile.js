@@ -78,20 +78,8 @@ module.exports = function(grunt) {
       samples_web_app_files: {
         files: [{
           expand: true,
-          cwd: 'tmp/amd/lib/',
-          src: ['**/*.js',
-                '**/*.js.map',
-                '!**/*.test.js',
-                '!**/*.test.js.map'
-          ],
-          dest: 'tmp/samples/web_app/js/'
-        },
-        {
-          expand: true,
-          cwd: 'loader/',
-          src: ['**/*.js',
-                '**/*.js.map'
-          ],
+          cwd: 'tmp/dist/',
+          src: ['**/*.js'],
           dest: 'tmp/samples/web_app/js/'
         },
         {
@@ -143,9 +131,8 @@ module.exports = function(grunt) {
         title: 'Console',
         cwd: 'tmp/samples/web_app/',
         scriptrefs: [
-          'js/axiom_amd.js',
-          'js/axiom/**/*.js',
-          'js/wash/**/*.js',
+          'js/axiom.concat.amd.js',
+          'js/wash.concat.amd.js',
           'js/*.js',
           'js/shell/**/*.js',
           'js/boot/startup.js' // last entry since we are synchronous (for now)
