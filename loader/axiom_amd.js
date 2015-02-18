@@ -1,5 +1,5 @@
 if (typeof define !== 'function' && typeof __axiomRequire__ !== 'function') {
-  var define, __axiomRequire__, __axiomInit__;
+  var define, __axiomRequire__, __axiomExport__;
 
   (function() {
     var registry = {}, seen = {};
@@ -44,7 +44,7 @@ if (typeof define !== 'function' && typeof __axiomRequire__ !== 'function') {
       return seen[name] = exports || value;
     };
 
-    function makeGlobals(requireFunction, global) {
+    function makeGlobals(global) {
       var createdModules = {};
       var root = global;
 
@@ -65,7 +65,7 @@ if (typeof define !== 'function' && typeof __axiomRequire__ !== 'function') {
 
       for (var name in registry) {
         var moduleGlobal = ensureModule(name);
-        var exports = requireFunction(name);
+        var exports = __axiomRequire__(name);
         for (var key in exports) {
           if (moduleGlobal.hasOwnProperty(key)) {
             throw new Error('Property "' + key + '" of module "' + name +
@@ -78,10 +78,10 @@ if (typeof define !== 'function' && typeof __axiomRequire__ !== 'function') {
       return root;
     }
 
-    __axiomInit__ = function(opt_global) {
+    __axiomExport__ = function(opt_global) {
       if (!opt_global)
         opt_global = window;
-      return makeGlobals(__axiomRequire__, opt_global);
+      return makeGlobals(opt_global);
     }
 
     define.registry = registry;

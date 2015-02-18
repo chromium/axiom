@@ -9,8 +9,9 @@
     window.onload = function() {
       var status1 = document.getElementById("axiom-success");
       var status2 = document.getElementById("wash-success");
+      var status3 = document.getElementById("axiom-fs-success");
       try {
-        __axiomInit__(window);
+        __axiomExport__(window);
         console.log("Axiom global object:");
         console.log(axiom);
         console.log("Wash global object:");
@@ -23,6 +24,13 @@
           status2.innerText = "wash global: SUCCESS";
         else
           status2.innerText = "wash global: ERROR";
+
+        var fs = new axiom.fs.js.file_system.JsFileSystem();
+        if (fs)
+          status3.innerText = "JsFilesystem: SUCCESS";
+        else
+          status3.innerText = "JsFilesystem: ERROR";
+
       } catch (e) {
         status1.innerText = "Error: " + e;
       }
@@ -33,5 +41,6 @@
     <p>Global module loading result:</p>
     <p id="axiom-success"></p>
     <p id="wash-success"></p>
+    <p id="axiom-fs-success"></p>
   </body>
 </html>
