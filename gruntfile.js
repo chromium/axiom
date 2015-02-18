@@ -114,6 +114,26 @@ module.exports = function(grunt) {
           src: ['**/*.css'],
           dest: 'tmp/samples/web_app/css'
         }]
+      },
+      samples_use_globals_files: {
+        files: [{
+          expand: true,
+          cwd: 'tmp/dist/',
+          src: ['**/*.js'],
+          dest: 'tmp/samples/use_globals/js/'
+        },
+        {
+          expand: true,
+          cwd: 'samples/use_globals/css/',
+          src: ['**/*.css'],
+          dest: 'tmp/samples/use_globals/css'
+        },
+        {
+          expand: true,
+          cwd: 'samples/use_globals/',
+          src: ['**/*.html'],
+          dest: 'tmp/samples/use_globals/'
+        }]
       }
     },
 
@@ -228,7 +248,9 @@ module.exports = function(grunt) {
   grunt.registerTask('check', ['make_dir_module', 'closure-compiler:check']);
   grunt.registerTask('check-watch', ['watch:check']);
 
-  grunt.registerTask('dist', ['transpile', 'make_concat_amd_module:axiom']);
+  grunt.registerTask('dist', ['transpile',
+                              'make_concat_amd_module:axiom', 
+                              'make_concat_amd_module:wash']);
 
   // Transpile and test.
   grunt.registerTask('test', ['transpile',
@@ -247,9 +269,12 @@ module.exports = function(grunt) {
   grunt.registerTask('default', ['check', 'test']);
 
   // Sample apps
+  grunt.registerTask('samples_use_globals', ['copy:samples_use_globals_files']);
+
   grunt.registerTask('samples_web_app', ['copy:samples_web_app_files',
                                          'make_html_index:samples_web_app']);
 
-  grunt.registerTask('samples', ['es6_transpile',
-                                 'samples_web_app']);
+  grunt.registerTask('samples', ['dist',
+                                 'samples_web_app',
+                                 'samples_use_globals']);
 };
