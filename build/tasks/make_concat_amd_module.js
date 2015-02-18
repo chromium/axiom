@@ -12,16 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Makes a new js file which contains a list of modules surrounded
-// by a "init" function.
+// Makes a new js file which starts with an optional loader and contains a 
+// list of modules surrounded by a "init" function.
 //
-//   function __initAxiom__(opt_define) {
-//     var define = opt_define || ...our loader...;
+//   ...optional loader code here...
+//   (function() {
 //     ...all amd modules...
-//     if (!opt_define)
-//       return __axiomRequire('axiom').default;
-//   };
-//   var axiom = __initAxiom__(define);
+//   })();
 //
 
 module.exports = function(grunt) {
