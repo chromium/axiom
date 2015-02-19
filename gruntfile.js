@@ -35,7 +35,11 @@ module.exports = function(grunt) {
       check: {
         cwd: 'lib/',
         js: ['**/*.js',
-             '../third_party/closure-compiler/contrib/externs/jasmine.js'
+             '../third_party/closure-compiler/contrib/externs/jasmine.js',
+             '../third_party/closure-compiler/contrib/externs/fs.js',
+             '../third_party/closure-compiler/contrib/externs/buffer.js',
+             '../third_party/closure-compiler/contrib/externs/stream.js',
+             '../third_party/closure-compiler/contrib/externs/events.js'
             ],
         jsOutputFile: 'tmp/closure/out.js',
         options: require('./build/closure-options.json')
