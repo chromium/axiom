@@ -46,6 +46,15 @@ module.exports = function(grunt) {
       }
     },
 
+    git_deploy: {
+      samples: {
+        options: {
+          url: 'git@github.com:chromium/axiom.git'
+        },
+        src: 'tmp'
+      },
+    },
+
     make_dir_module: {
       wash: {
         strip: 2,
@@ -268,4 +277,6 @@ module.exports = function(grunt) {
   grunt.registerTask('samples', ['dist',
                                  'samples_web_app',
                                  'samples_use_globals']);
+
+  grunt.registerTask('deploy_samples', ['samples', 'git_deploy:samples']);
 };
