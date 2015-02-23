@@ -222,6 +222,9 @@ module.exports = function(grunt) {
       },
       once: {
         singleRun: true
+      },
+      server: {
+        singleRun: false
       }
     },
 
