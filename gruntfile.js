@@ -46,6 +46,26 @@ module.exports = function(grunt) {
       }
     },
 
+    compress: {
+      main: {
+        options: {
+          archive: 'dist/tar/axiom.tar',
+          mode: 'tar'
+        },
+        files: [
+          {src: ['dist/axiom_base/*'], dest: '/'},
+          {expand: true, cwd: 'tmp/cjs/lib/axiom/', src: ['**'], dest: '/cjs'},
+          {expand: true, cwd: 'tmp/amd/lib/axiom/', src: ['**'], dest: '/amd'},
+          {expand: true, cwd: 'lib/axiom/', src: ['**', '!package_dist.json'], dest: '/es6'},
+          {expand: true, cwd: 'lib/axiom/', src: ['package_dist.json'], dest: '/',
+              rename: function(dest, matchedSrcPath, options) {
+                return 'package.json';
+              }
+          }
+        ]
+      }
+    },
+
     make_dir_module: {
       wash: {
         strip: 2,
@@ -65,16 +85,17 @@ module.exports = function(grunt) {
     },
 
     concat: {
-      axiom: {
+      axiom_base: {
         src: ['loader/axiom_amd.js',
               'tmp/amd/lib/axiom/**/*.js',
+              '!tmp/amd/lib/axiom/fs/node/*.js',
               '!tmp/amd/lib/axiom/**/*.test.js'],
-        dest: 'tmp/dist/axiom.concat.amd.js'
+        dest: 'dist/axiom_base/axiom_base.amd.concat.js'
       },
       wash: {
         src: ['tmp/amd/lib/wash/**/*.js',
               '!tmp/amd/lib/wash/**/*.test.js'],
-        dest: 'tmp/dist/wash.concat.amd.js',
+        dest: 'dist/wash/wash.amd.concat.js'
       }
     },
 
@@ -135,8 +156,8 @@ module.exports = function(grunt) {
         title: 'Console',
         cwd: 'tmp/samples/web_app/',
         scriptrefs: [
-          'js/axiom.concat.amd.js',
-          'js/wash.concat.amd.js',
+          'js/axiom_base.amd.concat.js',
+          'js/wash.amd.concat.js',
           'js/*.js',
           'js/shell/**/*.js',
           'js/boot/startup.js' // last entry since we are synchronous (for now)
@@ -240,7 +261,7 @@ module.exports = function(grunt) {
   grunt.registerTask('check-watch', ['watch:check']);
 
   grunt.registerTask('dist', ['transpile',
-                              'concat:axiom', 
+                              'concat:axiom_base',
                               'concat:wash']);
 
   // Transpile and test.
@@ -268,4 +289,8 @@ module.exports = function(grunt) {
   grunt.registerTask('samples', ['dist',
                                  'samples_web_app',
                                  'samples_use_globals']);
+
+  grunt.registerTask('tar', ['compress']);
+
+  grunt.registerTask('publish', []);
 };
