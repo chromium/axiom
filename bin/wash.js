@@ -10,6 +10,7 @@ global.Promise = require('es6-promise').Promise;
 require('source-map-support').install();
 
 var AxiomError = require('axiom/core/error').default;
+var Path = require('axiom/fs/path').default;
 var JsFileSystem = require('axiom/fs/js/file_system').default;
 var NodeFileSystem = require('axiom/fs/node/file_system').default;
 var TTYState = require('axiom/fs/tty_state').default;
@@ -29,7 +30,7 @@ function onResize(cx) {
 }
 
 function startWash(jsfs) {
-  return jsfs.createExecuteContext('/exe/wash', {}).then(
+  return jsfs.createExecuteContext(new Path('/exe/wash'), {}).then(
     function(cx) {
       cx.onStdOut.addListener(function(value) {
         process.stdout.write(value);

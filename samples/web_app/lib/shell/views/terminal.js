@@ -143,6 +143,7 @@ TerminalView.viewClosed = function(followObject) {
   }
 };
 
+// TODO(rpaquay): pathSpec => Path
 TerminalView.prototype.execute = function(cx, pathSpec, arg, env) {
   if (this.executeContext && this.executeContext.isEphemeral('Ready'))
     throw new AxiomError.Runtime('Already executing');
@@ -201,11 +202,11 @@ TerminalView.prototype.onStdOut_ = function(str, opt_onAck) {
  */
 TerminalView.prototype.onExecuteClose_ = function(reason, value) {
   if (reason == 'ok') {
-    this.println('Command exited: ' + this.executeContext.pathSpec + ', ' +
+    this.println('Command exited: ' + this.executeContext.path + ', ' +
         JSON.stringify(value));
 
   } else {
-    this.print('Error executing ' + this.executeContext.pathSpec + ': ' +
+    this.print('Error executing ' + this.executeContext.path + ': ' +
                JSON.stringify(value));
   }
 };
