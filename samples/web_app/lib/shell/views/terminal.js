@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import AxiomError from 'axiom/core/error';
+import Path from 'axiom/fs/path';
 
 import hterm from 'hterm/public';
 
@@ -146,7 +147,7 @@ TerminalView.prototype.execute = function(cx, pathSpec, arg, env) {
   if (this.executeContext && this.executeContext.isEphemeral('Ready'))
     throw new AxiomError.Runtime('Already executing');
 
-  return cx.jsfs.createExecuteContext(pathSpec, arg).then(
+  return cx.jsfs.createExecuteContext(new Path(pathSpec), arg).then(
     function(cx2) {
       this.executeContext = cx2;
       this.executeContext.setEnvs(env);
