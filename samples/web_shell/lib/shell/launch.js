@@ -17,7 +17,7 @@ import DomFileSystem from 'axiom/fs/dom/file_system';
 import ExecuteContext from 'axiom/fs/base/execute_context';
 import Path from 'axiom/fs/path';
 
-import TerminalView from 'shell/views/terminal';
+import TerminalView from 'shell/terminal';
 import washExecutables from 'wash/exe_modules';
 
 console.log('Lauching app!');
@@ -49,9 +49,7 @@ fs.rootDirectory.mkdir('exe')
 
 var launchHterm = function() {
   return fs.createExecuteContext(
-    new Path('exe/wash'), {
-      init: true
-    })
+    new Path('exe/wash'), {})
     .then(function (/** ExecutionContext */cx) {
       var tv = new TerminalView();
       var env = cx.arg['env'] || {
