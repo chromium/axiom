@@ -29,6 +29,13 @@ var JsExecutable;
  */
 var main = function(cx) {
   cx.ready();
+
+  // Hack to temporary disable hterm command from sample app.
+  // TODO(grv): re-enable when a view manager is available.
+  if (!cx.arg || !cx.arg.arg) {
+    return Promise.reject('hterm: Command not available.');
+  }
+
   var tv = new TerminalView();
   var command = cx.arg['command'];
   var arg = cx.arg['arg'] || {};
