@@ -1,7 +1,6 @@
 *~
 npm-debug.log
 node_modules/
-third_party/dcodeIO/*.js
 tmp/
 .DS_Store
 *.log
