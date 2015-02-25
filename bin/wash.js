@@ -61,17 +61,19 @@ function startWash(jsfs) {
 }
 
 function main() {
-  var jsfs = new JsFileSystem();
+  var fsm = new FileSystemManager();
+  var jsfs = new JsFileSystem(fsm, 'jsfs');
+  fsm.mount(jsfs);
   return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
     jsdir.install(washExecutables);
-    mountNodefs(jsfs);
-    return startWash(jsfs);
+    mountNodefs(fsm);
+    return startWash(fsm);
   });
 }
 
-function mountNodefs(jsfs) {
+function mountNodefs(fsm) {
   var fs = require('fs');
-  NodeFileSystem.mount(fs, 'nodefs', jsfs.rootDirectory);
+  NodeFileSystem.mount(fsm, 'nodefs', fs);
 }
 
 module.exports = { main: main };
