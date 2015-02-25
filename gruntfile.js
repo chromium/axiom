@@ -53,9 +53,9 @@ module.exports = function(grunt) {
           mode: 'tar'
         },
         files: [
-          {src: ['dist/axiom_base/*'], dest: '/'},
-          {expand: true, cwd: 'tmp/cjs/lib/axiom/', src: ['**'], dest: '/cjs'},
-          {expand: true, cwd: 'tmp/amd/lib/axiom/', src: ['**'], dest: '/amd'},
+          {expand: true, cwd: 'dist/axiom_base', src: ['*'], dest: '/'},
+          {expand: true, cwd: 'tmp/cjs/lib/axiom/', src: ['**'], dest: '/dist/cjs'},
+          {expand: true, cwd: 'tmp/amd/lib/axiom/', src: ['**'], dest: '/dist/amd'},
           {expand: true, cwd: 'lib/axiom/', src: ['**', '!package_dist.json'], dest: '/es6'},
           {expand: true, cwd: 'lib/axiom/', src: ['package_dist.json'], dest: '/',
               rename: function(dest, matchedSrcPath, options) {

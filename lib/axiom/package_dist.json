@@ -1,7 +1,8 @@
 {
-  "name": "axiom-src",
+  "name": "axiom-core",
   "version": "1.0.0",
-  "description": "Axiom source repository",
+  "description": "Axiom core and services library",
+  "main": "dist/cjs/lib/axiom.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/chromium/axiom.git"
@@ -20,7 +21,6 @@
     "grunt-contrib-concat": "~0.5.0",
     "grunt-contrib-copy": "^0.6.0",
     "grunt-contrib-watch": "^0.6.1",
-    "grunt-contrib-compress": "^0.13.0",
     "grunt-karma": "~0.10.1",
     "jasmine-core": "~2.1.3",
     "karma": "~0.12.31",
@@ -30,7 +30,4 @@
     "matchdep": "~0.3.0",
     "source-map-support": "^0.2.9"
   },
-  "dependencies": {
-    "hterm": "^2.0.2"
-  }
 }
