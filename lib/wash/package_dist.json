@@ -1,11 +1,10 @@
 {
-  "name": "axiom-core",
+  "name": "wash",
   "version": "1.0.0",
-  "description": "Axiom core and services library",
-  "main": "dist/cjs/lib/axiom.js",
+  "description": "Wash",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chromium/axiom.git"
+    "url": "https://github.com/rginda/axiom-shell.git"
   },
   "author": "Axiom authors",
   "licensce": "CHROMIUM",
@@ -29,5 +28,9 @@
     "karma-phantomjs-launcher": "^0.1.4",
     "matchdep": "~0.3.0",
     "source-map-support": "^0.2.9"
+  },
+  "dependencies": {
+    "axiom-core": "^1.0.0",
+    "hterm": "^2.0.0"
   }
 }

@@ -47,7 +47,7 @@ module.exports = function(grunt) {
     },
 
     compress: {
-      main: {
+      axiom: {
         options: {
           archive: 'dist/tar/axiom.tar',
           mode: 'tar'
@@ -63,7 +63,24 @@ module.exports = function(grunt) {
               }
           }
         ]
-      }
+      },
+      wash: {
+        options: {
+          archive: 'dist/tar/wash.tar',
+          mode: 'tar'
+        },
+        files: [
+          {expand: true, cwd: 'dist/wash', src: ['*'], dest: '/'},
+          {expand: true, cwd: 'tmp/cjs/lib/wash/', src: ['**'], dest: '/dist/cjs'},
+          {expand: true, cwd: 'tmp/amd/lib/wash/', src: ['**'], dest: '/dist/amd'},
+          {expand: true, cwd: 'lib/wash/', src: ['**', '!package_dist.json'], dest: '/es6'},
+          {expand: true, cwd: 'lib/wash/', src: ['package_dist.json'], dest: '/',
+              rename: function(dest, matchedSrcPath, options) {
+                return 'package.json';
+              }
+          }
+        ]
+      }      
     },
 
     git_deploy: {
@@ -304,7 +321,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('deploy_samples', ['samples', 'git_deploy:samples']);
 
-  grunt.registerTask('tar', ['compress']);
+  grunt.registerTask('tar', ['compress:axiom', 'compress:wash']);
 
   grunt.registerTask('publish', []);
 
