@@ -10,3 +10,4 @@ node_modules/
 *.sln
 vs-chromium-project.txt
 project.vs-chromium-project
+dist/
