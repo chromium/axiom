@@ -49,36 +49,30 @@ module.exports = function(grunt) {
     compress: {
       axiom: {
         options: {
-          archive: 'dist/tar/axiom.tar',
+          archive: 'dist/tar/axiom-base.tar',
           mode: 'tar'
         },
         files: [
-          {expand: true, cwd: 'dist/axiom_base', src: ['*'], dest: '/'},
-          {expand: true, cwd: 'tmp/cjs/lib/axiom/', src: ['**'], dest: '/dist/cjs'},
-          {expand: true, cwd: 'tmp/amd/lib/axiom/', src: ['**'], dest: '/dist/amd'},
-          {expand: true, cwd: 'lib/axiom/', src: ['**', '!package_dist.json'], dest: '/es6'},
-          {expand: true, cwd: 'lib/axiom/', src: ['package_dist.json'], dest: '/',
-              rename: function(dest, matchedSrcPath, options) {
-                return 'package.json';
-              }
-          }
+          {
+            expand: true,
+            cwd: 'dist/tar/axiom_base',
+            src: ['*'],
+            dest: '/'
+          },
         ]
       },
       wash: {
         options: {
-          archive: 'dist/tar/wash.tar',
+          archive: 'dist/tar/axiom-wash.tar',
           mode: 'tar'
         },
         files: [
-          {expand: true, cwd: 'dist/wash', src: ['*'], dest: '/'},
-          {expand: true, cwd: 'tmp/cjs/lib/wash/', src: ['**'], dest: '/dist/cjs'},
-          {expand: true, cwd: 'tmp/amd/lib/wash/', src: ['**'], dest: '/dist/amd'},
-          {expand: true, cwd: 'lib/wash/', src: ['**', '!package_dist.json'], dest: '/es6'},
-          {expand: true, cwd: 'lib/wash/', src: ['package_dist.json'], dest: '/',
-              rename: function(dest, matchedSrcPath, options) {
-                return 'package.json';
-              }
-          }
+          {
+            expand: true,
+            cwd: 'dist/tar/axiom_wash',
+            src: ['*'],
+            dest: '/'
+          },
         ]
       }      
     },
@@ -126,6 +120,29 @@ module.exports = function(grunt) {
     },
 
     copy: {
+      publish: {
+        files: [
+          {expand: true,cwd: 'dist/axiom_base', src: ['*'], dest: 'dist/tar/axiom_base'},
+          {expand: true, cwd: 'tmp/cjs/lib/axiom/', src: ['**'], dest: 'dist/tar/axiom_base/cjs'},
+          {expand: true, cwd: 'tmp/amd/lib/axiom/', src: ['**'], dest: 'dist/tar/axiom_base/amd'},
+          {expand: true, cwd: 'lib/axiom/', src: ['**', '!package_dist.json'], dest: 'dist/tar/axiom_base/es6'},
+          {expand: true, cwd: 'lib/axiom/', src: ['package_dist.json'], dest: '',
+              rename: function(dest, matchedSrcPath, options) {
+                return 'dist/tar/axiom_base/package.json';
+              }
+          },
+          {expand: true, cwd: 'dist/wash', src: ['*'], dest: 'dist/tar/axiom_wash'},
+          {expand: true, cwd: 'tmp/cjs/lib/wash/', src: ['**'], dest: 'dist/tar/axiom_wash/cjs'},
+          {expand: true, cwd: 'tmp/amd/lib/wash/', src: ['**'], dest: 'dist/tar/axiom_wash/amd'},
+          {expand: true, cwd: 'lib/wash/', src: ['**', '!package_dist.json'], dest: 'dist/tar/axiom_wash/es6'},
+          {expand: true, cwd: 'lib/wash/', src: ['package_dist.json'], dest: '',
+              rename: function(dest, matchedSrcPath, options) {
+                return 'dist/tar/axiom_wash/package.json';
+              }
+          }
+
+        ]
+      },
       samples_web_app_files: {
         files: [{
           expand: true,
@@ -321,7 +338,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('deploy_samples', ['samples', 'git_deploy:samples']);
 
-  grunt.registerTask('tar', ['compress:axiom', 'compress:wash']);
+  grunt.registerTask('tar', ['copy:publish', 'compress:axiom', 'compress:wash']);
 
   grunt.registerTask('publish', []);
 
