@@ -11,6 +11,7 @@ require('source-map-support').install();
 
 var AxiomError = require('axiom/core/error').default;
 var Path = require('axiom/fs/path').default;
+var FileSystemManager = require('axiom/fs/base/file_system_manager').default;
 var JsFileSystem = require('axiom/fs/js/file_system').default;
 var NodeFileSystem = require('axiom/fs/node/file_system').default;
 var TTYState = require('axiom/fs/tty_state').default;
@@ -29,8 +30,8 @@ function onResize(cx) {
   cx.setTTY(tty);
 }
 
-function startWash(jsfs) {
-  return jsfs.createExecuteContext(new Path('/exe/wash'), {}).then(
+function startWash(fsm) {
+  return fsm.createExecuteContext(new Path('/exe/wash', 'jsfs'), {}).then(
     function(cx) {
       cx.onStdOut.addListener(function(value) {
         process.stdout.write(value);
