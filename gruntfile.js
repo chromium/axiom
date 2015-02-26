@@ -36,10 +36,10 @@ module.exports = function(grunt) {
         cwd: 'lib/',
         js: ['**/*.js',
              '../third_party/closure-compiler/contrib/externs/jasmine.js',
-             '../third_party/closure-compiler/contrib/externs/fs.js',
-             '../third_party/closure-compiler/contrib/externs/buffer.js',
-             '../third_party/closure-compiler/contrib/externs/stream.js',
-             '../third_party/closure-compiler/contrib/externs/events.js'
+             '../tmp/third_party/dcodeIO/fs.js',
+             '../tmp/third_party/dcodeIO/buffer.js',
+             '../tmp/third_party/dcodeIO/stream.js',
+             '../tmp/third_party/dcodeIO/events.js'
             ],
         jsOutputFile: 'tmp/closure/out.js',
         options: require('./build/closure-options.json')
@@ -70,6 +70,15 @@ module.exports = function(grunt) {
         dest: 'tmp/test/test_main.js',
         cwd: 'lib/',
         modules: ['**/*.test.js']
+      }
+    },
+
+    closure_externs: {
+      build: {
+        expand: true,
+        src: ['**/*.js'],
+        dest: 'tmp/third_party/dcodeIO/',
+        cwd: 'third_party/dcodeIO/',
       }
     },
 
@@ -114,32 +123,32 @@ module.exports = function(grunt) {
           }
         ]
       },
-      samples_web_app_files: {
+      samples_web_shell_files: {
         files: [{
           expand: true,
           cwd: 'tmp/dist/',
           src: ['**/*.js'],
-          dest: 'tmp/samples/web_app/js/'
+          dest: 'tmp/samples/web_shell/js/'
         },
         {
           expand: true,
           cwd: 'node_modules/hterm/dist/amd/lib/',
           src: ['hterm.amd.js'],
-          dest: 'tmp/samples/web_app/js/'
+          dest: 'tmp/samples/web_shell/js/'
         },
         {
           expand: true,
-          cwd: 'samples/web_app/boot/',
+          cwd: 'samples/web_shell/boot/',
           src: ['**/*.js',
                 '**/*.js.map'
           ],
-          dest: 'tmp/samples/web_app/js/boot'
+          dest: 'tmp/samples/web_shell/js/boot'
         },
         {
           expand: true,
-          cwd: 'samples/web_app/css/',
+          cwd: 'samples/web_shell/css/',
           src: ['**/*.css'],
-          dest: 'tmp/samples/web_app/css'
+          dest: 'tmp/samples/web_shell/css'
         }]
       },
       samples_use_globals_files: {
@@ -165,10 +174,10 @@ module.exports = function(grunt) {
     },
 
     make_html_index: {
-      samples_web_app: {
-        dest: 'tmp/samples/web_app/index.html',
+      samples_web_shell: {
+        dest: 'tmp/samples/web_shell/index.html',
         title: 'Console',
-        cwd: 'tmp/samples/web_app/',
+        cwd: 'tmp/samples/web_shell/',
         scriptrefs: [
           'js/axiom_base.amd.concat.js',
           'js/wash.amd.concat.js',
@@ -217,6 +226,7 @@ module.exports = function(grunt) {
           dest: 'tmp/amd/lib/'
         }]
       },
+
       cjs: {
         type: "cjs",
         fileResolver: ['lib/'],
@@ -227,16 +237,16 @@ module.exports = function(grunt) {
           dest: 'tmp/cjs/lib/'
         }]
       },
-      samples_web_app: {
+      samples_web_shell: {
         type: "amd",
         fileResolver: ['lib/',
                        'node_modules/hterm/dist/stub/',
-                       'samples/web_app/lib'],
+                       'samples/web_shell/lib'],
         files: [{
           expand: true,
-          cwd: 'samples/web_app/lib/',
+          cwd: 'samples/web_shell/lib/',
           src: ['**/*.js'],
-          dest: 'tmp/samples/web_app/js/'
+          dest: 'tmp/samples/web_shell/js/'
         }]
       }
     },
@@ -283,7 +293,9 @@ module.exports = function(grunt) {
                                    'es6_transpile']);
 
   // Static check with closure compiler.
-  grunt.registerTask('check', ['make_dir_module', 'closure-compiler:check']);
+  grunt.registerTask('check', ['make_dir_module',
+                               'closure_externs:build',
+                               'closure-compiler:check']);
   grunt.registerTask('check-watch', ['watch:check']);
 
   grunt.registerTask('dist', ['transpile',
@@ -309,11 +321,11 @@ module.exports = function(grunt) {
   // Sample apps
   grunt.registerTask('samples_use_globals', ['copy:samples_use_globals_files']);
 
-  grunt.registerTask('samples_web_app', ['copy:samples_web_app_files',
-                                         'make_html_index:samples_web_app']);
+  grunt.registerTask('samples_web_shell', ['copy:samples_web_shell_files',
+                                         'make_html_index:samples_web_shell']);
 
   grunt.registerTask('samples', ['dist',
-                                 'samples_web_app',
+                                 'samples_web_shell',
                                  'samples_use_globals']);
 
   grunt.registerTask('deploy_samples', ['samples', 'git_deploy:samples']);
