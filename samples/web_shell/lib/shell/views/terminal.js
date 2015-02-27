@@ -143,12 +143,11 @@ TerminalView.viewClosed = function(followObject) {
   }
 };
 
-// TODO(rpaquay): pathSpec => Path
-TerminalView.prototype.execute = function(cx, pathSpec, arg, env) {
+TerminalView.prototype.execute = function(cx, path, arg, env) {
   if (this.executeContext && this.executeContext.isEphemeral('Ready'))
     throw new AxiomError.Runtime('Already executing');
 
-  return cx.jsfs.createExecuteContext(new Path(pathSpec), arg).then(
+  return cx.fileSystemManager.createExecuteContext(path, arg).then(
     function(cx2) {
       this.executeContext = cx2;
       this.executeContext.setEnvs(env);

@@ -14,6 +14,7 @@
 
 import JsFileSystem from 'axiom/fs/js/file_system';
 import DomFileSystem from 'axiom/fs/dom/file_system';
+import FileSystemManager from 'axiom/fs/base/file_system_manager';
 import ExecuteContext from 'axiom/fs/base/execute_context';
 import Path from 'axiom/fs/path';
 
@@ -22,10 +23,12 @@ import washExecutables from 'wash/exe_modules';
 
 console.log('Lauching app!');
 
-var fs = new JsFileSystem();
+var fsm = new FileSystemManager();
+var jsfs = new JsFileSystem(fsm, 'jsfs');
+fsm.mount(jsfs);
 
 // Add executables to new filesystem
-fs.rootDirectory.mkdir('exe')
+jsfs.rootDirectory.mkdir('exe')
   .then(function( /** JsDirectory */ jsdir) {
     jsdir.install({
       'hterm': htermMain
@@ -33,12 +36,9 @@ fs.rootDirectory.mkdir('exe')
     jsdir.install(washExecutables);
   })
   .then(function() {
-    return fs.rootDirectory.mkdir('mnt')
-      .then(function(jsDir) {
-        return DomFileSystem.mount('permanent', 'html5', jsDir);
-      })
+    return DomFileSystem.mount('permanent', fsm, 'html5')
       .then(function() {
-        return DomFileSystem.mount('temporary', 'tmp', fs.rootDirectory);
+        return DomFileSystem.mount('temporary', fsm, 'tmp');
       })
       .catch(function(e) {
         console.log("Error mounting DomFileSystem", e);
@@ -46,9 +46,9 @@ fs.rootDirectory.mkdir('exe')
   })
   .then(function() {
     // Execute "hterm" app, passing "wash" as command line processor
-    return fs.createExecuteContext(
-      new Path('exe/hterm'), {
-        command: 'exe/wash',
+    return fsm.createExecuteContext(
+      new Path('exe/hterm', 'jsfs'), {
+        command: new Path('exe/wash', 'jsfs'),
         arg: { init: true }
       })
       .then(function (/** ExecutionContext */cx) {
