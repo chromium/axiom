@@ -18,7 +18,7 @@ var ExecuteContext;
 /** @typedef JsExecutable$$module$axiom$fs$js_executable */
 var JsExecutable;
 
-var IMPORT_CMD_USAGE_STRING = 'usage: import-url';
+var IMPORT_CMD_USAGE_STRING = 'usage: import <url>';
 
 /**
  * An executable to import cross origin script into the shell.
@@ -51,6 +51,8 @@ var main = function(cx) {
       cx.closeOk();
       done = true;
     }
+
+   cx.stderr('Import callback called after a timeout.');
   };
 
   document.head.appendChild(s);
@@ -59,7 +61,7 @@ var main = function(cx) {
     // import request timed out.
     if (!done) {
       done = true;
-      cx.stdout('import: Request timed out.');
+      cx.stderr('import: Request timed out.');
       cx.closeOk();
     }
   }, 5000);
