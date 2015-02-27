@@ -36,10 +36,10 @@ module.exports = function(grunt) {
         cwd: 'lib/',
         js: ['**/*.js',
              '../third_party/closure-compiler/contrib/externs/jasmine.js',
-             '../third_party/closure-compiler/contrib/externs/fs.js',
-             '../third_party/closure-compiler/contrib/externs/buffer.js',
-             '../third_party/closure-compiler/contrib/externs/stream.js',
-             '../third_party/closure-compiler/contrib/externs/events.js'
+             '../tmp/third_party/dcodeIO/fs.js',
+             '../tmp/third_party/dcodeIO/buffer.js',
+             '../tmp/third_party/dcodeIO/stream.js',
+             '../tmp/third_party/dcodeIO/events.js'
             ],
         jsOutputFile: 'tmp/closure/out.js',
         options: require('./build/closure-options.json')
@@ -70,6 +70,15 @@ module.exports = function(grunt) {
         dest: 'tmp/test/test_main.js',
         cwd: 'lib/',
         modules: ['**/*.test.js']
+      }
+    },
+
+    closure_externs: {
+      build: {
+        expand: true,
+        src: ['**/*.js'],
+        dest: 'tmp/third_party/dcodeIO/',
+        cwd: 'third_party/dcodeIO/',
       }
     },
 
@@ -191,6 +200,7 @@ module.exports = function(grunt) {
           dest: 'tmp/amd/lib/'
         }]
       },
+
       cjs: {
         type: "cjs",
         fileResolver: ['lib/'],
@@ -248,11 +258,13 @@ module.exports = function(grunt) {
                                    'es6_transpile']);
 
   // Static check with closure compiler.
-  grunt.registerTask('check', ['make_dir_module', 'closure-compiler:check']);
+  grunt.registerTask('check', ['make_dir_module',
+                               'closure_externs:build',
+                               'closure-compiler:check']);
   grunt.registerTask('check-watch', ['watch:check']);
 
   grunt.registerTask('dist', ['transpile',
-                              'concat:axiom', 
+                              'concat:axiom',
                               'concat:wash']);
 
   // Transpile and test.
