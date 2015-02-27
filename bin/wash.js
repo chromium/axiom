@@ -31,7 +31,7 @@ function onResize(cx) {
 }
 
 function startWash(fsm) {
-  return fsm.createExecuteContext(new Path('/exe/wash', 'jsfs'), {}).then(
+  return fsm.createExecuteContext(new Path('jsfs:exe/wash'), {}).then(
     function(cx) {
       cx.onStdOut.addListener(function(value) {
         process.stdout.write(value);
