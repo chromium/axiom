@@ -126,8 +126,14 @@ module.exports = function(grunt) {
       samples_web_shell_files: {
         files: [{
           expand: true,
-          cwd: 'tmp/dist/',
-          src: ['**/*.js'],
+          cwd: 'dist/axiom_base/amd/lib/',
+          src: ['*.js', '*.map'],
+          dest: 'tmp/samples/web_shell/js/'
+        },
+        {
+          expand: true,
+          cwd: 'dist/axiom_wash/amd/lib/',
+          src: ['*.js'],
           dest: 'tmp/samples/web_shell/js/'
         },
         {
