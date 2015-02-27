@@ -98,7 +98,7 @@ module.exports = function(grunt) {
     },
 
     copy: {
-      axiom_publish: {
+      axiom_dist: {
         files: [
           {expand: true, cwd: 'tmp/cjs/', src: ['lib/axiom/**/*.js',
               'lib/axiom/**/*.js.map'], dest: 'dist/axiom_base/cjs'},
@@ -113,7 +113,7 @@ module.exports = function(grunt) {
           }
         ]
       },
-      wash_publish: {
+      wash_dist: {
         files: [
           {expand: true, cwd: 'tmp/cjs/', src: ['lib/wash/**/*.js',
               'lib/wash/**/*.js.map'], dest: 'dist/axiom_wash/cjs'},
@@ -263,12 +263,12 @@ module.exports = function(grunt) {
     },
 
     shell: {
-        options: {
-            stderr: true
-        },
-        target: {
-            command: 'npm publish dist/axiom_base; npm publish dist/axiom_wash'
-        }
+      axiom: {
+        command: 'npm publish dist/axiom_base'
+      },
+      wash: {
+        command: 'npm publish dist/axiom_wash'
+      }
     },
 
     karma: {
@@ -311,7 +311,9 @@ module.exports = function(grunt) {
 
   grunt.registerTask('dist', ['transpile',
                               'concat:axiom_base',
-                              'concat:wash']);
+                              'concat:wash',
+                              'copy:axiom_dist',
+                              'copy:wash_dist',]);
 
   // Transpile and test.
   grunt.registerTask('test', ['transpile',
@@ -341,6 +343,5 @@ module.exports = function(grunt) {
 
   grunt.registerTask('deploy_samples', ['samples', 'git_deploy:samples']);
 
-  grunt.registerTask('npm-publish', ['copy:axiom_publish', 'copy:wash_publish',
-                     'shell']);
+  grunt.registerTask('npm-publish', ['shell:axiom', 'shell:wash']);
 };
