@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 /** @typedef ExecuteContext$$module$axiom$bindings$fs$execute_context */
 var ExecuteContext;
 
 /** @typedef JsExecutable$$module$axiom$fs$js_executable */
 var JsExecutable;
-
 
 var IMPORT_CMD_USAGE_STRING = 'usage: import-url';
 
@@ -55,7 +53,7 @@ var main = function(cx) {
     }
   };
 
-  document.getElementsByTagName('head')[0].appendChild(s);
+  document.head.appendChild(s);
 
   setTimeout(function() {
     // import request timed out.
