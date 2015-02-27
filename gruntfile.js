@@ -100,24 +100,29 @@ module.exports = function(grunt) {
     copy: {
       axiom_publish: {
         files: [
-          // {expand: true,cwd: 'dist/axiom_base', src: ['*'], dest: 'dist/dist/axiom_base'},
-          {expand: true, cwd: 'tmp/cjs/', src: ['lib/axiom/**'], dest: 'dist/axiom_base/cjs'},
-          {expand: true, cwd: 'tmp/amd/', src: ['lib/axiom/**'], dest: 'dist/axiom_base/amd'},
-          {expand: true, cwd: '', src: ['lib/axiom/**', '!package_dist.json'], dest: 'dist/axiom_base/es6'},
-          {expand: true, cwd: 'lib/axiom/', src: ['package_dist.json'], dest: '',
-              rename: function(dest, matchedSrcPath, options) {
+          {expand: true, cwd: 'tmp/cjs/', src: ['lib/axiom/**/*.js',
+              'lib/axiom/**/*.js.map'], dest: 'dist/axiom_base/cjs'},
+          {expand: true, cwd: 'tmp/amd/', src: ['lib/axiom/**/*.js'],
+              dest: 'dist/axiom_base/amd'},
+          {expand: true, cwd: '', src: ['lib/axiom/**/*.js',
+              '!package_dist.json'], dest: 'dist/axiom_base/es6'},
+          {expand: true, cwd: 'lib/axiom/', src: ['package_dist.json'],
+              dest: '', rename: function(dest, matchedSrcPath, options) {
                 return 'dist/axiom_base/package.json';
               }
-          },
+          }
         ]
-      }, wash_publish: {
+      },
+      wash_publish: {
         files: [
-          // {expand: true, cwd: 'dist/wash', src: ['*'], dest: 'dist/axiom_wash'},
-          {expand: true, cwd: 'tmp/cjs/', src: ['lib/wash/**'], dest: 'dist/axiom_wash/cjs'},
-          {expand: true, cwd: 'tmp/amd/', src: ['lib/wash/**'], dest: 'dist/axiom_wash/amd'},
-          {expand: true, cwd: '', src: ['lib/wash/**', '!package_dist.json'], dest: 'dist/axiom_wash/es6'},
-          {expand: true, cwd: 'lib/wash/', src: ['package_dist.json'], dest: '',
-              rename: function(dest, matchedSrcPath, options) {
+          {expand: true, cwd: 'tmp/cjs/', src: ['lib/wash/**/*.js',
+              'lib/wash/**/*.js.map'], dest: 'dist/axiom_wash/cjs'},
+          {expand: true, cwd: 'tmp/amd/', src: ['lib/wash/**/*.js'],
+              dest: 'dist/axiom_wash/amd'},
+          {expand: true, cwd: '', src: ['lib/wash/**/*.js',
+              '!package_dist.json'], dest: 'dist/axiom_wash/es6'},
+          {expand: true, cwd: 'lib/wash/', src: ['package_dist.json'],
+              dest: '', rename: function(dest, matchedSrcPath, options) {
                 return 'dist/axiom_wash/package.json';
               }
           }
@@ -337,5 +342,5 @@ module.exports = function(grunt) {
   grunt.registerTask('deploy_samples', ['samples', 'git_deploy:samples']);
 
   grunt.registerTask('npm-publish', ['copy:axiom_publish', 'copy:wash_publish',
-                                     'shell']);
+                     'shell']);
 };
