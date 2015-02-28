@@ -13,6 +13,7 @@
 // limitations under the License.
 
 module.exports = function(grunt) {
+  var packageVersion = '1.0.1';
   // Load the grunt related dev deps listed in package.json.
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
   var path = require('path');
@@ -255,10 +256,14 @@ module.exports = function(grunt) {
 
     shell: {
       axiom: {
-        command: 'npm publish dist/axiom_base'
+        command: function() {
+          'npm publish ' + path.join('dist' 'axiom_base');
+        }
       },
       wash: {
-        command: 'npm publish dist/axiom_wash'
+        command: function() {
+          'npm publish ' + path.join('dist' 'axiom_wash');
+        }
       }
     },
 
@@ -337,14 +342,13 @@ module.exports = function(grunt) {
   grunt.registerTask('npm-publish', ['shell:axiom', 'shell:wash']);
   grunt.task.registerTask('packages-output',
       'Complete the package.json templates', function(arg1, arg2) {
-    var version = '1.0.1';
     var packageDist = require('./lib/axiom/package_dist.json');
-    packageDist.version = version;
+    packageDist.version = packageVersion;
     grunt.file.write('dist/axiom_base/package.json',
         JSON.stringify(packageDist, null, 2));
 
     packageDist = require('./lib/wash/package_dist.json');
-    packageDist.version = version;
+    packageDist.version = packageVersion;
     grunt.file.write('dist/axiom_wash/package.json',
         JSON.stringify(packageDist, null, 2))
 
