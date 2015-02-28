@@ -15,6 +15,7 @@
 module.exports = function(grunt) {
   // Load the grunt related dev deps listed in package.json.
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
+  var path = require('path');
 
   // Load our custom tasks.
   grunt.loadTasks('./build/tasks/');
@@ -105,12 +106,7 @@ module.exports = function(grunt) {
           {expand: true, cwd: 'tmp/amd/', src: ['lib/axiom/**/*.js'],
               dest: 'dist/axiom_base/amd'},
           {expand: true, cwd: '', src: ['lib/axiom/**/*.js',
-              '!package_dist.json'], dest: 'dist/axiom_base/es6'},
-          {expand: true, cwd: 'lib/axiom/', src: ['package_dist.json'],
-              dest: '', rename: function(dest, matchedSrcPath, options) {
-                return 'dist/axiom_base/package.json';
-              }
-          }
+              '!package_dist.json'], dest: 'dist/axiom_base/es6'}
         ]
       },
       wash_dist: {
@@ -120,12 +116,7 @@ module.exports = function(grunt) {
           {expand: true, cwd: 'tmp/amd/', src: ['lib/wash/**/*.js'],
               dest: 'dist/axiom_wash/amd'},
           {expand: true, cwd: '', src: ['lib/wash/**/*.js',
-              '!package_dist.json'], dest: 'dist/axiom_wash/es6'},
-          {expand: true, cwd: 'lib/wash/', src: ['package_dist.json'],
-              dest: '', rename: function(dest, matchedSrcPath, options) {
-                return 'dist/axiom_wash/package.json';
-              }
-          }
+              '!package_dist.json'], dest: 'dist/axiom_wash/es6'}
         ]
       },
       samples_web_shell_files: {
@@ -344,4 +335,18 @@ module.exports = function(grunt) {
   grunt.registerTask('deploy_samples', ['samples', 'git_deploy:samples']);
 
   grunt.registerTask('npm-publish', ['shell:axiom', 'shell:wash']);
+  grunt.task.registerTask('packages-output',
+      'Complete the package.json templates', function(arg1, arg2) {
+    var version = '1.0.1';
+    var packageDist = require('./lib/axiom/package_dist.json');
+    packageDist.version = version;
+    grunt.file.write('dist/axiom_base/package.json',
+        JSON.stringify(packageDist, null, 2));
+
+    packageDist = require('./lib/wash/package_dist.json');
+    packageDist.version = version;
+    grunt.file.write('dist/axiom_wash/package.json',
+        JSON.stringify(packageDist, null, 2))
+
+  });
 };
