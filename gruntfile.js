@@ -257,12 +257,12 @@ module.exports = function(grunt) {
     shell: {
       axiom: {
         command: function() {
-          'npm publish ' + path.join('dist' 'axiom_base');
+          'npm publish ' + path.join('dist', 'axiom_base');
         }
       },
       wash: {
         command: function() {
-          'npm publish ' + path.join('dist' 'axiom_wash');
+          'npm publish ' + path.join('dist', 'axiom_wash');
         }
       }
     },
