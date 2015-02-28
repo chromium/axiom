@@ -47,8 +47,8 @@ jsfs.rootDirectory.mkdir('exe')
   .then(function() {
     // Execute "hterm" app, passing "wash" as command line processor
     return fsm.createExecuteContext(
-      new Path('exe/hterm', 'jsfs'), {
-        command: new Path('exe/wash', 'jsfs'),
+      new Path('jsfs:exe/hterm'), {
+        command: new Path('jsfs:exe/wash'),
         arg: { init: true }
       })
       .then(function (/** ExecutionContext */cx) {

@@ -55,7 +55,7 @@ function startWash(fsm) {
       onResize(cx);
       process.stdout.on('resize', onResize.bind(null, cx));
 
-      cx.setEnv('@PATH', ['/exe']);
+      cx.setEnv('@PATH', ['jsfs:exe']);
 
       return cx.execute();
     });
