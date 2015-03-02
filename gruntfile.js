@@ -83,25 +83,62 @@ module.exports = function(grunt) {
     },
 
     concat: {
-      axiom: {
+      axiom_base: {
         src: ['loader/axiom_amd.js',
               'tmp/amd/lib/axiom/**/*.js',
+              '!tmp/amd/lib/axiom/fs/node/*.js',
               '!tmp/amd/lib/axiom/**/*.test.js'],
-        dest: 'tmp/dist/axiom.concat.amd.js'
+        dest: 'dist/axiom_base/amd/lib/axiom_base.amd.concat.js'
       },
       wash: {
         src: ['tmp/amd/lib/wash/**/*.js',
               '!tmp/amd/lib/wash/**/*.test.js'],
-        dest: 'tmp/dist/wash.concat.amd.js',
+        dest: 'dist/axiom_wash/amd/lib/wash.amd.concat.js'
       }
     },
 
     copy: {
+      axiom_dist: {
+        files: [
+          {expand: true, cwd: 'tmp/cjs/', src: ['lib/axiom/**/*.js',
+              'lib/axiom/**/*.js.map'], dest: 'dist/axiom_base/cjs'},
+          {expand: true, cwd: 'tmp/amd/', src: ['lib/axiom/**/*.js'],
+              dest: 'dist/axiom_base/amd'},
+          {expand: true, cwd: '', src: ['lib/axiom/**/*.js',
+              '!package_dist.json'], dest: 'dist/axiom_base/es6'},
+          {expand: true, cwd: 'lib/axiom/', src: ['package_dist.json'],
+              dest: '', rename: function(dest, matchedSrcPath, options) {
+                return 'dist/axiom_base/package.json';
+              }
+          }
+        ]
+      },
+      wash_dist: {
+        files: [
+          {expand: true, cwd: 'tmp/cjs/', src: ['lib/wash/**/*.js',
+              'lib/wash/**/*.js.map'], dest: 'dist/axiom_wash/cjs'},
+          {expand: true, cwd: 'tmp/amd/', src: ['lib/wash/**/*.js'],
+              dest: 'dist/axiom_wash/amd'},
+          {expand: true, cwd: '', src: ['lib/wash/**/*.js',
+              '!package_dist.json'], dest: 'dist/axiom_wash/es6'},
+          {expand: true, cwd: 'lib/wash/', src: ['package_dist.json'],
+              dest: '', rename: function(dest, matchedSrcPath, options) {
+                return 'dist/axiom_wash/package.json';
+              }
+          }
+        ]
+      },
       samples_web_shell_files: {
         files: [{
           expand: true,
-          cwd: 'tmp/dist/',
-          src: ['**/*.js'],
+          cwd: 'dist/axiom_base/amd/lib/',
+          src: ['*.js', '*.map'],
+          dest: 'tmp/samples/web_shell/js/'
+        },
+        {
+          expand: true,
+          cwd: 'dist/axiom_wash/amd/lib/',
+          src: ['*.js'],
           dest: 'tmp/samples/web_shell/js/'
         },
         {
@@ -153,8 +190,8 @@ module.exports = function(grunt) {
         title: 'Console',
         cwd: 'tmp/samples/web_shell/',
         scriptrefs: [
-          'js/axiom.concat.amd.js',
-          'js/wash.concat.amd.js',
+          'js/axiom_base.amd.concat.js',
+          'js/wash.amd.concat.js',
           'js/*.js',
           'js/shell/**/*.js',
           'js/boot/startup.js' // last entry since we are synchronous (for now)
@@ -225,6 +262,15 @@ module.exports = function(grunt) {
       }
     },
 
+    shell: {
+      axiom: {
+        command: 'npm publish dist/axiom_base'
+      },
+      wash: {
+        command: 'npm publish dist/axiom_wash'
+      }
+    },
+
     karma: {
       options: {
         browsers: browsers,
@@ -264,8 +310,10 @@ module.exports = function(grunt) {
   grunt.registerTask('check-watch', ['watch:check']);
 
   grunt.registerTask('dist', ['transpile',
-                              'concat:axiom',
-                              'concat:wash']);
+                              'concat:axiom_base',
+                              'concat:wash',
+                              'copy:axiom_dist',
+                              'copy:wash_dist',]);
 
   // Transpile and test.
   grunt.registerTask('test', ['transpile',
@@ -294,4 +342,6 @@ module.exports = function(grunt) {
                                  'samples_use_globals']);
 
   grunt.registerTask('deploy_samples', ['samples', 'git_deploy:samples']);
+
+  grunt.registerTask('npm-publish', ['shell:axiom', 'shell:wash']);
 };
