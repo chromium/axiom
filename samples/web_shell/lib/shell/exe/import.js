@@ -43,26 +43,27 @@ var main = function(cx) {
   s.src = url;
   s.type = 'text/javascript';
 
-  var done = false;
+  var state = 0;
 
   s.ready = function(callback) {
-    if (!done) {
+    if (!state) {
       callback(cx);
       cx.closeOk();
-      done = true;
+      state = 1;
+    } else if (state == 1) {
+      throw 'Duplicate call to import callback.';
+    } else {
+      throw 'Import callback called after a timeout.';
     }
-
-   cx.stderr('Import callback called after a timeout.');
   };
 
   document.head.appendChild(s);
 
   setTimeout(function() {
     // import request timed out.
-    if (!done) {
-      done = true;
-      cx.stderr('import: Request timed out.');
-      cx.closeOk();
+    if (!state) {
+      state = 2;
+      throw 'Import requet timed out.';
     }
   }, 5000);
 
