@@ -17,7 +17,7 @@ import DomFileSystem from 'axiom/fs/dom/file_system';
 import ExecuteContext from 'axiom/fs/base/execute_context';
 import Path from 'axiom/fs/path';
 
-import importMain from 'shell/exe/import';
+import scriptMain from 'shell/exe/script';
 import TerminalView from 'shell/terminal';
 import washExecutables from 'wash/exe_modules';
 
@@ -29,7 +29,7 @@ var fs = new JsFileSystem();
 fs.rootDirectory.mkdir('exe')
   .then(function( /** JsDirectory */ jsdir) {
     jsdir.install({
-      'import': importMain
+      'script': scriptMain
     });
     jsdir.install(washExecutables);
   })

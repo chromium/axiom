@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import AxiomError from 'axiom/core/error';
+
 /** @typedef ExecuteContext$$module$axiom$bindings$fs$execute_context */
 var ExecuteContext;
 
@@ -51,9 +53,12 @@ var main = function(cx) {
       cx.closeOk();
       state = 1;
     } else if (state == 1) {
-      throw 'Duplicate call to script callback.';
+      return cx.closeError(new AxiomError.Runtime(
+          'Duplicate call to script callback.'));
     } else {
-      throw 'Import script callback called after a timeout.';
+      cx.closeError();
+      return cx.closeError(new AxiomError.Runtime(
+          'Import script callback called after a timeout.'));
     }
   };
 
@@ -63,7 +68,8 @@ var main = function(cx) {
     // import script request timed out.
     if (!state) {
       state = 2;
-      throw 'Import script requet timed out.';
+      return cx.closeError(new AxiomError.Runtime(
+          'Import script requet timed out.'));
     }
   }, 5000);
 
