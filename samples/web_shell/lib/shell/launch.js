@@ -48,7 +48,7 @@ jsfs.rootDirectory.mkdir('exe')
   });
 
 var launchHterm = function() {
-  return fs.createExecuteContext(
+  return fsm.createExecuteContext(
     new Path('jsfs:exe/wash'), {})
     .then(function (/** ExecutionContext */cx) {
       var tv = new TerminalView();
