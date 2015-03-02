@@ -18,7 +18,7 @@ var ExecuteContext;
 /** @typedef JsExecutable$$module$axiom$fs$js_executable */
 var JsExecutable;
 
-var IMPORT_CMD_USAGE_STRING = 'usage: import <url>';
+var IMPORT_CMD_USAGE_STRING = 'usage: script <url>';
 
 /**
  * An executable to import cross origin script into the shell.
@@ -51,19 +51,19 @@ var main = function(cx) {
       cx.closeOk();
       state = 1;
     } else if (state == 1) {
-      throw 'Duplicate call to import callback.';
+      throw 'Duplicate call to script callback.';
     } else {
-      throw 'Import callback called after a timeout.';
+      throw 'Import script callback called after a timeout.';
     }
   };
 
   document.head.appendChild(s);
 
   setTimeout(function() {
-    // import request timed out.
+    // import script request timed out.
     if (!state) {
       state = 2;
-      throw 'Import requet timed out.';
+      throw 'Import script requet timed out.';
     }
   }, 5000);
 
