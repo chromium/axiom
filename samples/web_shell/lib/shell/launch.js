@@ -18,7 +18,7 @@ import FileSystemManager from 'axiom/fs/base/file_system_manager';
 import ExecuteContext from 'axiom/fs/base/execute_context';
 import Path from 'axiom/fs/path';
 
-import htermMain from 'shell/exe/hterm';
+import TerminalView from 'shell/terminal';
 import washExecutables from 'wash/exe_modules';
 
 console.log('Lauching app!');
@@ -30,9 +30,6 @@ fsm.mount(jsfs);
 // Add executables to new filesystem
 jsfs.rootDirectory.mkdir('exe')
   .then(function( /** JsDirectory */ jsdir) {
-    jsdir.install({
-      'hterm': htermMain
-    });
     jsdir.install(washExecutables);
   })
   .then(function() {
@@ -45,15 +42,22 @@ jsfs.rootDirectory.mkdir('exe')
       });
   })
   .then(function() {
-    // Execute "hterm" app, passing "wash" as command line processor
-    return fsm.createExecuteContext(
-      new Path('jsfs:exe/hterm'), {
-        command: new Path('jsfs:exe/wash'),
-        arg: { init: true }
-      })
-      .then(function (/** ExecutionContext */cx) {
-        return cx.execute();
-      });
+    return launchHterm();
   }).catch(function(e) {
     console.log('Error lauching app:', e);
   });
+
+var launchHterm = function() {
+  return fs.createExecuteContext(
+    new Path('jsfs:exe/wash'), {})
+    .then(function (/** ExecutionContext */cx) {
+      var tv = new TerminalView();
+      var env = cx.arg['env'] || {
+        '@PATH': ['jsfs:/exe'],
+        '$TERM': 'xterm-256color'
+      };
+      cx.setEnvs(env);
+      tv.execute(cx);
+      return Promise.resolve(null);
+  });
+}

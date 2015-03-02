@@ -143,34 +143,30 @@ TerminalView.viewClosed = function(followObject) {
   }
 };
 
-TerminalView.prototype.execute = function(cx, path, arg, env) {
+TerminalView.prototype.execute = function(cx) {
   if (this.executeContext && this.executeContext.isEphemeral('Ready'))
     throw new AxiomError.Runtime('Already executing');
 
-  return cx.fileSystemManager.createExecuteContext(path, arg).then(
-    function(cx2) {
-      this.executeContext = cx2;
-      this.executeContext.setEnvs(env);
-      this.executeContext.onClose.addListener(this.onExecuteClose_, this);
-      this.executeContext.onStdOut.addListener(this.onStdOut_, this);
-      this.executeContext.onStdErr.addListener(this.onStdOut_, this);
-      this.executeContext.onTTYRequest.addListener(this.onTTYRequest_, this);
-      this.executeContext.setTTY({
-        rows: this.hterm_.io.rowCount,
-        columns: this.hterm_.io.columnCount
-      });
+  this.executeContext = cx;
+  this.executeContext.onClose.addListener(this.onExecuteClose_, this);
+  this.executeContext.onStdOut.addListener(this.onStdOut_, this);
+  this.executeContext.onStdErr.addListener(this.onStdOut_, this);
+  this.executeContext.onTTYRequest.addListener(this.onTTYRequest_, this);
+  this.executeContext.setTTY({
+    rows: this.hterm_.io.rowCount,
+    columns: this.hterm_.io.columnCount
+  });
 
-      this.executeContext.onReady.addListener(function() {
-        console.log('TerminalView: execute ready');
-      });
+  this.executeContext.onReady.addListener(function() {
+    console.log('TerminalView: execute ready');
+  });
 
-      this.executeContext.onClose.addListener(function(reason, value) {
-        console.log('TerminalView: execute closed: ' + reason, value);
-        this.hterm_.uninstallKeyboard();
-      }.bind(this));
+  this.executeContext.onClose.addListener(function(reason, value) {
+    console.log('TerminalView: execute closed: ' + reason, value);
+    this.hterm_.uninstallKeyboard();
+  }.bind(this));
 
-      this.executeContext.execute();
-    }.bind(this));
+  this.executeContext.execute();
 };
 
 TerminalView.prototype.print = function(str) {

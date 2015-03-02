@@ -1,0 +1,13 @@
+{
+  "name": "axiom-base",
+  "version": "1.0.0",
+  "description": "Axiom core and services library",
+  "main": "dist/cjs/lib/axiom.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chromium/axiom.git"
+  },
+  "author": "Axiom authors",
+  "licensce": "CHROMIUM",
+  "readmeFilename": "README.md"
+}
