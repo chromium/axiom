@@ -33,9 +33,9 @@ jsfs.rootDirectory.mkdir('exe')
     jsdir.install(washExecutables);
   })
   .then(function() {
-    return DomFileSystem.mount('permanent', fsm, 'html5')
+    return DomFileSystem.mount(fsm, 'html5', 'permanent')
       .then(function() {
-        return DomFileSystem.mount('temporary', fsm, 'tmp');
+        return DomFileSystem.mount(fsm, 'tmp', 'temporary');
       })
       .catch(function(e) {
         console.log("Error mounting DomFileSystem", e);
