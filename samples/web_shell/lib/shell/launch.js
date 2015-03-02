@@ -53,7 +53,7 @@ var launchHterm = function() {
     .then(function (/** ExecutionContext */cx) {
       var tv = new TerminalView();
       var env = cx.arg['env'] || {
-        '@PATH': ['jsfs:/exe'],
+        '@PATH': ['jsfs:exe'],
         '$TERM': 'xterm-256color'
       };
       cx.setEnvs(env);
