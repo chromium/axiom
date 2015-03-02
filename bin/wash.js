@@ -62,9 +62,8 @@ function startWash(fsm) {
 }
 
 function main() {
-  var fsm = new FileSystemManager();
-  var jsfs = new JsFileSystem(fsm, 'jsfs');
-  fsm.mount(jsfs);
+  var jsfs = new JsFileSystem();
+  var fsm = jsfs.fileSystemManager;
   return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
     jsdir.install(washExecutables);
     mountNodefs(fsm);
