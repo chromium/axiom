@@ -30,7 +30,7 @@ module.exports = function(grunt) {
 
       moduleNames.push(moduleName);
 
-      var re = new RegExp(moduleName,"g");
+      var re = new RegExp('\\b' + moduleName + '\\b', 'g');
       content = content.replace(re, 't_node_' + moduleName);
       contents.push(content);
     }.bind(this));
@@ -47,7 +47,7 @@ module.exports = function(grunt) {
         // This avoids replacing any variables prefixed with module name.
         // TODO(grv): Don't replace when the moduleName is the suffix of
         // a variable name.
-        var re = new RegExp(moduleNames[i] + '([\.,\\s+])',"g");
+        var re = new RegExp(moduleNames[i] + '([\.,\\s+])', 'g');
         content = content.replace(re, 't_node_' + moduleNames[i] + '$1');
       }
       grunt.file.write(this.files[j].dest, content);
