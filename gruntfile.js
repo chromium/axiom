@@ -309,7 +309,8 @@ module.exports = function(grunt) {
                               'concat:axiom_base',
                               'concat:wash',
                               'copy:axiom_dist',
-                              'copy:wash_dist',]);
+                              'copy:wash_dist',
+                              'packages-output']);
 
   // Transpile and test.
   grunt.registerTask('test', ['transpile',
@@ -349,6 +350,7 @@ module.exports = function(grunt) {
 
     packageDist = require('./lib/wash/package_dist.json');
     packageDist.version = packageVersion;
+    packageDist.dependencies['axiom-base'] = packageVersion;
     grunt.file.write('dist/axiom_wash/package.json',
         JSON.stringify(packageDist, null, 2))
 
