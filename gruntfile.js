@@ -83,8 +83,8 @@ module.exports = function(grunt) {
       }
     },
 
-    dist_preparation: {
-      asdf: { 
+    make_package_json: {
+      make: { 
         options: {
           versionSource: 'package.json'
         },
@@ -321,7 +321,7 @@ module.exports = function(grunt) {
                               'concat:wash',
                               'copy:axiom_dist',
                               'copy:wash_dist',
-                              'dist_preparation']);
+                              'make_package_json']);
 
   // Transpile and test.
   grunt.registerTask('test', ['transpile',
