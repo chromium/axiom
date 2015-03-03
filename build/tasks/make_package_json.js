@@ -15,7 +15,7 @@
 // Prepares distributions with proper package.json files
 
 module.exports = function(grunt) {
-  grunt.registerMultiTask('dist_preparation', function() {
+  grunt.registerMultiTask('make_package_json', function() {
     var version = grunt.file.readJSON(this.options().versionSource).version;
 
     this.files.forEach(function(file) {
