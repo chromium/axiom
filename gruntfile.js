@@ -13,7 +13,6 @@
 // limitations under the License.
 
 module.exports = function(grunt) {
-  var packageVersion = '1.0.1';
   // Load the grunt related dev deps listed in package.json.
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
   var path = require('path');
@@ -81,6 +80,18 @@ module.exports = function(grunt) {
         src: ['**/*.js'],
         dest: 'tmp/third_party/dcodeIO/',
         cwd: 'third_party/dcodeIO/',
+      }
+    },
+
+    dist_preparation: {
+      asdf: { 
+        options: {
+          versionSource: 'package.json'
+        },
+        files: {
+          'dist/axiom_base/package.json': 'lib/axiom/package_dist.json',
+          'dist/axiom_wash/package.json': 'lib/wash/package_dist.json'
+        }
       }
     },
 
@@ -310,7 +321,7 @@ module.exports = function(grunt) {
                               'concat:wash',
                               'copy:axiom_dist',
                               'copy:wash_dist',
-                              'packages-output']);
+                              'dist_preparation']);
 
   // Transpile and test.
   grunt.registerTask('test', ['transpile',
@@ -341,18 +352,4 @@ module.exports = function(grunt) {
   grunt.registerTask('deploy_samples', ['samples', 'git_deploy:samples']);
 
   grunt.registerTask('npm-publish', ['shell:axiom', 'shell:wash']);
-  grunt.task.registerTask('packages-output',
-      'Complete the package.json templates', function(arg1, arg2) {
-    var packageDist = require('./lib/axiom/package_dist.json');
-    packageDist.version = packageVersion;
-    grunt.file.write('dist/axiom_base/package.json',
-        JSON.stringify(packageDist, null, 2));
-
-    packageDist = require('./lib/wash/package_dist.json');
-    packageDist.version = packageVersion;
-    packageDist.dependencies['axiom-base'] = packageVersion;
-    grunt.file.write('dist/axiom_wash/package.json',
-        JSON.stringify(packageDist, null, 2))
-
-  });
 };

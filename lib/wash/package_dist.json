@@ -11,7 +11,7 @@
   "licensce": "CHROMIUM",
   "readmeFilename": "README.md",
   "dependencies": {
-    "axiom-base": "-- filled in by grunt --",
+    "axiom-base": "^1.0.0",
     "hterm": "^2.0.0"
   }
 }
