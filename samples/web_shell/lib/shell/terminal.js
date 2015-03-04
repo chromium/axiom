@@ -143,7 +143,6 @@ TerminalView.viewClosed = function(followObject) {
   }
 };
 
-// TODO(rpaquay): pathSpec => Path
 TerminalView.prototype.execute = function(cx) {
   if (this.executeContext && this.executeContext.isEphemeral('Ready'))
     throw new AxiomError.Runtime('Already executing');

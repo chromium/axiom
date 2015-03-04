@@ -14,6 +14,7 @@
 
 import JsFileSystem from 'axiom/fs/js/file_system';
 import DomFileSystem from 'axiom/fs/dom/file_system';
+import FileSystemManager from 'axiom/fs/base/file_system_manager';
 import ExecuteContext from 'axiom/fs/base/execute_context';
 import Path from 'axiom/fs/path';
 
@@ -22,20 +23,19 @@ import washExecutables from 'wash/exe_modules';
 
 console.log('Lauching app!');
 
-var fs = new JsFileSystem();
+var fsm = new FileSystemManager();
+var jsfs = new JsFileSystem(fsm, 'jsfs');
+fsm.mount(jsfs);
 
 // Add executables to new filesystem
-fs.rootDirectory.mkdir('exe')
+jsfs.rootDirectory.mkdir('exe')
   .then(function( /** JsDirectory */ jsdir) {
     jsdir.install(washExecutables);
   })
   .then(function() {
-    return fs.rootDirectory.mkdir('mnt')
-      .then(function(jsDir) {
-        return DomFileSystem.mount('permanent', 'html5', jsDir);
-      })
+    return DomFileSystem.mount(fsm, 'html5', 'permanent')
       .then(function() {
-        return DomFileSystem.mount('temporary', 'tmp', fs.rootDirectory);
+        return DomFileSystem.mount(fsm, 'tmp', 'temporary');
       })
       .catch(function(e) {
         console.log("Error mounting DomFileSystem", e);
@@ -48,12 +48,12 @@ fs.rootDirectory.mkdir('exe')
   });
 
 var launchHterm = function() {
-  return fs.createExecuteContext(
-    new Path('exe/wash'), {})
+  return fsm.createExecuteContext(
+    new Path('jsfs:exe/wash'), {})
     .then(function (/** ExecutionContext */cx) {
       var tv = new TerminalView();
       var env = cx.arg['env'] || {
-        '@PATH': ['/exe'],
+        '@PATH': ['jsfs:exe'],
         '$TERM': 'xterm-256color'
       };
       cx.setEnvs(env);
