@@ -23,15 +23,8 @@ export var SpawnNacl = function (mimeType, nmfURL, arg0, executeContext) {
   // TODO(rpaquay): We need to know which view we are running in.
   // Make it part of execution context?
   this.document_ = window.document;
-
   this.posixArgs_ = executeContext.arg;
   if (!(this.posixArgs_ instanceof Array)) {
-    if (this.posixArgs_ != null) {
-      executeContext.closeErrorValue(
-          new AxiomError.TypeMismatch('array', this.posixArgs_));
-      return;
-    }
-
     this.posixArgs_ = [];
   }
 };

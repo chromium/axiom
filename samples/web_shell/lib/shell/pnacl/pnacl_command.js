@@ -15,6 +15,7 @@
 import SpawnNacl from 'shell/pnacl/spawn_nacl';
 
 import AxiomError from 'axiom/core/error';
+import Path from 'axiom/fs/path';
 
 // @note ExecuteContext from 'axiom/bindings/fs/execute_context'
 
@@ -81,11 +82,9 @@ var copyUrToFileSystem = function(url, directoryName, fs) {
         downloadBinaryFile(url).then(function(arrayBuffer) {
           fileEntry.createWriter(function(fileWriter) {
             fileWriter.onwriteend = function(e) {
-              //console.log('Write completed.');
               resolve();
             };
             fileWriter.onerror = function(e) {
-              //console.log('Write failed: ' + e.toString());
               reject(e);
             };
             // Create a new Blob and write it to log.txt.
@@ -137,22 +136,42 @@ var copyUrlToTemporaryStorage = function(cx, url, directoryName) {
  * Creates a command that invokes a PNaCl executable.
  * @param {String} name The name of the PNaCl command, without
  *   extension (e.g. "vim").
- * @param {String} sourceUrl The Url of the extension.
- * @param {String} opt_tarFilename Optional name of the tar file associated to
+ * @param {String} nmfUrl The url to the nmf file.
+ * @param {String} opt_tarFileUrl Optional url of the tar file associated to
  *   the PNaCl command (e.g. "vim.tar").
  * @param {Object} opt_env Optional enviroment variables to add to the execution
  *   context before running the command.
  */
-export var PnaclCommand = function(name, sourceUrl, opt_tarFilename, opt_env) {
+export var PnaclCommand = function(name, nmfUrl, opt_tarFileUrl, opt_env) {
   this.commandName = name;
-  this.sourceUrl = sourceUrl;
-  this.tarFilename = opt_tarFilename;
+  this.nmfUrl = nmfUrl;
+  this.tarFileUrl = opt_tarFileUrl;
   this.env = opt_env;
-  var index = sourceUrl.lastIndexOf('/');
-  if (index == sourceUrl.length - 1)
-    this.baseUrl = this.sourceUrl;
-  else
-    this.baseUrl = this.sourceUrl.substr(0, index + 1);
+};
+
+PnaclCommand.prototype.install = function(cx) {
+  var pnacl = this;
+  var pnaclMain = function(pnaclContext) {
+    pnaclContext.ready();
+    // Apply additional environment variables to [cx]
+    if (this.env) {
+      for (var key in this.env) {
+        pnacalContext.setEnv(key, this.env[key]);
+       }
+    }
+    var nmfFile = '/tmp/pnacl/' + pnacl.commandName + '.nmf';
+    var nacl = new SpawnNacl('application/x-pnacl',
+        pnacl.nmfUrl, nmfFile, pnaclContext);
+    nacl.run();
+    return null;
+  };
+
+  var jsDir = cx.jsfs.resolve(new Path('/exe')).entry;
+  var cmd = {};
+  cmd[pnacl.commandName] = pnaclMain;
+  jsDir.install(cmd);
+
+  return cx.closeOk();
 };
 
 PnaclCommand.prototype.run = function(cx) {
@@ -166,49 +185,25 @@ PnaclCommand.prototype.run = function(cx) {
       }
     }.bind(this));
 
-    //this.runPnacl(cx);
-
     // TODO(rpaquay): Remove this code (and [copyUrlToTemporaryStorage]) when
     // there is no need to test with naclports builds older than (approximately)
     // pepper41/trunk-223-g26a4b66.
 
     // If no tar file, run the command right away.
-    if (!this.tarFilename) {
-      this.runPnacl(cx);
-      return;
+    if (!this.tarFileUrl) {
+      return this.install(cx);
     }
-
-    console.log(this.tarFilename);
-    console.log(this.baseUrl);
-    console.log(this.sourceUrl);
 
     // TODO(rpaquay): We copy the tar file into the the temporary DOM
     // filesystem (under 'pnacl') and then pass '/tmp/pnacl/<cmd>.nmf' to
     // <cmd> so that '/tmp/pnacl/<cmd>.tar' will be opened at startup.
     // See http://goo.gl/Km8YWu
-    var tarUrl = this.baseUrl + 'pnacl/' + this.tarFilename;
-    copyUrlToTemporaryStorage(cx, tarUrl, 'pnacl').then(function() {
-      this.runPnacl(cx);
+    copyUrlToTemporaryStorage(cx, this.tarFileUrl, 'pnacl').then(function() {
+      return this.install(cx);
     }.bind(this)).catch(function(e) {
       reject(e);
     });
   }.bind(this));
-};
-
-// Creates and runs the pnacl executable.
-PnaclCommand.prototype.runPnacl = function(cx) {
-  // Apply additional environment variables to [cx]
-  if (this.env) {
-    for (var key in this.env) {
-      cx.setEnv(key, this.env[key]);
-    }
-  }
-  var nmfUrl = this.baseUrl + 'pnacl/' + this.commandName + '.nmf';
-  var nmfFile = '/tmp/pnacl/' + this.commandName + '.nmf';
-  console.log(nmfUrl);
-  console.log(nmfFile);
-  var nacl = new SpawnNacl('application/x-pnacl', nmfUrl, nmfFile, cx);
-  nacl.run();
 };
 
 export default PnaclCommand;
