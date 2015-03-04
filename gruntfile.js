@@ -52,7 +52,7 @@ module.exports = function(grunt) {
         options: {
           url: 'git@github.com:chromium/axiom.git'
         },
-        src: 'tmp'
+        src: 'tmp/samples'
       },
     },
 
@@ -183,6 +183,14 @@ module.exports = function(grunt) {
           cwd: 'samples/use_globals/',
           src: ['**/*.html'],
           dest: 'tmp/samples/use_globals/'
+        }]
+      },
+      samples_landing_files: {
+        files: [{
+          expand: true,
+          cwd: 'samples/landing',
+          src: ['**'],
+          dest: 'tmp/samples'
         }]
       }
     },
@@ -340,14 +348,12 @@ module.exports = function(grunt) {
   grunt.registerTask('default', ['check', 'test']);
 
   // Sample apps
-  grunt.registerTask('samples_use_globals', ['copy:samples_use_globals_files']);
-
   grunt.registerTask('samples_web_shell', ['copy:samples_web_shell_files',
                                          'make_html_index:samples_web_shell']);
 
-  grunt.registerTask('samples', ['dist',
+  grunt.registerTask('samples', ['dist', 'copy:samples_landing_files',
                                  'samples_web_shell',
-                                 'samples_use_globals']);
+                                 'copy:samples_use_globals_files']);
 
   grunt.registerTask('deploy_samples', ['samples', 'git_deploy:samples']);
 
