@@ -15,6 +15,7 @@
 module.exports = function(grunt) {
   // Load the grunt related dev deps listed in package.json.
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
+  var path = require('path');
 
   // Load our custom tasks.
   grunt.loadTasks('./build/tasks/');
@@ -82,6 +83,18 @@ module.exports = function(grunt) {
       }
     },
 
+    make_package_json: {
+      make: { 
+        options: {
+          versionSource: 'package.json'
+        },
+        files: {
+          'dist/axiom_base/package.json': 'lib/axiom/package_dist.json',
+          'dist/axiom_wash/package.json': 'lib/wash/package_dist.json'
+        }
+      }
+    },
+
     concat: {
       axiom_base: {
         src: ['loader/axiom_amd.js',
@@ -105,12 +118,7 @@ module.exports = function(grunt) {
           {expand: true, cwd: 'tmp/amd/', src: ['lib/axiom/**/*.js'],
               dest: 'dist/axiom_base/amd'},
           {expand: true, cwd: '', src: ['lib/axiom/**/*.js',
-              '!package_dist.json'], dest: 'dist/axiom_base/es6'},
-          {expand: true, cwd: 'lib/axiom/', src: ['package_dist.json'],
-              dest: '', rename: function(dest, matchedSrcPath, options) {
-                return 'dist/axiom_base/package.json';
-              }
-          }
+              '!package_dist.json'], dest: 'dist/axiom_base/es6'}
         ]
       },
       wash_dist: {
@@ -120,12 +128,7 @@ module.exports = function(grunt) {
           {expand: true, cwd: 'tmp/amd/', src: ['lib/wash/**/*.js'],
               dest: 'dist/axiom_wash/amd'},
           {expand: true, cwd: '', src: ['lib/wash/**/*.js',
-              '!package_dist.json'], dest: 'dist/axiom_wash/es6'},
-          {expand: true, cwd: 'lib/wash/', src: ['package_dist.json'],
-              dest: '', rename: function(dest, matchedSrcPath, options) {
-                return 'dist/axiom_wash/package.json';
-              }
-          }
+              '!package_dist.json'], dest: 'dist/axiom_wash/es6'}
         ]
       },
       samples_web_shell_files: {
@@ -264,10 +267,14 @@ module.exports = function(grunt) {
 
     shell: {
       axiom: {
-        command: 'npm publish dist/axiom_base'
+        command: function() {
+          'npm publish ' + path.join('dist', 'axiom_base');
+        }
       },
       wash: {
-        command: 'npm publish dist/axiom_wash'
+        command: function() {
+          'npm publish ' + path.join('dist', 'axiom_wash');
+        }
       }
     },
 
@@ -313,7 +320,8 @@ module.exports = function(grunt) {
                               'concat:axiom_base',
                               'concat:wash',
                               'copy:axiom_dist',
-                              'copy:wash_dist',]);
+                              'copy:wash_dist',
+                              'make_package_json']);
 
   // Transpile and test.
   grunt.registerTask('test', ['transpile',
