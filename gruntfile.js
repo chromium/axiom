@@ -234,6 +234,13 @@ module.exports = function(grunt) {
         },
         files: ['lib/**/*.js', 'test/**/*.js'],
         tasks: ['check', 'transpile', 'make_main_module:test', 'karma:once']
+      },
+      samples: {
+        options: {
+          atBegin: true
+        },
+        files: ['lib/**/*.js', 'samples/**/*.js'],
+        tasks: ['check', 'samples']
       }
     },
 
