@@ -57,8 +57,10 @@ var launchHterm = function() {
     .then(function (/** ExecutionContext */cx) {
       var tv = new TerminalView();
       cx.setEnvs({
-        '@PATH': ['jsfs:exe'],
-        '$TERM': 'xterm-256color'
+        '@PATH': ['jsfs:/exe'],
+        '$TERM': 'xterm-256color',
+        '$HOME': 'html5:/home',
+        '$HISTFILE': 'html5:/home/.wash_history'
       });
       tv.execute(cx);
       return Promise.resolve(null);
