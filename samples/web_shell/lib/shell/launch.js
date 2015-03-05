@@ -31,8 +31,27 @@ fsm.mount(jsfs);
 jsfs.rootDirectory.mkdir('exe')
   .then(function( /** JsDirectory */ jsdir) {
     jsdir.install(washExecutables);
-  })
-  .then(function() {
+    var editExec = {
+      'edit($)': function(cx) {
+        cx.ready();
+        cx.stdout('edit\n');
+
+        if (typeof cx.arg != 'string')
+          return cx.closeError(new AxiomError.TypeMismatch('string', cx.arg));
+
+        /** @type {string} */
+        var pwd = cx.getEnv('$PWD',
+            cx.fileSystemManager.defaultFileSystem.rootPath.spec);
+        /** @type {Path} */
+        var path = Path.abs(pwd, cx.arg);
+
+        return cx.fileSystemManager.stat(path)
+            .then(function(/** StatResult */ statResult) {
+              cx.closeOk(path);
+            });
+      }
+    }
+    jsdir.install(editExec);
     return DomFileSystem.mount(fsm, 'html5', 'permanent')
       .then(function() {
         return DomFileSystem.mount(fsm, 'tmp', 'temporary');
