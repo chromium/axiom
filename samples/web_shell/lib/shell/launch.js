@@ -18,6 +18,7 @@ import FileSystemManager from 'axiom/fs/base/file_system_manager';
 import ExecuteContext from 'axiom/fs/base/execute_context';
 import Path from 'axiom/fs/path';
 
+import scriptMain from 'shell/exe/script';
 import TerminalView from 'shell/terminal';
 import washExecutables from 'wash/exe_modules';
 
@@ -30,6 +31,9 @@ fsm.mount(jsfs);
 // Add executables to new filesystem
 jsfs.rootDirectory.mkdir('exe')
   .then(function( /** JsDirectory */ jsdir) {
+    jsdir.install({
+      'script': scriptMain
+    });
     jsdir.install(washExecutables);
   })
   .then(function() {
