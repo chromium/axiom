@@ -29,9 +29,6 @@ var fs = new JsFileSystem();
 fs.rootDirectory.mkdir('exe')
   .then(function( /** JsDirectory */ jsdir) {
     jsdir.install(washExecutables);
-    jsdir.install({
-        'pnacl': pnaclMain
-    });
   })
   .then(function() {
     return fs.rootDirectory.mkdir('mnt')
