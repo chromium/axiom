@@ -52,11 +52,10 @@ var launchHterm = function() {
     new Path('jsfs:exe/wash'), {})
     .then(function (/** ExecutionContext */cx) {
       var tv = new TerminalView();
-      var env = cx.arg['env'] || {
+      cx.setEnvs({
         '@PATH': ['jsfs:exe'],
         '$TERM': 'xterm-256color'
-      };
-      cx.setEnvs(env);
+      });
       tv.execute(cx);
       return Promise.resolve(null);
   });
