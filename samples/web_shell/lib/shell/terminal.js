@@ -149,8 +149,8 @@ TerminalView.prototype.execute = function(cx) {
 
   this.executeContext = cx;
   this.executeContext.onClose.addListener(this.onExecuteClose_, this);
-  this.executeContext.onStdOut.addListener(this.onStdOut_, this);
-  this.executeContext.onStdErr.addListener(this.onStdOut_, this);
+  this.executeContext.stdoutStream.onData.addListener(this.onStdOut_, this);
+  this.executeContext.stderrStream.onData.addListener(this.onStdOut_, this);
   this.executeContext.onTTYRequest.addListener(this.onTTYRequest_, this);
   this.executeContext.setTTY({
     rows: this.hterm_.io.rowCount,
