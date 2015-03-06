@@ -160,6 +160,12 @@ module.exports = function(grunt) {
         },
         {
           expand: true,
+          cwd: 'samples/web_shell/html/',
+          src: ['**/*.html'],
+          dest: 'tmp/samples/web_shell/'
+        },
+        {
+          expand: true,
           cwd: 'samples/web_shell/css/',
           src: ['**/*.css'],
           dest: 'tmp/samples/web_shell/css'
@@ -239,7 +245,7 @@ module.exports = function(grunt) {
         options: {
           atBegin: true
         },
-        files: ['lib/**/*.js', 'samples/**/*.js'],
+        files: ['lib/**/*.js', 'samples/**/*.js', 'samples/**/*.html'],
         tasks: ['check', 'samples']
       }
     },

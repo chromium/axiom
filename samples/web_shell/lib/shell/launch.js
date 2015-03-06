@@ -29,42 +29,52 @@ fsm.mount(jsfs);
 
 // Add executables to new filesystem
 jsfs.rootDirectory.mkdir('exe')
-  .then(function( /** JsDirectory */ jsdir) {
-    jsdir.install(washExecutables);
-    var editExec = {
-      'edit($)': function(cx) {
-        cx.ready();
-        cx.stdout('edit\n');
+    .then(function( /** JsDirectory */ jsdir) {
+      jsdir.install(washExecutables);
+      var editExec = {
+        'edit($)': function(cx) {
+          cx.ready();
 
-        if (typeof cx.arg != 'string')
-          return cx.closeError(new AxiomError.TypeMismatch('string', cx.arg));
+          if (cx.arg && typeof cx.arg != 'string')
+            return cx.closeError(new AxiomError.TypeMismatch('string', cx.arg));
 
-        /** @type {string} */
-        var pwd = cx.getEnv('$PWD',
-            cx.fileSystemManager.defaultFileSystem.rootPath.spec);
-        /** @type {Path} */
-        var path = Path.abs(pwd, cx.arg);
-
-        return cx.fileSystemManager.stat(path)
-            .then(function(/** StatResult */ statResult) {
-              cx.closeOk(path);
-            });
+          return launchEditor(cx, cx.arg).then(function() {
+            cx.stdout('blah2\n');
+            cx.closeOk();
+          })
+        }
       }
-    }
-    jsdir.install(editExec);
-    return DomFileSystem.mount(fsm, 'html5', 'permanent')
-      .then(function() {
+
+      jsdir.install(editExec);
+
+      return DomFileSystem.mount(fsm, 'html5', 'permanent').then(function() {
         return DomFileSystem.mount(fsm, 'tmp', 'temporary');
-      })
-      .catch(function(e) {
+      }).catch(function(e) {
         console.log("Error mounting DomFileSystem", e);
       });
-  })
-  .then(function() {
-    return launchHterm();
-  }).catch(function(e) {
-    console.log('Error lauching app:', e);
-  });
+    }).then(function() {
+      return launchHterm();
+    }).catch(function(e) {
+      console.log('Error lauching app:', e);
+    });
+
+var launchEditor = function(cx, path) {
+  if (path) {
+    /** @type {string} */
+    var pwd = cx.getEnv('$PWD',
+        cx.fileSystemManager.defaultFileSystem.rootPath.spec);
+    /** @type {Path} */
+    var path = Path.abs(pwd, cx.arg);
+
+    return cx.fileSystemManager.stat(path);
+        // .then(function(* StatResult  statResult) {
+        // });
+  } else {
+    window.open("editor.html");
+    cx.stdout('blah\n');
+    return Promise.resolve();
+  }
+}
 
 var launchHterm = function() {
   return fsm.createExecuteContext(
