@@ -61,11 +61,12 @@ var launchHterm = function(fsm) {
     new Path('jsfs:exe/wash'), {})
     .then(function (/** ExecutionContext */cx) {
       var tv = new TerminalView();
-      var env = cx.arg['env'] || {
-        '@PATH': ['jsfs:exe'],
-        '$TERM': 'xterm-256color'
-      };
-      cx.setEnvs(env);
+      cx.setEnvs({
+        '@PATH': ['jsfs:/exe'],
+        '$TERM': 'xterm-256color',
+        '$HOME': 'html5:/home',
+        '$HISTFILE': 'html5:/home/.wash_history'
+      });
       tv.execute(cx);
       return Promise.resolve(null);
   });
