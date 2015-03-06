@@ -46,14 +46,12 @@ var main = function(cx) {
   s.type = 'text/javascript';
 
   var state = 0;
-  var axiom = {};
-  __axiomExport__(axiom);
 
   s.axiom = axiom;
 
   s.ready = function(callback) {
     if (!state) {
-      callback(cx, axiom);
+      callback(cx);
       cx.closeOk();
       state = 1;
     } else if (state == 1) {
