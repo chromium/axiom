@@ -47,8 +47,6 @@ var main = function(cx) {
 
   var state = 0;
 
-  s.axiom = axiom;
-
   s.ready = function(callback) {
     if (!state) {
       callback(cx);
