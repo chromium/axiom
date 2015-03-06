@@ -15,7 +15,7 @@
 (function() {
   var startup = function() {
     console.log("Startup.");
-    __axiomRequire__('shell/launch');
+    __axiomExport__(window);
   }
 
   if (document.readyState === 'complete') {
