@@ -13,46 +13,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var PNACL_CMD_USAGE_STRING = 'usage: pnacl <name> <url> [tarFileName]';
+document.currentScript.ready(function(cx) {
+  var PNACL_CMD_USAGE_STRING = 'usage: pnacl <name> <url> [tarFileName]';
 
-var axiom = window.axiom;
+  var pnaclMain = function(cx) {
+    cx.ready();
 
-var pnaclMain = function(cx) {
-  cx.ready();
+    var list = cx.getArg('_', []);
+      if (list.length < 2 || cx.getArg('help')) {
+        cx.stdout(PNACL_CMD_USAGE_STRING + '\n');
+        return cx.closeOk();
+      }
 
-  var arg = cx.arg;
-  if (!arg._ || (arg._.length < 2) || arg['h'] || arg['help']) {
-    cx.stdout(PNACL_CMD_USAGE_STRING + '\n');
-    return cx.closeOk();
-  }
+      var name = list[0];
+      var url = list[1];
+      var tarFileName = '';
 
-  var name = arg._[0];
-  var url = arg._[1];
-  var tarFileName = '';
+      if (list.length > 2) {
+        tarFileName = list[2];
+      }
 
-  if (arg._.length > 2) {
-    tarFileName = arg._[2];
-  }
+      var pwd = cx.getEnv('$PWD', '/');
 
-  var pwd = cx.getEnv('$PWD', '/');
+      var pnaclCommand = new PnaclCommand(name, url, tarFileName);
+      return pnaclCommand.run(cx);
+    };
 
-  var pnaclCommand = new pnaclLib.command(name, url, tarFileName);
-  return pnaclCommand.run(cx);
-};
+    pnaclMain.signature = {
+      'help|h': '?',
+      '!_': '@'
+    };
 
-pnaclMain.argSigil = '%';
+  var installPnacl = function(cx) {
+    var path = new axiom.fs.path.Path('jsfs:/exe');
+    var jsDir = cx.jsfs.resolve(path).entry;
+    jsDir.install({
+      'pnacl': pnaclMain
+    });
+  };
 
-var installPnacl = function(cx) {
-  var path = new axiom.fs.path.Path('jsfs:/exe');
-  var jsDir = cx.jsfs.resolve(path).entry;
-  jsDir.install({
-    'pnacl': pnaclMain
-  });
-};
+  installPnacl(cx);
 
-document.currentScript.ready(installPnacl);
-
-var pnaclLib = (function() {
   var downloadBinaryFile = function(url) {
     return new Promise(function(resolve, reject) {
       var request = new XMLHttpRequest();
@@ -103,7 +104,7 @@ var pnaclLib = (function() {
     return new Promise(function(resolve, reject) {
       var filenameIndex = url.lastIndexOf('/');
       if (filenameIndex < 0) {
-	reject(new axiom.AxiomError.Runtime(
+	reject(new axiom.core.error.AxiomError.Runtime(
             'URL does not contain a "/" character.'));
       }
       var filename = url.substr(filenameIndex + 1);
@@ -409,7 +410,4 @@ var pnaclLib = (function() {
   SpawnNacl.prototype.onExecuteClose_ = function (reason, value) {
     this.plugin_.parentElement.removeChild(this.plugin_);
   };
-  return {
-    command: PnaclCommand
-  };
-})();
+});
