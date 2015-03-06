@@ -20,7 +20,6 @@ import Path from 'axiom/fs/path';
 
 import scriptMain from 'shell/exe/script';
 import TerminalView from 'shell/terminal';
-import pnaclMain from 'shell/exe/pnacl';
 import washExecutables from 'wash/exe_modules';
 
 console.log('Lauching app!');
