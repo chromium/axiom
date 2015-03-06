@@ -30,16 +30,14 @@ var IMPORT_CMD_USAGE_STRING = 'usage: script <url>';
  */
 var main = function(cx) {
   cx.ready();
-  var arg = cx.arg;
+  var list = cx.getArg('_');
 
-  if (!arg['_'] || (arg['_'].length < 1) || arg['h'] || arg['help']) {
+  if (list.length < 1 || cx.getArg('help')) {
     cx.stdout(IMPORT_CMD_USAGE_STRING + '\n');
     return Promise.resolve(null);
   }
 
-  var url = arg['_'][0];
-
-  // TODO(grv): add timeout as a command line argument.
+  var url = list[0];
 
   var s = document.createElement('script');
   s.src = url;
@@ -82,4 +80,7 @@ export default main;
 /**
  * Accept any value for the execute context arg.
  */
-main.argSigil = '%';
+main.signature = {
+  'help|h': '?',
+  '_': '@'
+}
