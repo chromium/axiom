@@ -12,6 +12,7 @@ require('source-map-support').install();
 var AxiomError = require('axiom/core/error').default;
 var Path = require('axiom/fs/path').default;
 var FileSystemManager = require('axiom/fs/base/file_system_manager').default;
+var StdioSource = require('axiom/fs/base/stdio_source').default;
 var JsFileSystem = require('axiom/fs/js/file_system').default;
 var NodeFileSystem = require('axiom/fs/node/file_system').default;
 var TTYState = require('axiom/fs/tty_state').default;
@@ -32,14 +33,15 @@ function onResize(cx) {
 
 function startWash(fsm) {
   // TODO(rpaquay)
-  var stdio = new Stdio(null, null, null);
+  var stdioSource = new StdioSource();
+  var stdio = stdioSource.stdio;
   return fsm.createExecuteContext(new Path('jsfs:exe/wash'), stdio, {}).then(
     function(cx) {
-      cx.stdoutStream.onData.addListener(function(value) {
+      stdioSource.stdout.onData(function(value) {
         process.stdout.write(value);
       });
 
-      cx.stderrStream.onData.addListener(function(value) {
+      stdioSource.stderr.onData(function(value) {
         process.stderr.write(value);
       });
 
@@ -51,7 +53,7 @@ function startWash(fsm) {
         if (buffer == '\x03')
           cx.closeError(new AxiomError.Interrupt());
 
-        cx.stdin(buffer.toString());
+        stdioSource.stdin.write(buffer.toString());
       });
 
       onResize(cx);
