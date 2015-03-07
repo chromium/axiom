@@ -69,6 +69,15 @@ var launchHterm = function(fsm) {
         '$HISTFILE': 'html5:/home/.wash_history'
       });
       tv.execute(cx);
+
+      fsm.createExecuteContext(new Path('jsfs:exe/script'), {'_': ['http://axiom-sample.localhost/scripts/editor.js']}).then(function(cx2) {
+        return cx2.execute();
+      }).then(function() {
+        return fsm.createExecuteContext(new Path('jsfs:exe/editor'), {});
+      }).then(function(cx3) {
+        cx3.execute();
+      });
+
       return Promise.resolve(null);
   });
 }
