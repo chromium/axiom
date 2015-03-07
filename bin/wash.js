@@ -37,13 +37,16 @@ function startWash(fsm) {
   var stdio = stdioSource.stdio;
   return fsm.createExecuteContext(new Path('jsfs:exe/wash'), stdio, {}).then(
     function(cx) {
-      stdioSource.stdout.onData(function(value) {
+      stdioSource.stdout.onData.addListener(function(value) {
         process.stdout.write(value);
       });
 
-      stdioSource.stderr.onData(function(value) {
+      stdioSource.stderr.onData.addListener(function(value) {
         process.stderr.write(value);
       });
+
+      stdioSource.stdout.resume();
+      stdioSource.stderr.resume();
 
       cx.onClose.addListener(function(reason, value) {
         console.log('wash closed: ' + reason + ', ' + value);
