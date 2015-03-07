@@ -152,6 +152,15 @@ module.exports = function(grunt) {
         },
         {
           expand: true,
+          cwd: 'samples/scripts/',
+          src: ['**/*.js',
+                '**/*.js.map',
+                '**/*.html'
+          ],
+          dest: 'tmp/samples/scripts'
+        },
+        {
+          expand: true,
           cwd: 'samples/editor/',
           src: ['**/*.js',
                 '**/*.js.map',
@@ -262,7 +271,7 @@ module.exports = function(grunt) {
           atBegin: true,
           livereload: true
         },
-        files: ['lib/**/*.js', 'samples/**/*.js', 'samples/**/*.html'],
+        files: ['gruntfile.js', 'lib/**/*.js', 'samples/**/*.js', 'samples/**/*.html'],
         tasks: ['check', 'samples']
       }
     },

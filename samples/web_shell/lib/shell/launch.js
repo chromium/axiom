@@ -22,53 +22,6 @@ import scriptMain from 'shell/exe/script';
 import TerminalView from 'shell/terminal';
 import washExecutables from 'wash/exe_modules';
 
-/*
-      var editExec = {
-        'edit($)': function(cx) {
-          cx.ready();
-
-          if (cx.arg && typeof cx.arg != 'string')
-            return cx.closeError(new AxiomError.TypeMismatch('string', cx.arg));
-
-          return launchEditor(cx, cx.arg).then(function() {
-            cx.stdout('blah2\n');
-            cx.closeOk();
-          })
-        }
-      }
-
-      jsdir.install(editExec);
-
-    }).then(function() {
-      return launchEditor();
-
-var launchEditor = function(cx, path) {
-  if (path) {
-    /** @type {string} /
-    var pwd = cx.getEnv('$PWD',
-        cx.fileSystemManager.defaultFileSystem.rootPath.spec);
-    /** @type {Path} /
-    var path = Path.abs(pwd, cx.arg);
-
-    return cx.fileSystemManager.stat(path);
-        // .then(function(* StatResult  statResult) {
-        // });
-  } else {
-    var editorWindow = window.open('/editor', 'editor');
-    editorWindow.owner = this;
-    window.onbeforeunload = function(){
-      // editorWindow.close();
-       // Do something
-    }
-
-    // window.editorWindow.onload = function(){
-    //   window.editorWindow.ace.edit('editor');
-    // }
-    cx.stdout('blah\n');
-    return Promise.resolve();
-  }
-}
-*/
 export var main = function() {
 
   console.log('Lauching app!');
@@ -108,6 +61,7 @@ var launchHterm = function(fsm) {
     new Path('jsfs:exe/wash'), {})
     .then(function (/** ExecutionContext */cx) {
       var tv = new TerminalView();
+
       cx.setEnvs({
         '@PATH': ['jsfs:/exe'],
         '$TERM': 'xterm-256color',
