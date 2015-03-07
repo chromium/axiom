@@ -18,19 +18,11 @@ import FileSystemManager from 'axiom/fs/base/file_system_manager';
 import ExecuteContext from 'axiom/fs/base/execute_context';
 import Path from 'axiom/fs/path';
 
+import scriptMain from 'shell/exe/script';
 import TerminalView from 'shell/terminal';
 import washExecutables from 'wash/exe_modules';
 
-console.log('Lauching app!');
-
-var fsm = new FileSystemManager();
-var jsfs = new JsFileSystem(fsm, 'jsfs');
-fsm.mount(jsfs);
-
-// Add executables to new filesystem
-jsfs.rootDirectory.mkdir('exe')
-    .then(function( /** JsDirectory */ jsdir) {
-      jsdir.install(washExecutables);
+/*
       var editExec = {
         'edit($)': function(cx) {
           cx.ready();
@@ -47,25 +39,15 @@ jsfs.rootDirectory.mkdir('exe')
 
       jsdir.install(editExec);
 
-      return DomFileSystem.mount(fsm, 'html5', 'permanent').then(function() {
-        return DomFileSystem.mount(fsm, 'tmp', 'temporary');
-      }).catch(function(e) {
-        console.log("Error mounting DomFileSystem", e);
-      });
-    }).then(function() {
-      return launchHterm();
     }).then(function() {
       return launchEditor();
-    }).catch(function(e) {
-      console.log('Error lauching app:', e);
-    });
 
 var launchEditor = function(cx, path) {
   if (path) {
-    /** @type {string} */
+    /** @type {string} /
     var pwd = cx.getEnv('$PWD',
         cx.fileSystemManager.defaultFileSystem.rootPath.spec);
-    /** @type {Path} */
+    /** @type {Path} /
     var path = Path.abs(pwd, cx.arg);
 
     return cx.fileSystemManager.stat(path);
@@ -86,17 +68,52 @@ var launchEditor = function(cx, path) {
     return Promise.resolve();
   }
 }
+*/
+export var main = function() {
 
-var launchHterm = function() {
+  console.log('Lauching app!');
+
+  var fsm = new FileSystemManager();
+  var jsfs = new JsFileSystem(fsm, 'jsfs');
+  fsm.mount(jsfs);
+
+  // Add executables to new filesystem
+  jsfs.rootDirectory.mkdir('exe')
+    .then(function( /** JsDirectory */ jsdir) {
+      jsdir.install({
+	'script': scriptMain
+      });
+      jsdir.install(washExecutables);
+    })
+    .then(function() {
+      return DomFileSystem.mount(fsm, 'html5', 'permanent')
+	.then(function() {
+	  return DomFileSystem.mount(fsm, 'tmp', 'temporary');
+	})
+	.catch(function(e) {
+	  console.log("Error mounting DomFileSystem", e);
+	});
+      })
+    .then(function() {
+      return launchHterm(fsm);
+    }).catch(function(e) {
+      console.log('Error lauching app:', e);
+    });
+};
+
+export default main;
+
+var launchHterm = function(fsm) {
   return fsm.createExecuteContext(
     new Path('jsfs:exe/wash'), {})
     .then(function (/** ExecutionContext */cx) {
       var tv = new TerminalView();
-      var env = cx.arg['env'] || {
-        '@PATH': ['jsfs:exe'],
-        '$TERM': 'xterm-256color'
-      };
-      cx.setEnvs(env);
+      cx.setEnvs({
+        '@PATH': ['jsfs:/exe'],
+        '$TERM': 'xterm-256color',
+        '$HOME': 'html5:/home',
+        '$HISTFILE': 'html5:/home/.wash_history'
+      });
       tv.execute(cx);
       return Promise.resolve(null);
   });

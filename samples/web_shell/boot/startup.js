@@ -15,7 +15,11 @@
 (function() {
   var startup = function() {
     console.log("Startup.");
-    __axiomExport__('window');
+   // Export a global instance of axiom modules into the window object.This
+   // allows foreign scripts imported by script command to access axiom
+   // modules.
+    __axiomExport__(window);
+    window.shell.launch.main();
   }
 
   if (document.readyState === 'complete') {
