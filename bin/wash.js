@@ -31,7 +31,9 @@ function onResize(cx) {
 }
 
 function startWash(fsm) {
-  return fsm.createExecuteContext(new Path('jsfs:exe/wash'), {}).then(
+  // TODO(rpaquay)
+  var stdio = new Stdio(null, null, null);
+  return fsm.createExecuteContext(new Path('jsfs:exe/wash'), stdio, {}).then(
     function(cx) {
       cx.stdoutStream.onData.addListener(function(value) {
         process.stdout.write(value);

@@ -1,4 +1,4 @@
-// Copyright 2014 Google Inc. All rights reserved.
+// Copyright 2015 Google Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,19 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import ReadableMemoryStream from 'axiom/fs/stream/readable_memory_stream';
+import WritableMemoryStream from 'axiom/fs/stream/writable_memory_stream';
+
 /**
- * Simple callback for a JsExecutable which echos the argument list to stdout
- * and exits.
+ * @constructor
  */
-export var main = function(cx) {
-  cx.ready();
-  cx.stdout.write(cx.arg + '\n');
-  cx.closeOk();
+export var MemoryStreams = function() {
 };
 
-export default main;
+export default MemoryStreams;
 
-/**
- * Accept any value for the execute context arg.
- */
-main.argSigil = '*';
+MemoryStreams.prototype.createReadableStream = function() {
+  return new ReadableMemoryStream();
+}
+
+MemoryStreams.prototype.createWritableStream = function() {
+  return new WritableMemoryStream();
+}

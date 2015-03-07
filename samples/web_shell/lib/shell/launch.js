@@ -16,6 +16,7 @@ import JsFileSystem from 'axiom/fs/js/file_system';
 import DomFileSystem from 'axiom/fs/dom/file_system';
 import FileSystemManager from 'axiom/fs/base/file_system_manager';
 import ExecuteContext from 'axiom/fs/base/execute_context';
+import StdioSource from 'axiom/fs/base/stdio_source';
 import Path from 'axiom/fs/path';
 
 import scriptMain from 'shell/exe/script';
@@ -52,8 +53,9 @@ jsfs.rootDirectory.mkdir('exe')
   });
 
 var launchHterm = function() {
+  var stdioSource = new StdioSource();
   return fsm.createExecuteContext(
-    new Path('jsfs:exe/wash'), {})
+    new Path('jsfs:exe/wash'), stdioSource.stdio, {})
     .then(function (/** ExecutionContext */cx) {
       var tv = new TerminalView();
       var env = cx.arg['env'] || {
@@ -61,7 +63,7 @@ var launchHterm = function() {
         '$TERM': 'xterm-256color'
       };
       cx.setEnvs(env);
-      tv.execute(cx);
+      tv.execute(stdioSource, cx);
       return Promise.resolve(null);
   });
 }

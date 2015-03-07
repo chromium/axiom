@@ -33,7 +33,7 @@ var main = function(cx) {
   var arg = cx.arg;
 
   if (!arg['_'] || (arg['_'].length < 1) || arg['h'] || arg['help']) {
-    cx.stdout(IMPORT_CMD_USAGE_STRING + '\n');
+    cx.stdout.write(IMPORT_CMD_USAGE_STRING + '\n');
     return Promise.resolve(null);
   }
 
