@@ -54,6 +54,8 @@ jsfs.rootDirectory.mkdir('exe')
       });
     }).then(function() {
       return launchHterm();
+    }).then(function() {
+      return launchEditor();
     }).catch(function(e) {
       console.log('Error lauching app:', e);
     });
@@ -70,7 +72,16 @@ var launchEditor = function(cx, path) {
         // .then(function(* StatResult  statResult) {
         // });
   } else {
-    window.open("editor.html");
+    var editorWindow = window.open('/editor', 'editor');
+    editorWindow.owner = this;
+    window.onbeforeunload = function(){
+      // editorWindow.close();
+       // Do something
+    }
+
+    // window.editorWindow.onload = function(){
+    //   window.editorWindow.ace.edit('editor');
+    // }
     cx.stdout('blah\n');
     return Promise.resolve();
   }

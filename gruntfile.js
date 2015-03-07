@@ -152,9 +152,18 @@ module.exports = function(grunt) {
         },
         {
           expand: true,
+          cwd: 'samples/editor/',
+          src: ['**/*.js',
+                '**/*.js.map',
+                '**/*.html'
+          ],
+          dest: 'tmp/samples/editor'
+        },
+        {
+          expand: true,
           cwd: '',
           src: ['acejs/**'],
-          dest: 'tmp/samples/web_shell/js'
+          dest: 'tmp/samples/editor/js'
         },
         {
           expand: true,
@@ -163,12 +172,6 @@ module.exports = function(grunt) {
                 '**/*.js.map'
           ],
           dest: 'tmp/samples/web_shell/js/boot'
-        },
-        {
-          expand: true,
-          cwd: 'samples/web_shell/html/',
-          src: ['**/*.html'],
-          dest: 'tmp/samples/web_shell/'
         },
         {
           expand: true,
@@ -249,7 +252,8 @@ module.exports = function(grunt) {
       },
       samples: {
         options: {
-          atBegin: true
+          atBegin: true,
+          livereload: true
         },
         files: ['lib/**/*.js', 'samples/**/*.js', 'samples/**/*.html'],
         tasks: ['check', 'samples']
