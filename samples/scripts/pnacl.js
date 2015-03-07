@@ -58,14 +58,14 @@ document.currentScript.ready(function(cx) {
     return new Promise(function(resolve, reject) {
       var request = new XMLHttpRequest();
       request.onload = function(e) {
-	var arraybuffer = request.response; // not responseText
-	resolve(arraybuffer);
+        var arraybuffer = request.response; // not responseText
+        resolve(arraybuffer);
       };
       request.onerror = function(e) {
-	reject(e);
+        reject(e);
       };
       request.onabort = function(e) {
-	reject(e);
+        reject(e);
       };
       request.open('GET', url, true);
       request.responseType = 'arraybuffer';
@@ -78,25 +78,27 @@ document.currentScript.ready(function(cx) {
       // Throw out './' or '/' and move on to prevent something like
       // '/foo/.//bar'.
       if (folders[0] === '.' || folders[0] === '') {
-	folders = folders.slice(1);
+        folders = folders.slice(1);
       }
+
       if (folders.length === 0) {
-	resolve(parentDirEntry);
-	return;
+        resolve(parentDirEntry);
+        return;
       }
+
       parentDirEntry.getDirectory(folders[0], { create: true },
-	function(childDirEntry) {
-	  // Recursively add the new subfolder (if we still have another to
-	  // create).
-	  createDir(childDirEntry, folders.slice(1)).then(function(newDirEntry) {
-	    resolve(newDirEntry);
-	  }).catch(function(e) {
-	    reject(e);
-	  });
-	},
-	function(e) {
-	  reject(e);
-	});
+          function(childDirEntry) {
+        // Recursively add the new subfolder (if we still have another to
+        // create).
+        createDir(childDirEntry, folders.slice(1)).then(function(newDirEntry) {
+          resolve(newDirEntry);
+        }).catch(function(e) {
+          reject(e);
+        });
+      },
+      function(e) {
+        reject(e);
+      });
     });
   };
 
@@ -104,40 +106,40 @@ document.currentScript.ready(function(cx) {
     return new Promise(function(resolve, reject) {
       var filenameIndex = url.lastIndexOf('/');
       if (filenameIndex < 0) {
-	reject(new axiom.core.error.AxiomError.Runtime(
+          reject(new axiom.core.error.AxiomError.Runtime(
             'URL does not contain a "/" character.'));
       }
       var filename = url.substr(filenameIndex + 1);
       var path = directoryName + '/' + filename;
 
       createDir(fs.root, directoryName.split('/')).then(function(dirEntry) {
-	dirEntry.getFile(filename, { create: true }, function(fileEntry) {
-	  downloadBinaryFile(url).then(function(arrayBuffer) {
-	    fileEntry.createWriter(function(fileWriter) {
-	      fileWriter.onwriteend = function(e) {
-		resolve();
-	      };
-	      fileWriter.onerror = function(e) {
-		reject(e);
-	      };
-	      // Create a new Blob and write it to log.txt.
-	      var blob = new Blob([arrayBuffer], {
-		  type: 'application/x-tar; charset=utf-8'
-	      });
-	      fileWriter.write(blob);
-	    },
-	    function(e) {
-	      reject(e);
-	    });
-	  }).catch(function(e) {
-	    reject(e);
-	  });
-	},
-	function(e) {
-	  reject(e);
-	});
+        dirEntry.getFile(filename, { create: true }, function(fileEntry) {
+          downloadBinaryFile(url).then(function(arrayBuffer) {
+            fileEntry.createWriter(function(fileWriter) {
+              fileWriter.onwriteend = function(e) {
+                resolve();
+              };
+              fileWriter.onerror = function(e) {
+                reject(e);
+              };
+              // Create a new Blob and write it to log.txt.
+              var blob = new Blob([arrayBuffer], {
+                  type: 'application/x-tar; charset=utf-8'
+              });
+              fileWriter.write(blob);
+            },
+            function(e) {
+              reject(e);
+            });
+          }).catch(function(e) {
+            reject(e);
+          });
+        },
+        function(e) {
+          reject(e);
+        });
       }).catch(function(e) {
-	reject(e);
+          reject(e);
       });
     });
   };
@@ -147,15 +149,10 @@ document.currentScript.ready(function(cx) {
       cx.stdout('Downloading ' + url + ' to file system.');
       // Note: The file system has been prefixed as of Google Chrome 12:
       window.requestFileSystem =
-	window.requestFileSystem || window.webkitRequestFileSystem;
+            window.requestFileSystem || window.webkitRequestFileSystem;
 
       window.requestFileSystem(window.TEMPORARAY, 10 * 1024 * 1024,
-	function(fs) {
-	  resolve(fs);
-	},
-	function(e) {
-	  reject(e);
-	});
+          function(fs) {resolve(fs);}, function(e) {reject(e);});
     }).then(function(fs) {
       return copyUrToFileSystem(url, directoryName, fs);
     }).then(function() {
@@ -187,13 +184,13 @@ document.currentScript.ready(function(cx) {
       pnaclContext.ready();
       // Apply additional environment variables to [cx]
       if (this.env) {
-	for (var key in this.env) {
-	  pnacalContext.setEnv(key, this.env[key]);
-	 }
+          for (var key in this.env) {
+            pnacalContext.setEnv(key, this.env[key]);
+          }
       }
       var nmfFile = '/tmp/pnacl/' + pnacl.commandName + '.nmf';
       var nacl = new SpawnNacl('application/x-pnacl',
-	  pnacl.nmfUrl, nmfFile, pnaclContext);
+            pnacl.nmfUrl, nmfFile, pnaclContext);
       nacl.run();
       return null;
     };
@@ -210,11 +207,11 @@ document.currentScript.ready(function(cx) {
     return new Promise(function(resolve, reject) {
       // SpawnNacl notifies ok/error completion on the execution context.
       cx.onClose.listenOnce(function(reason, value) {
-	if (reason === 'ok') {
-	  resolve(value);
-	} else {
-	  reject(value);
-	}
+        if (reason === 'ok') {
+          resolve(value);
+        } else {
+          reject(value);
+        }
       }.bind(this));
 
       // TODO(rpaquay): Remove this code (and [copyUrlToTemporaryStorage]) when
@@ -223,7 +220,7 @@ document.currentScript.ready(function(cx) {
 
       // If no tar file, run the command right away.
       if (!this.tarFileUrl) {
-	return this.install(cx);
+          return this.install(cx);
       }
 
       // TODO(rpaquay): We copy the tar file into the the temporary DOM
@@ -231,9 +228,9 @@ document.currentScript.ready(function(cx) {
       // <cmd> so that '/tmp/pnacl/<cmd>.tar' will be opened at startup.
       // See http://goo.gl/Km8YWu
       copyUrlToTemporaryStorage(cx, this.tarFileUrl, 'pnacl').then(function() {
-	return this.install(cx);
+          return this.install(cx);
       }.bind(this)).catch(function(e) {
-	reject(e);
+          reject(e);
       });
     }.bind(this));
   };
@@ -299,21 +296,21 @@ document.currentScript.ready(function(cx) {
       var envValue = null;
 
       if (keySigil === '$') {
-	// Arbitrary values go through unchanged.
-	envKey = key.substr(1);
-	envValue = env[key];
+           // Arbitrary values go through unchanged.
+          envKey = key.substr(1);
+          envValue = env[key];
       } else if (keySigil === '@') {
-	// Arrays are translated into list of elements separated by ":".
-	envKey = key.substr(1);
-	envValue = env[key].join(':');
+        // Arrays are translated into list of elements separated by ":".
+          envKey = key.substr(1);
+          envValue = env[key].join(':');
       } else if (keySigil === '%') {
-	// Dictionaries are ignored.
+        // Dictionaries are ignored.
       } else {
-	// No prefix is an error: ignore.
+        // No prefix is an error: ignore.
       }
 
       if (envKey && !params.hasOwnProperty(envKey)) {
-	params[envKey] = envValue;
+          params[envKey] = envValue;
       }
     }
 
@@ -347,9 +344,9 @@ document.currentScript.ready(function(cx) {
       var kbloaded = Math.round(e.loaded / 1024);
       var kbtotal = Math.round(e.total / 1024);
       message = '\r\x1b[KLoading [' +
-	  kbloaded + ' KiB/' +
-	  kbtotal + ' KiB ' +
-	  percent + '%]';
+            kbloaded + ' KiB/' +
+            kbtotal + ' KiB ' +
+            percent + '%]';
     } else {
       message = '.';
     }
@@ -365,20 +362,20 @@ document.currentScript.ready(function(cx) {
   SpawnNacl.prototype.onPluginLoadError_ = function (e) {
     this.executeContext.stdout(' ERROR.\n');
     this.executeContext.closeErrorValue(
-	new axiom.core.error.AxiomError.Runtime('Plugin load error.'));
+          new axiom.core.error.AxiomError.Runtime('Plugin load error.'));
   };
 
   SpawnNacl.prototype.onPluginLoadAbort_ = function () {
     this.executeContext.stdout(' ABORT.\n');
     this.executeContext.closeErrorValue(
-	new axiom.core.error.AxiomError.Runtime('Plugin load abort.'));
+          new axiom.core.error.AxiomError.Runtime('Plugin load abort.'));
   };
 
   SpawnNacl.prototype.onPluginCrash_ = function () {
     if (this.executeContext.isOpen) {
       this.executeContext.closeErrorValue(
-	  new axiom.core.error.AxiomError.Runtime('Plugin crash: exit code: ' +
-				 this.plugin_.exitStatus));
+            new axiom.core.error.AxiomError.Runtime('Plugin crash: exit code: ' +
+                this.plugin_.exitStatus));
     }
   };
 
