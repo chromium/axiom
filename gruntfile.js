@@ -228,6 +228,13 @@ module.exports = function(grunt) {
         files: ['lib/**/*.js', 'test/**/*.js'],
         tasks: ['transpile', 'make_main_module:test', 'karma:once']
       },
+      samples: {
+        options: {
+          atBegin: true
+        },
+        files: ['lib/**/*.js', 'samples/**/*.js'],
+        tasks: ['check', 'samples']
+      },
       check_test: {
         options: {
           atBegin: true
@@ -348,8 +355,9 @@ module.exports = function(grunt) {
   grunt.registerTask('default', ['check', 'test']);
 
   // Sample apps
-  grunt.registerTask('samples_web_shell', ['copy:samples_web_shell_files',
-                                         'make_html_index:samples_web_shell']);
+  grunt.registerTask('samples_web_shell',
+                     ['copy:samples_web_shell_files',
+                      'make_html_index:samples_web_shell']);
 
   grunt.registerTask('samples', ['dist', 'copy:samples_landing_files',
                                  'samples_web_shell',
