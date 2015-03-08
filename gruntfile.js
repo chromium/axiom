@@ -170,12 +170,6 @@ module.exports = function(grunt) {
         },
         {
           expand: true,
-          cwd: '',
-          src: ['acejs/**'],
-          dest: 'tmp/samples/editor/js'
-        },
-        {
-          expand: true,
           cwd: 'samples/web_shell/boot/',
           src: ['**/*.js',
                 '**/*.js.map'
@@ -310,7 +304,6 @@ module.exports = function(grunt) {
       samples_web_shell: {
         type: "amd",
         fileResolver: ['lib/',
-                       'node_modules/hterm/dist/stub/',
                        'node_modules/hterm/dist/stub/',
                        'samples/web_shell/lib'],
         files: [{
