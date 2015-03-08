@@ -34,18 +34,18 @@ export var main = function() {
   jsfs.rootDirectory.mkdir('exe')
     .then(function( /** JsDirectory */ jsdir) {
       jsdir.install({
-	'script': scriptMain
+        'script': scriptMain
       });
       jsdir.install(washExecutables);
     })
     .then(function() {
       return DomFileSystem.mount(fsm, 'html5', 'permanent')
-	.then(function() {
-	  return DomFileSystem.mount(fsm, 'tmp', 'temporary');
-	})
-	.catch(function(e) {
-	  console.log("Error mounting DomFileSystem", e);
-	});
+        .then(function() {
+          return DomFileSystem.mount(fsm, 'tmp', 'temporary');
+        })
+        .catch(function(e) {
+          console.log("Error mounting DomFileSystem", e);
+        });
       })
     .then(function() {
       return launchHterm(fsm);
