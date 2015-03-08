@@ -1,5 +1,4 @@
-
-// Copyright 2014 Google Inc. All rights reserved.
+// Copyright 2015 Google Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,38 +15,69 @@
 document.currentScript.ready(function(cx) {
   var PNACL_CMD_USAGE_STRING = 'usage: edit <path>';
 
-  var editorMain = function(cx) {
+  var editMain = function(cx) {
     cx.ready();
 
     var list = cx.getArg('_', []);
-      if (list.length > 1 || cx.getArg('help')) {
-        cx.stdout(PNACL_CMD_USAGE_STRING + '\n');
-        return cx.closeOk();
-      }
-
-      // if (list.length != 0) {
-
-      var pwd = cx.getEnv('$PWD', '/');
-
-      // var editorCommand = new PnaclCommand(name, url, tarFileName);
-      // return editorCommand.run(cx);
-      var editorWindow = window.open('/editor', 'editor');
-      editorWindow.owner = this;
-      // window.onbeforeunload = function(){
-
+    if (list.length > 1 || cx.getArg('help')) {
+      cx.stdout(PNACL_CMD_USAGE_STRING + '\n');
       return cx.closeOk();
-    };
+    }
 
-    editorMain.signature = {
-      'help|h': '?',
-      '_': '@'
-    };
+    return Promise.resolve().then(function() {
+      if (list.length) {
+        var pathSpec = list.shift();
+        var pwd = cx.getPwd();
+        var path = axiom.fs.path.Path.abs(pwd, pathSpec);
+
+        var fsm = cx.fileSystemManager;
+        return fsm.readFile(path).then(function(contents) {
+          return contents;
+        }).catch(function(e) {
+          if (axiom.core.error.AxiomError.NotFound.test(e)) {
+            return fsm.writeFile(path, axiom.fs.data_type.DataType.UTF8String, '')
+                .then(function() {
+                  return '';
+                });
+          }
+          return Promise.reject(e);
+        })
+      }
+    }).then(function (contents) {
+      this.contents = contents.data;
+
+      var editorWindowPromise = new Promise(function(resolve, reject){
+        this.editorResolve = resolve;
+      }.bind(this));
+
+      window.onEditorWindowOpened = function() {
+        console.log("onEditorWindowOpened ");
+        editorWindow.onReady = function() {
+          this.editorResolve(editorWindow);
+        }.bind(this);
+      }.bind(this);
+
+      var editorWindow = window.open('/editor', 'editor');
+
+      return editorWindowPromise;
+    }).then(function (editorWindow) {
+      editorWindow.setContents(this.contents);
+      return cx.closeOk();
+    }).catch(function(e) {
+      cx.closeError(e);
+    });
+  };
+
+  editMain.signature = {
+    'help|h': '?',
+    '_': '@'
+  };
 
   var installEditor = function(cx) {
     var path = new axiom.fs.path.Path('jsfs:/exe');
     var jsDir = cx.jsfs.resolve(path).entry;
     jsDir.install({
-      'editor': editorMain
+      'edit': editMain
     });
   };
 

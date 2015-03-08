@@ -15,8 +15,18 @@
 console.log('editor 2!');
 
 window.onload = function() {
-  var editor = ace.edit('editor');
-  this.owner.onload = function() {
-  	console.log('hello');
-  }
+  window.aceEditor = ace.edit('editor');
+  window.onReady();
+}
+
+var onReady = function(e) {}
+
+if (window.opener && window.opener.onEditorWindowOpened) {
+  window.opener.onEditorWindowOpened();
+}
+
+function setContents(contents) {
+  var session = window.aceEditor.getSession();
+  session.setValue(contents, -1);
+
 }
