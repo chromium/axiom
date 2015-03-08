@@ -273,7 +273,16 @@ module.exports = function(grunt) {
         },
         files: ['gruntfile.js', 'lib/**/*.js', 'samples/**/*.js', 'samples/**/*.html'],
         tasks: ['check', 'samples']
+      },
+      just_samples: {
+        options: {
+          atBegin: true,
+          livereload: true
+        },
+        files: ['samples/**/*.js', 'samples/**/*.html'],
+        tasks: ['samples_no_transpile']
       }
+
     },
 
     es6_transpile: {
@@ -392,9 +401,11 @@ module.exports = function(grunt) {
                      ['copy:samples_web_shell_files',
                       'make_html_index:samples_web_shell']);
 
-  grunt.registerTask('samples', ['dist', 'copy:samples_landing_files',
+  grunt.registerTask('samples_no_transpile', ['copy:samples_landing_files',
                                  'samples_web_shell',
                                  'copy:samples_use_globals_files']);
+
+  grunt.registerTask('samples', ['dist', 'samples_no_transpile']);
 
   grunt.registerTask('deploy_samples', ['samples', 'git_deploy:samples']);
 
