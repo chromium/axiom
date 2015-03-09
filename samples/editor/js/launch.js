@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-console.log('editor 2!');
-
 window.onload = function() {
   window.aceEditor = ace.edit('editor');
   window.onReady();

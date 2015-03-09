@@ -246,13 +246,6 @@ module.exports = function(grunt) {
         files: ['lib/**/*.js', 'test/**/*.js'],
         tasks: ['transpile', 'make_main_module:test', 'karma:once']
       },
-      samples: {
-        options: {
-          atBegin: true
-        },
-        files: ['lib/**/*.js', 'samples/**/*.js'],
-        tasks: ['check', 'samples']
-      },
       check_test: {
         options: {
           atBegin: true
@@ -260,15 +253,14 @@ module.exports = function(grunt) {
         files: ['lib/**/*.js', 'test/**/*.js'],
         tasks: ['check', 'transpile', 'make_main_module:test', 'karma:once']
       },
-      samples: {
+      dist: {
         options: {
-          atBegin: true,
-          livereload: true
+          atBegin: true
         },
-        files: ['gruntfile.js', 'lib/**/*.js', 'samples/**/*.js', 'samples/**/*.html'],
-        tasks: ['check', 'samples']
+        files: ['lib/**/*.js'],
+        tasks: ['dist']
       },
-      just_samples: {
+      samples: {
         options: {
           atBegin: true,
           livereload: true
@@ -276,7 +268,15 @@ module.exports = function(grunt) {
         files: ['samples/**/*.js', 'samples/**/*.html'],
         tasks: ['samples_no_transpile']
       }
+    },
 
+    concurrent: {
+      options: {
+        logConcurrentOutput: true
+      },
+      dev: {
+        tasks: ["watch:dist", "watch:samples"]
+      }
     },
 
     es6_transpile: {
