@@ -14,6 +14,7 @@
 
 import JsFileSystem from 'axiom/fs/js/file_system';
 import DomFileSystem from 'axiom/fs/dom/file_system';
+import GDriveFileSystem from 'axiom/fs/gdrive/file_system';
 import FileSystemManager from 'axiom/fs/base/file_system_manager';
 import ExecuteContext from 'axiom/fs/base/execute_context';
 import Path from 'axiom/fs/path';
@@ -43,6 +44,12 @@ jsfs.rootDirectory.mkdir('exe')
       })
       .catch(function(e) {
         console.log("Error mounting DomFileSystem", e);
+      });
+  })
+  .then(function() {
+    return GDriveFileSystem.mount(fsm, 'gdrive')
+      .catch(function(e) {
+        console.log("Error mounting GDriveFileSystem", e);
       });
   })
   .then(function() {
