@@ -14,7 +14,7 @@
 
 import AxiomError from 'axiom/core/error';
 import Path from 'axiom/fs/path';
-import StdioSource from 'axiom/fs/base/stdio_source';
+import StdioSource from 'axiom/fs/stdio_source';
 
 import hterm from 'hterm/public';
 

@@ -12,7 +12,7 @@ require('source-map-support').install();
 var AxiomError = require('axiom/core/error').default;
 var Path = require('axiom/fs/path').default;
 var FileSystemManager = require('axiom/fs/base/file_system_manager').default;
-var StdioSource = require('axiom/fs/base/stdio_source').default;
+var StdioSource = require('axiom/fs/stdio_source').default;
 var JsFileSystem = require('axiom/fs/js/file_system').default;
 var NodeFileSystem = require('axiom/fs/node/file_system').default;
 var TTYState = require('axiom/fs/tty_state').default;
