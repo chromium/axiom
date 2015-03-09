@@ -149,9 +149,10 @@ TerminalView.prototype.execute = function(stdioSource, cx) {
     throw new AxiomError.Runtime('Already executing');
 
   this.stdioSource = stdioSource;
-  this.stdioSource.stdout.onData(this.onStdOut_.bind(this));
-  this.stdioSource.stderr.onData(this.onStdOut_.bind(this));
-
+  this.stdioSource.stdout.onData.addListener(this.onStdOut_, this);
+  this.stdioSource.stderr.onData.addListener(this.onStdOut_, this);
+  this.stdioSource.stdout.resume();
+  this.stdioSource.stderr.resume();
   this.executeContext = cx;
   this.executeContext.onClose.addListener(this.onExecuteClose_, this);
   this.executeContext.onTTYRequest.addListener(this.onTTYRequest_, this);
