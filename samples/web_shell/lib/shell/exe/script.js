@@ -34,7 +34,7 @@ var main = function(cx) {
   var list = cx.getArg('_', []);
 
   if (list.length != 1 || cx.getArg('help')) {
-    cx.stdout(IMPORT_CMD_USAGE_STRING + '\n');
+    cx.stdout.write(IMPORT_CMD_USAGE_STRING + '\n');
     return Promise.resolve(null);
   }
 
@@ -58,8 +58,8 @@ var main = function(cx) {
           'Duplicate call to script callback.'));
     }
 
-    return cx.closeError(new AxiomError.Runtime(
-        'Import script callback called after a timeout.'));
+      return cx.closeError(new AxiomError.Runtime(
+          'Import script callback called after a timeout.'));
   };
 
   document.head.appendChild(s);
