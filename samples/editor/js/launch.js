@@ -15,7 +15,6 @@
 var onReady = function(e) {}
 var onSave = function(contents) {}
 
-
 window.onload = function() {
   var editor = window.aceEditor = ace.edit('editor');
   window.onReady();
@@ -31,7 +30,6 @@ window.onload = function() {
       return this.onSave(editor.getSession().getValue());
     }).bind(this)
   });
-
 }
 
 if (window.opener && window.opener.onEditorWindowOpened) {
@@ -41,5 +39,4 @@ if (window.opener && window.opener.onEditorWindowOpened) {
 function setContents(contents) {
   var session = window.aceEditor.getSession();
   session.setValue(contents, -1);
-
 }

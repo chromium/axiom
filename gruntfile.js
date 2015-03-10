@@ -163,15 +163,6 @@ module.exports = function(grunt) {
           cwd: 'samples/web_shell/css/',
           src: ['**/*.css'],
           dest: 'tmp/samples/web_shell/css'
-        },
-        {
-          expand: true,
-          cwd: 'samples/scripts/',
-          src: ['**/*.js',
-                '**/*.js.map',
-                '**/*.html'
-          ],
-          dest: 'tmp/samples/scripts'
         }]
       },
       samples_use_globals_files: {
@@ -200,6 +191,15 @@ module.exports = function(grunt) {
           cwd: 'samples/landing',
           src: ['**'],
           dest: 'tmp/samples'
+        },
+        {
+          expand: true,
+          cwd: 'samples/scripts/',
+          src: ['**/*.js',
+                '**/*.js.map',
+                '**/*.html'
+          ],
+          dest: 'tmp/samples/scripts'
         }]
       },
       samples_editor_files: {

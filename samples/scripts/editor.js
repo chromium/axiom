@@ -13,7 +13,7 @@
 // limitations under the License.
 
 document.currentScript.ready(function(cx) {
-  var PNACL_CMD_USAGE_STRING = 'usage: edit <path>';
+  var EDITOR_CMD_USAGE_STRING = 'usage: edit <path>';
 
   var editMain = function(cx) {
     cx.ready();
@@ -21,12 +21,13 @@ document.currentScript.ready(function(cx) {
     this.path = null;
 
     var list = cx.getArg('_', []);
-    if (list.length > 1 || cx.getArg('help')) {
-      cx.stdout(PNACL_CMD_USAGE_STRING + '\n');
+    if (list.length != 1 || cx.getArg('help')) {
+      cx.stdout(EDITOR_CMD_USAGE_STRING + '\n');
       return cx.closeOk();
     }
 
     return Promise.resolve().then(function() {
+      // Any args == path
       if (list.length) {
         var pathSpec = list.shift();
         var pwd = cx.getPwd();
@@ -55,17 +56,20 @@ document.currentScript.ready(function(cx) {
       window.onEditorWindowOpened = function() {
         console.log("onEditorWindowOpened ");
         editorWindow.onReady = function() {
+          // TODO(ericarnold): rework so that errors fall through promise
+          // (assign editorResolve directly to editorWindow.onReady)
           this.editorResolve(editorWindow);
         }.bind(this);
         editorWindow.onSave = function(contents) {
-          console.log(contents);
           return this.fsm.writeFile(this.path,
               axiom.fs.data_type.DataType.UTF8String, contents);
         }.bind(this);
       }.bind(this);
 
+      // TODO(ericarnold): multiple editors?
       var editorWindow = window.open('/editor', 'editor');
 
+      // (will only continue once editor window is ready)
       return editorWindowPromise;
     }).then(function (editorWindow) {
       editorWindow.setContents(this.contents);

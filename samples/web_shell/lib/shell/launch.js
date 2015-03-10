@@ -61,7 +61,6 @@ var launchHterm = function(fsm) {
     new Path('jsfs:exe/wash'), {})
     .then(function (/** ExecutionContext */cx) {
       var tv = new TerminalView();
-
       cx.setEnvs({
         '@PATH': ['jsfs:/exe'],
         '$TERM': 'xterm-256color',
@@ -69,14 +68,6 @@ var launchHterm = function(fsm) {
         '$HISTFILE': 'html5:/home/.wash_history'
       });
       tv.execute(cx);
-
-      fsm.createExecuteContext(new Path('jsfs:exe/script'), {'_': ['http://axiom-sample.localhost/scripts/editor.js']}).then(function(cx2) {
-        return cx2.execute();
-      }).then(function() {
-        return fsm.createExecuteContext(new Path('jsfs:exe/edit'), {'_': ['/esdf']});
-      }).then(function(cx3) {
-        cx3.execute();
-      });
 
       return Promise.resolve(null);
   });
