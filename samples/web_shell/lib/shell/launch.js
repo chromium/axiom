@@ -67,4 +67,4 @@ var launchHterm = function() {
       tv.execute(stdioSource, cx);
       return Promise.resolve(null);
   });
-}
+};
