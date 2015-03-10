@@ -73,7 +73,7 @@ var launchHterm = function(fsm) {
       fsm.createExecuteContext(new Path('jsfs:exe/script'), {'_': ['http://axiom-sample.localhost/scripts/editor.js']}).then(function(cx2) {
         return cx2.execute();
       }).then(function() {
-        return fsm.createExecuteContext(new Path('jsfs:exe/editor'), {'_': ['/esdf']});
+        return fsm.createExecuteContext(new Path('jsfs:exe/edit'), {'_': ['/esdf']});
       }).then(function(cx3) {
         cx3.execute();
       });
