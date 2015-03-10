@@ -27,6 +27,8 @@ module.exports = function(grunt) {
     browsers = ['PhantomJS'];
   }
 
+  var pkg = require('./package.json');
+
   grunt.initConfig({
     clean: {
       all: ['tmp', 'dist']
@@ -53,7 +55,18 @@ module.exports = function(grunt) {
           url: 'git@github.com:chromium/axiom.git'
         },
         src: 'tmp/samples'
+      }
+    },
+
+    make_version_module: {
+      axiom: {
+        version: pkg.version,
+        dest: 'lib/axiom/version.js'
       },
+      wash: {
+        version: pkg.version,
+        dest: 'lib/wash/version.js'
+      }
     },
 
     make_dir_module: {
@@ -84,9 +97,9 @@ module.exports = function(grunt) {
     },
 
     make_package_json: {
-      make: { 
+      make: {
         options: {
-          versionSource: 'package.json'
+          version: pkg.version
         },
         files: {
           'dist/axiom_base/package.json': 'lib/axiom/package_dist.json',
@@ -281,14 +294,14 @@ module.exports = function(grunt) {
     },
 
     shell: {
-      axiom: {
+      publish_axiom: {
         command: function() {
-          'npm publish ' + path.join('dist', 'axiom_base');
+          return 'npm publish ' + path.join('dist', 'axiom_base');
         }
       },
-      wash: {
+      publish_wash: {
         command: function() {
-          'npm publish ' + path.join('dist', 'axiom_wash');
+          return 'npm publish ' + path.join('dist', 'axiom_wash');
         }
       }
     },
@@ -323,6 +336,7 @@ module.exports = function(grunt) {
   // Just transpile.
   grunt.registerTask('transpile', ['clean',
                                    'make_dir_module',
+                                   'make_version_module',
                                    'es6_transpile']);
 
   // Static check with closure compiler.
@@ -363,7 +377,9 @@ module.exports = function(grunt) {
                                  'samples_web_shell',
                                  'copy:samples_use_globals_files']);
 
-  grunt.registerTask('deploy_samples', ['samples', 'git_deploy:samples']);
+  grunt.registerTask('publish_samples', ['samples', 'git_deploy:samples']);
 
-  grunt.registerTask('npm-publish', ['shell:axiom', 'shell:wash']);
+  grunt.registerTask('publish_npm', ['dist',
+                                     'shell:publish_axiom',
+                                     'shell:publish_wash']);
 };

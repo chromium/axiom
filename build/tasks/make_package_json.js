@@ -16,7 +16,7 @@
 
 module.exports = function(grunt) {
   grunt.registerMultiTask('make_package_json', function() {
-    var version = grunt.file.readJSON(this.options().versionSource).version;
+    var version = this.options().version;
 
     this.files.forEach(function(file) {
       grunt.log.writeln("dest " + file.orig.dest);
