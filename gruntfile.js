@@ -173,6 +173,12 @@ module.exports = function(grunt) {
         },
         {
           expand: true,
+          cwd: 'samples/web_shell/scripts/',
+          src: ['**/*.js'],
+          dest: 'tmp/samples/web_shell/scripts'
+        },
+        {
+          expand: true,
           cwd: 'samples/web_shell/css/',
           src: ['**/*.css'],
           dest: 'tmp/samples/web_shell/css'
