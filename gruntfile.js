@@ -333,14 +333,17 @@ module.exports = function(grunt) {
     }
   });
 
+  // Make the generated files.
+  grunt.registerTask('make_generated', ['make_dir_module',
+                                        'make_version_module']);
+
   // Just transpile.
   grunt.registerTask('transpile', ['clean',
-                                   'make_dir_module',
-                                   'make_version_module',
+                                   'make_generated',
                                    'es6_transpile']);
 
   // Static check with closure compiler.
-  grunt.registerTask('check', ['make_dir_module',
+  grunt.registerTask('check', ['make_generated',
                                'closure_externs:build',
                                'closure-compiler:check']);
   grunt.registerTask('check-watch', ['watch:check']);
@@ -363,7 +366,9 @@ module.exports = function(grunt) {
   grunt.registerTask('check-test-watch', ['clean', 'watch:check_test']);
 
   // Build, then run wash from node.js
-  grunt.registerTask('wash', ['clean', 'make_dir_module', 'es6_transpile:cjs',
+  grunt.registerTask('wash', ['clean',
+                              'make_generated',
+                              'es6_transpile:cjs',
                               'run_wash']);
 
   grunt.registerTask('default', ['check', 'test']);
