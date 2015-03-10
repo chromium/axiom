@@ -224,7 +224,7 @@ TerminalView.prototype.onSendString_ = function(str) {
     var interruptChar = this.executeContext.getTTY().getInterrupt();
     if (interruptChar && str == interruptChar) {
       console.log('interrupt');
-      this.executeContext.signal('interrupt');
+      this.executeContext.sendSignal('interrupt');
     } else {
       this.stdioSource.stdin.write(str);
     }
