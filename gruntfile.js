@@ -84,7 +84,7 @@ module.exports = function(grunt) {
     },
 
     make_package_json: {
-      make: { 
+      make: {
         options: {
           versionSource: 'package.json'
         },
@@ -157,6 +157,12 @@ module.exports = function(grunt) {
                 '**/*.js.map'
           ],
           dest: 'tmp/samples/web_shell/js/boot'
+        },
+        {
+          expand: true,
+          cwd: 'samples/web_shell/scripts/',
+          src: ['**/*.js'],
+          dest: 'tmp/samples/web_shell/scripts'
         },
         {
           expand: true,
