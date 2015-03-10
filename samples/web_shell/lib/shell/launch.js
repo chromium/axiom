@@ -57,7 +57,7 @@ export var main = function() {
 
 export default main;
 
-var launchHterm = function() {
+var launchHterm = function(fsm) {
   var stdioSource = new StdioSource();
   return fsm.createExecuteContext(
     new Path('jsfs:exe/wash'), stdioSource.stdio, {})
