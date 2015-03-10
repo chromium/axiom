@@ -30,14 +30,15 @@ var IMPORT_CMD_USAGE_STRING = 'usage: script <url>';
  */
 var main = function(cx) {
   cx.ready();
-  var arg = cx.arg;
 
-  if (!arg['_'] || (arg['_'].length < 1) || arg['h'] || arg['help']) {
-    cx.stdout(IMPORT_CMD_USAGE_STRING + '\n');
+  var list = cx.getArg('_', []);
+
+  if (list.length != 1 || cx.getArg('help')) {
+    cx.stdout.write(IMPORT_CMD_USAGE_STRING + '\n');
     return Promise.resolve(null);
   }
 
-  var url = arg['_'][0];
+  var url = list[0];
 
   // TODO(grv): add timeout as a command line argument.
 
@@ -50,26 +51,26 @@ var main = function(cx) {
   s.ready = function(callback) {
     if (!state) {
       callback(cx);
-      cx.closeOk();
       state = 1;
-    } else if (state == 1) {
+      return cx.closeOk();
+    }
+
+    if (state == 1) {
       return cx.closeError(new AxiomError.Runtime(
           'Duplicate call to script callback.'));
-    } else {
-      cx.closeError();
+    }
+
       return cx.closeError(new AxiomError.Runtime(
           'Import script callback called after a timeout.'));
-    }
   };
 
   document.head.appendChild(s);
 
-  setTimeout(function() {
+  window.setTimeout(function() {
     // import script request timed out.
     if (!state) {
       state = 2;
-      return cx.closeError(new AxiomError.Runtime(
-          'Import script requet timed out.'));
+      cx.closeError(new AxiomError.Runtime('Import script request timed out.'));
     }
   }, 5000);
 
@@ -82,4 +83,7 @@ export default main;
 /**
  * Accept any value for the execute context arg.
  */
-main.argSigil = '%';
+main.signature = {
+  'help|h': '?',
+  '_': '@'
+};
