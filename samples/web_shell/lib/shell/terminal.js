@@ -14,6 +14,7 @@
 
 import AxiomError from 'axiom/core/error';
 import Path from 'axiom/fs/path';
+import StdioSource from 'axiom/fs/stdio_source';
 
 import hterm from 'hterm/public';
 
@@ -143,14 +144,17 @@ TerminalView.viewClosed = function(followObject) {
   }
 };
 
-TerminalView.prototype.execute = function(cx) {
+TerminalView.prototype.execute = function(stdioSource, cx) {
   if (this.executeContext && this.executeContext.isEphemeral('Ready'))
     throw new AxiomError.Runtime('Already executing');
 
+  this.stdioSource = stdioSource;
+  this.stdioSource.stdout.onData.addListener(this.onStdOut_, this);
+  this.stdioSource.stderr.onData.addListener(this.onStdOut_, this);
+  this.stdioSource.stdout.resume();
+  this.stdioSource.stderr.resume();
   this.executeContext = cx;
   this.executeContext.onClose.addListener(this.onExecuteClose_, this);
-  this.executeContext.onStdOut.addListener(this.onStdOut_, this);
-  this.executeContext.onStdErr.addListener(this.onStdOut_, this);
   this.executeContext.onTTYRequest.addListener(this.onTTYRequest_, this);
   this.executeContext.setTTY({
     rows: this.hterm_.io.rowCount,
@@ -180,7 +184,7 @@ TerminalView.prototype.println = function(str) {
 /**
  * Handle for inbound messages from the default command.
  */
-TerminalView.prototype.onStdOut_ = function(str, opt_onAck) {
+TerminalView.prototype.onStdOut_ = function(str) {
   if (typeof str == 'string') {
     str = str.replace(/\n/g, '\r\n');
   } else {
@@ -188,8 +192,6 @@ TerminalView.prototype.onStdOut_ = function(str, opt_onAck) {
   }
 
   this.print(str);
-  if (opt_onAck)
-    opt_onAck();
 };
 
 /**
@@ -224,7 +226,7 @@ TerminalView.prototype.onSendString_ = function(str) {
       console.log('interrupt');
       this.executeContext.signal('interrupt');
     } else {
-      this.executeContext.stdin(str);
+      this.stdioSource.stdin.write(str);
     }
   } else {
     console.warn('Execute not ready, ignoring input: ' + str);
