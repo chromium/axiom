@@ -55,6 +55,9 @@ document.currentScript.ready(function(cx) {
         editorWindow.onReady = function() {
           this.editorResolve(editorWindow);
         }.bind(this);
+        editorWindow.onSave = function(contents) {
+          console.log(contents);
+        }.bind(this);
       }.bind(this);
 
       var editorWindow = window.open('/editor', 'editor');

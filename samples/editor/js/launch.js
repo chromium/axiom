@@ -12,12 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-window.onload = function() {
-  window.aceEditor = ace.edit('editor');
-  window.onReady();
-}
-
 var onReady = function(e) {}
+var onSave = function(contents) {}
+
+
+window.onload = function() {
+  var editor = window.aceEditor = ace.edit('editor');
+  window.onReady();
+  editor.focus();
+  editor.commands.addCommand({
+    name: 'saveFile',
+    bindKey: {
+      win: 'Ctrl-S',
+      mac: 'Command-S',
+      sender: 'editor|cli'
+    },
+    exec: (function(editor, args, request) {
+      return this.onSave(editor.getSession().getValue());
+    }).bind(this)
+  });
+
+}
 
 if (window.opener && window.opener.onEditorWindowOpened) {
   window.opener.onEditorWindowOpened();
