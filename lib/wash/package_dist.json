@@ -1,0 +1,17 @@
+{
+  "name": "axiom-wash",
+  "version": "-- filled in by grunt --",
+  "description": "Wash",
+
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chromium/axiom.git"
+  },
+  "author": "Axiom authors",
+  "licensce": "CHROMIUM",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "axiom-base": "^1.0.0",
+    "hterm": "^2.0.0"
+  }
+}

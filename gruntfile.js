@@ -15,6 +15,7 @@
 module.exports = function(grunt) {
   // Load the grunt related dev deps listed in package.json.
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
+  var path = require('path');
 
   // Load our custom tasks.
   grunt.loadTasks('./build/tasks/');
@@ -25,6 +26,8 @@ module.exports = function(grunt) {
   } else {
     browsers = ['PhantomJS'];
   }
+
+  var pkg = require('./package.json');
 
   grunt.initConfig({
     clean: {
@@ -51,8 +54,19 @@ module.exports = function(grunt) {
         options: {
           url: 'git@github.com:chromium/axiom.git'
         },
-        src: 'tmp'
+        src: 'tmp/samples'
+      }
+    },
+
+    make_version_module: {
+      axiom: {
+        version: pkg.version,
+        dest: 'lib/axiom/version.js'
       },
+      wash: {
+        version: pkg.version,
+        dest: 'lib/wash/version.js'
+      }
     },
 
     make_dir_module: {
@@ -82,26 +96,65 @@ module.exports = function(grunt) {
       }
     },
 
+    make_package_json: {
+      make: {
+        options: {
+          version: pkg.version
+        },
+        files: {
+          'dist/axiom_base/package.json': 'lib/axiom/package_dist.json',
+          'dist/axiom_wash/package.json': 'lib/wash/package_dist.json'
+        }
+      }
+    },
+
     concat: {
-      axiom: {
+      axiom_base: {
         src: ['loader/axiom_amd.js',
               'tmp/amd/lib/axiom/**/*.js',
+              '!tmp/amd/lib/axiom/fs/node/*.js',
               '!tmp/amd/lib/axiom/**/*.test.js'],
-        dest: 'tmp/dist/axiom.concat.amd.js'
+        dest: 'dist/axiom_base/amd/lib/axiom_base.amd.concat.js'
       },
       wash: {
         src: ['tmp/amd/lib/wash/**/*.js',
               '!tmp/amd/lib/wash/**/*.test.js'],
-        dest: 'tmp/dist/wash.concat.amd.js',
+        dest: 'dist/axiom_wash/amd/lib/wash.amd.concat.js'
       }
     },
 
     copy: {
+      axiom_dist: {
+        files: [
+          {expand: true, cwd: 'tmp/cjs/', src: ['lib/axiom/**/*.js',
+              'lib/axiom/**/*.js.map'], dest: 'dist/axiom_base/cjs'},
+          {expand: true, cwd: 'tmp/amd/', src: ['lib/axiom/**/*.js'],
+              dest: 'dist/axiom_base/amd'},
+          {expand: true, cwd: '', src: ['lib/axiom/**/*.js',
+              '!package_dist.json'], dest: 'dist/axiom_base/es6'}
+        ]
+      },
+      wash_dist: {
+        files: [
+          {expand: true, cwd: 'tmp/cjs/', src: ['lib/wash/**/*.js',
+              'lib/wash/**/*.js.map'], dest: 'dist/axiom_wash/cjs'},
+          {expand: true, cwd: 'tmp/amd/', src: ['lib/wash/**/*.js'],
+              dest: 'dist/axiom_wash/amd'},
+          {expand: true, cwd: '', src: ['lib/wash/**/*.js',
+              '!package_dist.json'], dest: 'dist/axiom_wash/es6'}
+        ]
+      },
       samples_web_shell_files: {
         files: [{
           expand: true,
-          cwd: 'tmp/dist/',
-          src: ['**/*.js'],
+          cwd: 'dist/axiom_base/amd/lib/',
+          src: ['*.js', '*.map'],
+          dest: 'tmp/samples/web_shell/js/'
+        },
+        {
+          expand: true,
+          cwd: 'dist/axiom_wash/amd/lib/',
+          src: ['*.js'],
           dest: 'tmp/samples/web_shell/js/'
         },
         {
@@ -144,6 +197,14 @@ module.exports = function(grunt) {
           src: ['**/*.html'],
           dest: 'tmp/samples/use_globals/'
         }]
+      },
+      samples_landing_files: {
+        files: [{
+          expand: true,
+          cwd: 'samples/landing',
+          src: ['**'],
+          dest: 'tmp/samples'
+        }]
       }
     },
 
@@ -153,8 +214,8 @@ module.exports = function(grunt) {
         title: 'Console',
         cwd: 'tmp/samples/web_shell/',
         scriptrefs: [
-          'js/axiom.concat.amd.js',
-          'js/wash.concat.amd.js',
+          'js/axiom_base.amd.concat.js',
+          'js/wash.amd.concat.js',
           'js/*.js',
           'js/shell/**/*.js',
           'js/boot/startup.js' // last entry since we are synchronous (for now)
@@ -179,6 +240,13 @@ module.exports = function(grunt) {
         },
         files: ['lib/**/*.js', 'test/**/*.js'],
         tasks: ['transpile', 'make_main_module:test', 'karma:once']
+      },
+      samples: {
+        options: {
+          atBegin: true
+        },
+        files: ['lib/**/*.js', 'samples/**/*.js'],
+        tasks: ['check', 'samples']
       },
       check_test: {
         options: {
@@ -225,6 +293,19 @@ module.exports = function(grunt) {
       }
     },
 
+    shell: {
+      publish_axiom: {
+        command: function() {
+          return 'npm publish ' + path.join('dist', 'axiom_base');
+        }
+      },
+      publish_wash: {
+        command: function() {
+          return 'npm publish ' + path.join('dist', 'axiom_wash');
+        }
+      }
+    },
+
     karma: {
       options: {
         browsers: browsers,
@@ -252,20 +333,27 @@ module.exports = function(grunt) {
     }
   });
 
+  // Make the generated files.
+  grunt.registerTask('make_generated', ['make_dir_module',
+                                        'make_version_module']);
+
   // Just transpile.
   grunt.registerTask('transpile', ['clean',
-                                   'make_dir_module',
+                                   'make_generated',
                                    'es6_transpile']);
 
   // Static check with closure compiler.
-  grunt.registerTask('check', ['make_dir_module',
+  grunt.registerTask('check', ['make_generated',
                                'closure_externs:build',
                                'closure-compiler:check']);
   grunt.registerTask('check-watch', ['watch:check']);
 
   grunt.registerTask('dist', ['transpile',
-                              'concat:axiom',
-                              'concat:wash']);
+                              'concat:axiom_base',
+                              'concat:wash',
+                              'copy:axiom_dist',
+                              'copy:wash_dist',
+                              'make_package_json']);
 
   // Transpile and test.
   grunt.registerTask('test', ['transpile',
@@ -278,20 +366,25 @@ module.exports = function(grunt) {
   grunt.registerTask('check-test-watch', ['clean', 'watch:check_test']);
 
   // Build, then run wash from node.js
-  grunt.registerTask('wash', ['clean', 'make_dir_module', 'es6_transpile:cjs',
+  grunt.registerTask('wash', ['clean',
+                              'make_generated',
+                              'es6_transpile:cjs',
                               'run_wash']);
 
   grunt.registerTask('default', ['check', 'test']);
 
   // Sample apps
-  grunt.registerTask('samples_use_globals', ['copy:samples_use_globals_files']);
+  grunt.registerTask('samples_web_shell',
+                     ['copy:samples_web_shell_files',
+                      'make_html_index:samples_web_shell']);
 
-  grunt.registerTask('samples_web_shell', ['copy:samples_web_shell_files',
-                                         'make_html_index:samples_web_shell']);
-
-  grunt.registerTask('samples', ['dist',
+  grunt.registerTask('samples', ['dist', 'copy:samples_landing_files',
                                  'samples_web_shell',
-                                 'samples_use_globals']);
+                                 'copy:samples_use_globals_files']);
 
-  grunt.registerTask('deploy_samples', ['samples', 'git_deploy:samples']);
+  grunt.registerTask('publish_samples', ['samples', 'git_deploy:samples']);
+
+  grunt.registerTask('publish_npm', ['dist',
+                                     'shell:publish_axiom',
+                                     'shell:publish_wash']);
 };
