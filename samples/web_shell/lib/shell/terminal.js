@@ -221,7 +221,7 @@ TerminalView.prototype.onTTYRequest_ = function(request) {
  */
 TerminalView.prototype.onSendString_ = function(str) {
   if (this.executeContext.isEphemeral('Ready')) {
-    var interruptChar = this.executeContext.getTTY().interrupt;
+    var interruptChar = this.executeContext.getTTY().getInterrupt();
     if (interruptChar && str == interruptChar) {
       console.log('interrupt');
       this.executeContext.signal('interrupt');
