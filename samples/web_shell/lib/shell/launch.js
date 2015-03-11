@@ -50,12 +50,6 @@ export var main = function() {
         });
       })
     .then(function() {
-      return GDriveFileSystem.mount(fsm, 'gdrive')
-        .catch(function(e) {
-          console.log("Error mounting GDriveFileSystem", e);
-        });
-      })
-    .then(function() {
       return launchHterm(fsm);
     }).catch(function(e) {
       console.log('Error lauching app:', e);
