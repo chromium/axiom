@@ -68,7 +68,7 @@ export default main;
 var launchHterm = function(fsm) {
   var stdioSource = new StdioSource();
   return fsm.createExecuteContext(
-      new Path('jsfs:exe/wash'), stdioSource.stdio, {})
+    new Path('jsfs:exe/wash'), stdioSource.stdio, {})
     .then(function (/** ExecutionContext */cx) {
       var tv = new TerminalView();
       cx.setEnvs({
