@@ -82,7 +82,7 @@ if (typeof define !== 'function' && typeof __axiomRequire__ !== 'function') {
       if (!opt_global)
         opt_global = window;
       return makeGlobals(opt_global);
-    }
+    };
 
     define.registry = registry;
     define.seen = seen;

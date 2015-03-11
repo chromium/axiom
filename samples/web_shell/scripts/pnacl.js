@@ -21,7 +21,7 @@ document.currentScript.ready(function(cx) {
 
     var list = cx.getArg('_', []);
       if (list.length < 2 || cx.getArg('help')) {
-        cx.stdout(PNACL_CMD_USAGE_STRING + '\n');
+        cx.stdout.write(PNACL_CMD_USAGE_STRING + '\n');
         return cx.closeOk();
       }
 
@@ -146,7 +146,7 @@ document.currentScript.ready(function(cx) {
 
   var copyUrlToTemporaryStorage = function(cx, url, directoryName) {
     return new Promise(function(resolve, reject) {
-      cx.stdout('Downloading ' + url + ' to file system.');
+      cx.stdout.write('Downloading ' + url + ' to file system.');
       // Note: The file system has been prefixed as of Google Chrome 12:
       window.requestFileSystem =
             window.requestFileSystem || window.webkitRequestFileSystem;
@@ -156,7 +156,7 @@ document.currentScript.ready(function(cx) {
     }).then(function(fs) {
       return copyUrToFileSystem(url, directoryName, fs);
     }).then(function() {
-      cx.stdout(' Done.\n');
+      cx.stdout.write(' Done.\n');
       return;
     });
   };
@@ -325,11 +325,12 @@ document.currentScript.ready(function(cx) {
       plugin.appendChild(param);
     }
 
-    this.executeContext.onStdIn.addListener(this.onStdIn_.bind(this));
+    this.executeContext.stdin.onData.addListener(this.onStdIn_.bind(this));
+    this.executeContext.stdin.resume();
     this.executeContext.onTTYChange.addListener(this.onTTYChange_.bind(this));
     this.executeContext.onClose.addListener(this.onExecuteClose_.bind(this));
 
-    this.executeContext.stdout('Loading.');
+    this.executeContext.stdout.write('Loading.');
     document.body.appendChild(plugin);
 
     // Set mimetype twice for http://crbug.com/371059
@@ -351,29 +352,29 @@ document.currentScript.ready(function(cx) {
       message = '.';
     }
 
-    this.executeContext.stdout(message);
+    this.executeContext.stdout.write(message);
   };
 
   SpawnNacl.prototype.onPluginLoad_ = function () {
-    this.executeContext.stdout('\r\x1b[K');
+    this.executeContext.stdou.writet('\r\x1b[K');
     this.executeContext.requestTTY({ interrupt: '' });
   };
 
   SpawnNacl.prototype.onPluginLoadError_ = function (e) {
-    this.executeContext.stdout(' ERROR.\n');
-    this.executeContext.closeErrorValue(
+    this.executeContext.stdout.write(' ERROR.\n');
+    this.executeContext.closeError(
           new axiom.core.error.AxiomError.Runtime('Plugin load error.'));
   };
 
   SpawnNacl.prototype.onPluginLoadAbort_ = function () {
-    this.executeContext.stdout(' ABORT.\n');
-    this.executeContext.closeErrorValue(
+    this.executeContext.stdout.write(' ABORT.\n');
+    this.executeContext.closeError(
           new axiom.core.error.AxiomError.Runtime('Plugin load abort.'));
   };
 
   SpawnNacl.prototype.onPluginCrash_ = function () {
     if (this.executeContext.isOpen) {
-      this.executeContext.closeErrorValue(
+      this.executeContext.closeError(
             new axiom.core.error.AxiomError.Runtime('Plugin crash: exit code: ' +
                 this.plugin_.exitStatus));
     }
@@ -384,7 +385,7 @@ document.currentScript.ready(function(cx) {
 
     if ((ary = e.data.match(/^stdio(.*)/))) {
       // Substr instead of ary[1] so we get newlines too.
-      this.executeContext.stdout(e.data.substr(5));
+      this.executeContext.stdout.write(e.data.substr(5));
     } else if ((ary = e.data.match(/^exited:(-?\d+)/))) {
       this.executeContext.closeOk(parseInt(ary[1]));
     }
