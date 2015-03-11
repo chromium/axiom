@@ -40,8 +40,6 @@ var main = function(cx) {
 
   var url = list[0];
 
-  // TODO(grv): add timeout as a command line argument.
-
   var s = document.createElement('script');
   s.src = url;
   s.type = 'text/javascript';

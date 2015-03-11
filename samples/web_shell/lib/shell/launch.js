@@ -24,43 +24,48 @@ import scriptMain from 'shell/exe/script';
 import TerminalView from 'shell/terminal';
 import washExecutables from 'wash/exe_modules';
 
-console.log('Lauching app!');
+export var main = function() {
 
-var fsm = new FileSystemManager();
+  console.log('Lauching app!');
 
-var jsfs = new JsFileSystem(fsm, 'jsfs');
-var domfs = new DomFileSystem(fsm, 'html5', 'permanent');
-var tmpfs = new DomFileSystem(fsm, 'tmp', 'temporary');
-var gdrivefs = new GDriveFileSystem(fsm, 'gdrive');
+  var fsm = new FileSystemManager();
 
-jsfs.mount()
-.then(function() {
-  return jsfs.rootDirectory.mkdir('exe');
-})
-.then(function( /** JsDirectory */ jsdir) {
-  // Add executables to new filesystem.
-  jsdir.install({
-    'script': scriptMain
-  });
-  return jsdir.install(washExecutables);
-})
-.then(function() {
-  var mountPromises = [domfs.mount(), tmpfs.mount()];
-  if (false /* TODO(ussuri): replace with value from .rc file */) {
-    mountPromises.push(gdrivefs);
-  }
-  return Promise.all(mountPromises)
-    .catch(function(e) {
-      console.log("Error mounting file system", e);
+  var jsfs = new JsFileSystem(fsm, 'jsfs');
+  var domfs = new DomFileSystem(fsm, 'html5', 'permanent');
+  var tmpfs = new DomFileSystem(fsm, 'tmp', 'temporary');
+  var gdrivefs = new GDriveFileSystem(fsm, 'gdrive');
+
+  jsfs.mount()
+  .then(function() {
+    return jsfs.rootDirectory.mkdir('exe');
+  })
+  .then(function( /** JsDirectory */ jsdir) {
+    // Add executables to new filesystem.
+    jsdir.install({
+      'script': scriptMain
     });
-})
-.then(function() {
-  return launchHterm();
-}).catch(function(e) {
-  console.log('Error lauching app:', e);
-});
+    return jsdir.install(washExecutables);
+  })
+  .then(function() {
+    var mountPromises = [domfs.mount(), tmpfs.mount()];
+    if (false /* TODO(ussuri): replace with value from .rc file */) {
+      mountPromises.push(gdrivefs);
+    }
+    return Promise.all(mountPromises)
+      .catch(function(e) {
+        console.log("Error mounting file system", e);
+      });
+  })
+  .then(function() {
+    return launchHterm(fsm);
+  }).catch(function(e) {
+    console.log('Error lauching app:', e);
+  });
+};
 
-var launchHterm = function() {
+export default main;
+
+var launchHterm = function(fsm) {
   var stdioSource = new StdioSource();
   return fsm.createExecuteContext(
       new Path('jsfs:exe/wash'), stdioSource.stdio, {})
@@ -75,4 +80,4 @@ var launchHterm = function() {
       tv.execute(stdioSource, cx);
       return Promise.resolve(null);
   });
-}
+};
