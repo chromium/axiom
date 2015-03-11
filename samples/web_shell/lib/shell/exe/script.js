@@ -30,10 +30,11 @@ var IMPORT_CMD_USAGE_STRING = 'usage: script <url>';
  */
 var main = function(cx) {
   cx.ready();
-  var list = cx.getArg('_');
 
-  if (list.length < 1 || cx.getArg('help')) {
-    cx.stdout(IMPORT_CMD_USAGE_STRING + '\n');
+  var list = cx.getArg('_', []);
+
+  if (list.length != 1 || cx.getArg('help')) {
+    cx.stdout.write(IMPORT_CMD_USAGE_STRING + '\n');
     return Promise.resolve(null);
   }
 
@@ -48,26 +49,26 @@ var main = function(cx) {
   s.ready = function(callback) {
     if (!state) {
       callback(cx);
-      cx.closeOk();
       state = 1;
-    } else if (state == 1) {
+      return cx.closeOk();
+    }
+
+    if (state == 1) {
       return cx.closeError(new AxiomError.Runtime(
           'Duplicate call to script callback.'));
-    } else {
-      cx.closeError();
+    }
+
       return cx.closeError(new AxiomError.Runtime(
           'Import script callback called after a timeout.'));
-    }
   };
 
   document.head.appendChild(s);
 
-  setTimeout(function() {
+  window.setTimeout(function() {
     // import script request timed out.
     if (!state) {
       state = 2;
-      return cx.closeError(new AxiomError.Runtime(
-          'Import script requet timed out.'));
+      cx.closeError(new AxiomError.Runtime('Import script request timed out.'));
     }
   }, 5000);
 
@@ -83,4 +84,4 @@ export default main;
 main.signature = {
   'help|h': '?',
   '_': '@'
-}
+};
