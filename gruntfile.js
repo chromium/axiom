@@ -210,15 +210,6 @@ module.exports = function(grunt) {
           cwd: 'samples/landing',
           src: ['**'],
           dest: 'tmp/samples'
-        },
-        {
-          expand: true,
-          cwd: 'samples/scripts/',
-          src: ['**/*.js',
-                '**/*.js.map',
-                '**/*.html'
-          ],
-          dest: 'tmp/samples/scripts'
         }]
       },
       samples_editor_files: {
@@ -288,7 +279,7 @@ module.exports = function(grunt) {
         },
         files: ['samples/**/*.js', 'samples/**/*.html',
             '!samples/editor/**/*.js', '!samples/landing/**/*.js',
-            '!samples/scripts/**/*.js'],
+            '!samples/web_shell/scripts/**/*.js'],
         tasks: ['samples']
       },
       samples_no_transpile: {
@@ -297,7 +288,7 @@ module.exports = function(grunt) {
           livereload: true
         },
         files: ['samples/editor/**/*.js', 'samples/landing/**/*.js',
-            'samples/scripts/**/*.js'],
+            'samples/web_shell/scripts/**/*.js'],
         tasks: ['samples_no_transpile']
       }
 
