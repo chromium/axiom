@@ -14,6 +14,7 @@
 
 import JsFileSystem from 'axiom/fs/js/file_system';
 import DomFileSystem from 'axiom/fs/dom/file_system';
+import GDriveFileSystem from 'axiom/fs/gdrive/file_system';
 import FileSystemManager from 'axiom/fs/base/file_system_manager';
 import ExecuteContext from 'axiom/fs/base/execute_context';
 import StdioSource from 'axiom/fs/stdio_source';
