@@ -29,38 +29,31 @@ export var main = function() {
   console.log('Lauching app!');
 
   var fsm = new FileSystemManager();
-
   var jsfs = new JsFileSystem(fsm, 'jsfs');
-  var domfs = new DomFileSystem(fsm, 'html5', 'permanent');
-  var tmpfs = new DomFileSystem(fsm, 'tmp', 'temporary');
-  var gdrivefs = new GDriveFileSystem(fsm, 'gdrive');
+  fsm.mount(jsfs);
 
-  jsfs.mount()
-  .then(function() {
-    return jsfs.rootDirectory.mkdir('exe');
-  })
-  .then(function( /** JsDirectory */ jsdir) {
-    // Add executables to new filesystem.
-    jsdir.install({
-      'script': scriptMain
-    });
-    return jsdir.install(washExecutables);
-  })
-  .then(function() {
-    var mountPromises = [domfs.mount(), tmpfs.mount()];
-    if (false /* TODO(ussuri): replace with value from .rc file */) {
-      mountPromises.push(gdrivefs);
-    }
-    return Promise.all(mountPromises)
-      .catch(function(e) {
-        console.log("Error mounting file system", e);
+  // Add executables to new filesystem
+  jsfs.rootDirectory.mkdir('exe')
+    .then(function( /** JsDirectory */ jsdir) {
+      jsdir.install({
+        'script': scriptMain
       });
-  })
-  .then(function() {
-    return launchHterm(fsm);
-  }).catch(function(e) {
-    console.log('Error lauching app:', e);
-  });
+      jsdir.install(washExecutables);
+    })
+    .then(function() {
+      return DomFileSystem.mount(fsm, 'html5', 'permanent')
+        .then(function() {
+          return DomFileSystem.mount(fsm, 'tmp', 'temporary');
+        })
+        .catch(function(e) {
+          console.log("Error mounting DomFileSystem", e);
+        });
+    })
+    .then(function() {
+      return launchHterm(fsm);
+    }).catch(function(e) {
+      console.log('Error lauching app:', e);
+    });
 };
 
 export default main;
