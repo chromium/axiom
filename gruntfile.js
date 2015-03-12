@@ -39,6 +39,7 @@ module.exports = function(grunt) {
         cwd: 'lib/',
         js: ['**/*.js',
              '../third_party/closure-compiler/contrib/externs/jasmine.js',
+             '../externs/google_api/google_api.js',
              '../tmp/third_party/dcodeIO/fs.js',
              '../tmp/third_party/dcodeIO/buffer.js',
              '../tmp/third_party/dcodeIO/stream.js',
@@ -170,6 +171,12 @@ module.exports = function(grunt) {
                 '**/*.js.map'
           ],
           dest: 'tmp/samples/web_shell/js/boot'
+        },
+        {
+          expand: true,
+          cwd: 'samples/web_shell/scripts/',
+          src: ['**/*.js'],
+          dest: 'tmp/samples/web_shell/scripts'
         },
         {
           expand: true,
