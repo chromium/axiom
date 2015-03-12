@@ -149,8 +149,8 @@ TerminalView.prototype.execute = function(stdioSource, cx) {
     throw new AxiomError.Runtime('Already executing');
 
   this.stdioSource = stdioSource;
-  this.stdioSource.stdout.onData.addListener(this.onStdOut_, this);
-  this.stdioSource.stderr.onData.addListener(this.onStdOut_, this);
+  this.stdioSource.stdout.onData.addListener(this.printStdMessage_, this);
+  this.stdioSource.stderr.onData.addListener(this.printStdMessage_, this);
   this.stdioSource.stdout.resume();
   this.stdioSource.stderr.resume();
   this.executeContext = cx;
@@ -184,7 +184,7 @@ TerminalView.prototype.println = function(str) {
 /**
  * Handle for inbound messages from the default command.
  */
-TerminalView.prototype.onStdOut_ = function(str) {
+TerminalView.prototype.printStdMessage_ = function(str) {
   if (typeof str == 'string') {
     str = str.replace(/\n/g, '\r\n');
   } else {
@@ -220,16 +220,12 @@ TerminalView.prototype.onTTYRequest_ = function(request) {
  * We just forward them on to the default command.
  */
 TerminalView.prototype.onSendString_ = function(str) {
-  if (this.executeContext.isEphemeral('Ready')) {
-    var interruptChar = this.executeContext.getTTY().getInterrupt();
-    if (interruptChar && str == interruptChar) {
-      console.log('interrupt');
-      this.executeContext.sendSignal('interrupt');
-    } else {
-      this.stdioSource.stdin.write(str);
-    }
+  var interruptChar = this.executeContext.getTTY().getInterrupt();
+  if (interruptChar && str == interruptChar) {
+    console.log('interrupt');
+    this.stdioSource.signal.write({name: 'interrupt'});
   } else {
-    console.warn('Execute not ready, ignoring input: ' + str);
+    this.stdioSource.stdin.write(str);
   }
 };
 
