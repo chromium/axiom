@@ -20,7 +20,7 @@ document.currentScript.ready(function(cx) {
 
     var list = cx.getArg('_', []);
     if (list.length != 1 || cx.getArg('help')) {
-      cx.stdout(EDITOR_CMD_USAGE_STRING + '\n');
+      cx.stdout.write(EDITOR_CMD_USAGE_STRING + '\n');
       return cx.closeOk();
     }
 
@@ -47,27 +47,16 @@ document.currentScript.ready(function(cx) {
     }).then(function (contents) {
       this.contents = contents.data;
 
-      var editorWindowPromise = new Promise(function(resolve, reject){
-        this.editorResolve = resolve;
-      }.bind(this));
-
       window.onEditorWindowOpened = function() {
         console.log("onEditorWindowOpened ");
         editorWindow.onReady = function() {
-          // TODO(ericarnold): rework so that errors fall through promise
-          // (assign editorResolve directly to editorWindow.onReady)
-          this.editorResolve(editorWindow);
-        }.bind(this);
+          editorWindow.setContents(this.contents);
+          cx.closeOk();
+        };
       }.bind(this);
 
       // TODO(ericarnold): multiple editors?
-      var editorWindow = window.open('/editor', 'editor');
-
-      // (will only continue once editor window is ready)
-      return editorWindowPromise;
-    }).then(function (editorWindow) {
-      editorWindow.setContents(this.contents);
-      return cx.closeOk();
+      var editorWindow = window.open('scripts/resources/editor', 'editor');
     }).catch(function(e) {
       cx.closeError(e);
     });
