@@ -226,7 +226,24 @@ TerminalView.prototype.onSendString_ = function(str) {
       console.log('interrupt');
       this.executeContext.signal('interrupt');
     } else {
-      this.stdioSource.stdin.write(str);
+      // Split string around '\r' characters so that stdin fires
+      // multiple events for multi-line strings.
+      var start = 0;
+      while (start < str.length) {
+        var index = str.indexOf('\r', start);
+        if (index < 0) {
+          this.stdioSource.stdin.write(str.substr(start));
+          break;
+        }
+
+        // Note: We have 2 events per line, to match what the current
+        // implementation of readline expects.
+        if (index > start) {
+          this.stdioSource.stdin.write(str.substr(start, index - start));
+        }
+        this.stdioSource.stdin.write('\r');
+        start = index + 1;
+      }
     }
   } else {
     console.warn('Execute not ready, ignoring input: ' + str);
