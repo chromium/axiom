@@ -175,7 +175,8 @@ module.exports = function(grunt) {
         {
           expand: true,
           cwd: 'samples/web_shell/scripts/',
-          src: ['**/*.js'],
+          src: ['**/*.js',
+                '**/*.html'],
           dest: 'tmp/samples/web_shell/scripts'
         },
         {
@@ -205,23 +206,12 @@ module.exports = function(grunt) {
           dest: 'tmp/samples/use_globals/'
         }]
       },
-      samples_files: {
+      samples_landing_files: {
         files: [{
           expand: true,
           cwd: 'samples/landing',
           src: ['**'],
           dest: 'tmp/samples'
-        }]
-      },
-      samples_editor_files: {
-        files: [{
-          expand: true,
-          cwd: 'samples/editor/',
-          src: ['**/*.js',
-                '**/*.js.map',
-                '**/*.html'
-          ],
-          dest: 'tmp/samples/editor'
         }]
       }
     },
@@ -259,45 +249,19 @@ module.exports = function(grunt) {
         files: ['lib/**/*.js', 'test/**/*.js'],
         tasks: ['transpile', 'make_main_module:test', 'karma:once']
       },
+      samples: {
+        options: {
+          atBegin: true
+        },
+        files: ['lib/**/*.js', 'samples/**/*.js'],
+        tasks: ['check', 'samples']
+      },
       check_test: {
         options: {
           atBegin: true
         },
         files: ['lib/**/*.js', 'test/**/*.js'],
         tasks: ['check', 'transpile', 'make_main_module:test', 'karma:once']
-      },
-      dist: {
-        options: {
-          atBegin: true
-        },
-        files: ['lib/**/*.js'],
-        tasks: ['dist']
-      },
-      samples: {
-        options: {
-          atBegin: true,
-          livereload: true
-        },
-        files: ['samples/**/*.js', 'samples/**/*.html',
-            '!samples/editor/**/*.js', '!samples/landing/**/*.js',
-            '!samples/web_shell/scripts/**/*.js'],
-        tasks: ['samples']
-      },
-      samples_no_transpile: {
-        options: {
-          atBegin: true,
-          livereload: true
-        },
-        files: ['samples/editor/**/*.js', 'samples/landing/**/*.js',
-            'samples/web_shell/scripts/**/*.js'],
-        tasks: ['samples_no_transpile']
-      }
-
-    },
-
-    focus: {
-      dev: {
-        include: ["samples", "samples_no_transpile"]
       }
     },
 
@@ -418,14 +382,13 @@ module.exports = function(grunt) {
   grunt.registerTask('default', ['check', 'test']);
 
   // Sample apps
-  grunt.registerTask('samples', ['dist', 'samples_no_transpile']);
+  grunt.registerTask('samples_web_shell',
+                     ['copy:samples_web_shell_files',
+                      'make_html_index:samples_web_shell']);
 
-  grunt.registerTask('samples_no_transpile', ['copy:samples_files',
-                                              'samples_web_shell',
-                                              'copy:samples_editor_files']);
-
-  grunt.registerTask('samples_web_shell', ['copy:samples_web_shell_files',
-                                           'make_html_index:samples_web_shell']);
+  grunt.registerTask('samples', ['dist', 'copy:samples_landing_files',
+                                 'samples_web_shell',
+                                 'copy:samples_use_globals_files']);
 
   grunt.registerTask('publish_samples', ['samples', 'git_deploy:samples']);
 
