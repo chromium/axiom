@@ -14,6 +14,7 @@
 
 import JsFileSystem from 'axiom/fs/js/file_system';
 import DomFileSystem from 'axiom/fs/dom/file_system';
+import GDriveFileSystem from 'axiom/fs/gdrive/file_system';
 import FileSystemManager from 'axiom/fs/base/file_system_manager';
 import ExecuteContext from 'axiom/fs/base/execute_context';
 import StdioSource from 'axiom/fs/stdio_source';
@@ -23,10 +24,26 @@ import scriptMain from 'shell/exe/script';
 import TerminalView from 'shell/terminal';
 import washExecutables from 'wash/exe_modules';
 
+var welcomeMessage = [
+  'Welcome to the Axiom web_shell sample.',
+  '',
+  'This is a cross-browser interactive shell written in JavaScript which ',
+  'can be extended with new commands at runtime.',
+  '',
+  'To get started, try:',
+  ' * \x1b[1mmount\x1b[m to see a list of mounted filesystems.',
+  ' * \x1b[1mls\x1b[m to see the contents of the current directory.',
+  ' * \x1b[1mls jsfs:/exe\x1b[m to list the executables.',
+  ' * \x1b[1mcd <path>\x1b[m to change your working directory.',
+  ' * \x1b[1menv-get\x1b[m, \x1b[1menv-set\x1b[m, and \x1b[1menv-del\x1b[m ' +
+      'to view and modify environment variables.',
+  ' * \x1b[1mscript <url>\x1b[m to load third party scripts (but be careful).',
+  '',
+  'For more information, please visit: \x1b[1mhttp://goo.gl/DmDqct\x1b[m',
+  ''
+].join('\r\n');
+
 export var main = function() {
-
-  console.log('Lauching app!');
-
   var fsm = new FileSystemManager();
   var jsfs = new JsFileSystem(fsm, 'jsfs');
   fsm.mount(jsfs);
@@ -63,11 +80,14 @@ var launchHterm = function(fsm) {
     new Path('jsfs:exe/wash'), stdioSource.stdio, {})
     .then(function (/** ExecutionContext */cx) {
       var tv = new TerminalView();
+
+      tv.println(welcomeMessage);
+
       cx.setEnvs({
         '@PATH': ['jsfs:/exe'],
         '$TERM': 'xterm-256color',
-        '$HOME': 'html5:/home',
-        '$HISTFILE': 'html5:/home/.wash_history'
+        '$HOME': 'html5:/',
+        '$HISTFILE': 'html5:/.wash_history'
       });
       tv.execute(stdioSource, cx);
       return Promise.resolve(null);
