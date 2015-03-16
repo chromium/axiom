@@ -64,7 +64,7 @@ export var main = function() {
         .catch(function(e) {
           console.log("Error mounting DomFileSystem", e);
         });
-      })
+    })
     .then(function() {
       return launchHterm(fsm);
     }).catch(function(e) {
