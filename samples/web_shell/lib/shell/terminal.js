@@ -156,14 +156,15 @@ TerminalView.prototype.execute = function(stdioSource, cx) {
   this.executeContext = cx;
   this.executeContext.onClose.addListener(this.onExecuteClose_, this);
   this.executeContext.onTTYRequest.addListener(this.onTTYRequest_, this);
-  this.executeContext.setTTY({
+  this.stdioSource.signal.write({name: 'tty-change', value: {
     rows: this.hterm_.io.rowCount,
     columns: this.hterm_.io.columnCount
-  });
+  }});
 
   this.executeContext.onReady.addListener(function() {
     console.log('TerminalView: execute ready');
-  });
+    this.stdioSource.stdio.signal.resume();
+  }.bind(this));
 
   this.executeContext.onClose.addListener(function(reason, value) {
     console.log('TerminalView: execute closed: ' + reason, value);
@@ -211,7 +212,9 @@ TerminalView.prototype.onExecuteClose_ = function(reason, value) {
 TerminalView.prototype.onTTYRequest_ = function(request) {
   console.log('tty request');
   if (typeof request.interrupt == 'string')
-    this.executeContext.setTTY({interrupt: request.interrupt});
+    this.stdioSource.signal.write({name: 'tty-change', value: {
+      interrupt: request.interrupt
+    }});
 };
 
 /**
@@ -236,5 +239,8 @@ TerminalView.prototype.onSendString_ = function(str) {
  */
 TerminalView.prototype.onTerminalResize_ = function(columns, rows) {
   if (this.executeContext && this.executeContext.isEphemeral('Ready'))
-    this.executeContext.setTTY({columns: columns, rows: rows});
+    this.stdioSource.signal.write({name: 'tty-change', value: {
+      columns: columns,
+      rows: rows
+    }});
 };
