@@ -43,7 +43,7 @@ gapi.GDriveEntry = function() {
   this.copyable = false;
   /** @type {string} */
   this.downloadUrl = '';
-  /** @type {Object<string>} */
+  /** @type {Object<string, string>} */
   this.exportLinks = {};
 };
 
