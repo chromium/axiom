@@ -267,7 +267,9 @@ module.exports = function(grunt) {
           atBegin: true
         },
         files: ['lib/**/*.js', 'test/**/*.js'],
-        tasks: ['transpile',
+        tasks: ['clean',
+                'make_generated',
+                'es6_transpile:amd',
                 'make_main_module:test',
                 'make_html_index:test_harness']
       },
@@ -284,7 +286,9 @@ module.exports = function(grunt) {
         },
         files: ['lib/**/*.js', 'test/**/*.js'],
         tasks: ['check',
-                'transpile',
+                'clean',
+                'make_generated',
+                'es6_transpile:amd',
                 'make_main_module:test',
                 'make_html_index:test_harness']
       }
@@ -367,7 +371,8 @@ module.exports = function(grunt) {
   });
 
   // Make the generated files.
-  grunt.registerTask('make_generated', ['make_dir_module',
+  grunt.registerTask('make_generated', ['closure_externs',
+                                        'make_dir_module',
                                         'make_version_module']);
 
   // Just transpile.
