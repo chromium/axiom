@@ -24,26 +24,21 @@ document.currentScript.ready(function(cx) {
       return cx.closeOk();
     }
 
-    return Promise.resolve().then(function() {
-      // Any args == path
-      if (list.length) {
-        var pathSpec = list.shift();
-        var pwd = cx.getPwd();
-        var path = axiom.fs.path.Path.abs(pwd, pathSpec);
+    var pathSpec = list.shift();
+    var pwd = cx.getPwd();
+    var path = axiom.fs.path.Path.abs(pwd, pathSpec);
 
-        var fsm = cx.fileSystemManager;
-        return fsm.readFile(path).then(function(contents) {
-          return contents;
-        }).catch(function(e) {
-          if (axiom.core.error.AxiomError.NotFound.test(e)) {
-            return fsm.writeFile(path, axiom.fs.data_type.DataType.UTF8String, '')
-                .then(function() {
-                  return '';
-                });
-          }
-          return Promise.reject(e);
-        })
+    var fsm = cx.fileSystemManager;
+    return fsm.readFile(path).then(function(contents) {
+      return contents;
+    }).catch(function(e) {
+      if (axiom.core.error.AxiomError.NotFound.test(e)) {
+        return fsm.writeFile(path, axiom.fs.data_type.DataType.UTF8String, '')
+            .then(function() {
+              return '';
+            });
       }
+      return Promise.reject(e);
     }).then(function (contents) {
       this.contents = contents.data;
 
