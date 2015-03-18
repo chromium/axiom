@@ -17,8 +17,6 @@ document.currentScript.ready(function(cx) {
 
   var editMain = function(cx) {
     cx.ready();
-    this.fsm = null;
-    this.path = null;
 
     var list = cx.getArg('_', []);
     if (list.length != 1 || cx.getArg('help')) {
@@ -28,14 +26,15 @@ document.currentScript.ready(function(cx) {
 
     var pathSpec = list.shift();
     var pwd = cx.getPwd();
-    var path = axiom.fs.path.Path.abs(pwd, pathSpec);
 
-    var fsm = cx.fileSystemManager;
-    return fsm.readFile(path).then(function(contents) {
+    this.fsm = cx.fileSystemManager;
+    this.path = axiom.fs.path.Path.abs(pwd, pathSpec);
+
+    return this.fsm.readFile(this.path).then(function(contents) {
       return contents;
     }).catch(function(e) {
       if (axiom.core.error.AxiomError.NotFound.test(e)) {
-        return fsm.writeFile(path, axiom.fs.data_type.DataType.UTF8String, '')
+        return this.fsm.writeFile(this.path, axiom.fs.data_type.DataType.UTF8String, '')
             .then(function() {
               return '';
             });

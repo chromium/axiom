@@ -212,15 +212,6 @@ module.exports = function(grunt) {
           cwd: 'samples/landing',
           src: ['**'],
           dest: 'tmp/samples'
-        },
-        {
-          expand: true,
-          cwd: 'samples/scripts/',
-          src: ['**/*.js',
-                '**/*.js.map',
-                '**/*.html'
-          ],
-          dest: 'tmp/samples/scripts'
         }]
       }
     },
