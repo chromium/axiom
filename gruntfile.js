@@ -175,7 +175,8 @@ module.exports = function(grunt) {
         {
           expand: true,
           cwd: 'samples/web_shell/scripts/',
-          src: ['**/*.js'],
+          src: ['**/*.js',
+                '**/*.html'],
           dest: 'tmp/samples/web_shell/scripts'
         },
         {
@@ -230,6 +231,27 @@ module.exports = function(grunt) {
         cssrefs: [
           'css/**/*.css'
         ]
+      },
+
+      test_harness: {
+        dest: 'tmp/test_harness.html',
+        title: 'test',
+        cwd: 'tmp/',
+        inlines: [
+          'node_modules/jasmine-core/lib/jasmine-core/jasmine.css',
+          'node_modules/jasmine-core/lib/jasmine-core/jasmine.js',
+          'node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js',
+          'node_modules/jasmine-core/lib/jasmine-core/boot.js',
+          'loader/axiom_amd.js'
+        ],
+        scriptrefs: [
+          'amd/lib/axiom/**/*.js',
+          'amd/lib/wash/**/*.js',
+          'test/test_main.js'
+        ],
+        cssrefs: [
+          'css/**/*.css'
+        ]
       }
     },
 
@@ -241,12 +263,16 @@ module.exports = function(grunt) {
         files: ['lib/**/*.js'],
         tasks: ['check']
       },
-      test: {
+      test_harness: {
         options: {
           atBegin: true
         },
         files: ['lib/**/*.js', 'test/**/*.js'],
-        tasks: ['transpile', 'make_main_module:test', 'karma:once']
+        tasks: ['clean',
+                'make_generated',
+                'es6_transpile:amd',
+                'make_main_module:test',
+                'make_html_index:test_harness']
       },
       samples: {
         options: {
@@ -255,12 +281,17 @@ module.exports = function(grunt) {
         files: ['lib/**/*.js', 'samples/**/*.js'],
         tasks: ['check', 'samples']
       },
-      check_test: {
+      check_test_harness: {
         options: {
           atBegin: true
         },
         files: ['lib/**/*.js', 'test/**/*.js'],
-        tasks: ['check', 'transpile', 'make_main_module:test', 'karma:once']
+        tasks: ['check',
+                'clean',
+                'make_generated',
+                'es6_transpile:amd',
+                'make_main_module:test',
+                'make_html_index:test_harness']
       }
     },
 
@@ -341,7 +372,8 @@ module.exports = function(grunt) {
   });
 
   // Make the generated files.
-  grunt.registerTask('make_generated', ['make_dir_module',
+  grunt.registerTask('make_generated', ['closure_externs',
+                                        'make_dir_module',
                                         'make_version_module']);
 
   // Just transpile.
@@ -366,11 +398,14 @@ module.exports = function(grunt) {
   grunt.registerTask('test', ['transpile',
                               'make_main_module:test',
                               'karma:once']);
-  grunt.registerTask('test-watch', ['clean',
-                                    'watch:test']);
+  grunt.registerTask('test-watch',
+                     ['clean',
+                      'watch:test_harness']);
 
   // Static check, transpile, test, repeat on changes.
-  grunt.registerTask('check-test-watch', ['clean', 'watch:check_test']);
+  grunt.registerTask('check-test-watch',
+                     ['clean',
+                      'watch:check_test_harness']);
 
   // Build, then run wash from node.js
   grunt.registerTask('wash', ['clean',
