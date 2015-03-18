@@ -45,8 +45,13 @@ function startWash(fsm) {
         process.stderr.write(value);
       });
 
-      stdioSource.stdout.resume();
-      stdioSource.stderr.resume();
+      cx.onReady.addListener(function() {
+        // Resume all streams (except stdin as we want to buffer input until a
+        // consumer is ready to process it).
+        stdioSource.stdout.resume();
+        stdioSource.stderr.resume();
+        stdioSource.stdio.signal.resume();
+      }.bind(this));
 
       cx.onClose.addListener(function(reason, value) {
         console.log('wash closed: ' + reason + ', ' + value);

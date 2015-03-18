@@ -151,8 +151,6 @@ TerminalView.prototype.execute = function(stdioSource, cx) {
   this.stdioSource = stdioSource;
   this.stdioSource.stdout.onData.addListener(this.printStdMessage_, this);
   this.stdioSource.stderr.onData.addListener(this.printStdMessage_, this);
-  this.stdioSource.stdout.resume();
-  this.stdioSource.stderr.resume();
   this.executeContext = cx;
   this.executeContext.onClose.addListener(this.onExecuteClose_, this);
   this.executeContext.onTTYRequest.addListener(this.onTTYRequest_, this);
@@ -163,6 +161,10 @@ TerminalView.prototype.execute = function(stdioSource, cx) {
 
   this.executeContext.onReady.addListener(function() {
     console.log('TerminalView: execute ready');
+    // Resume all streams (except stdin as we want to buffer input until a
+    // consumer is ready to process it).
+    this.stdioSource.stdout.resume();
+    this.stdioSource.stderr.resume();
     this.stdioSource.stdio.signal.resume();
   }.bind(this));
 
