@@ -328,7 +328,6 @@ document.currentScript.ready(function(cx) {
     this.executeContext.stdin.onData.addListener(this.onStdIn_.bind(this));
     this.executeContext.stdin.resume();
     this.executeContext.signal.onData.addListener(this.onSignal_.bind(this));
-    this.executeContext.signal.resume();
     this.executeContext.onClose.addListener(this.onExecuteClose_.bind(this));
 
     this.executeContext.stdout.write('Loading.');
