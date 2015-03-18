@@ -230,6 +230,7 @@ TerminalView.prototype.onSendString_ = function(str) {
     console.log('interrupt');
     this.stdioSource.signal.write({name: 'interrupt'});
   } else {
+    this.stdioSource.stdin.write(str);
   }
 };
 
