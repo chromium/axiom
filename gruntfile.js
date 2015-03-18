@@ -39,6 +39,7 @@ module.exports = function(grunt) {
         cwd: 'lib/',
         js: ['**/*.js',
              '../third_party/closure-compiler/contrib/externs/jasmine.js',
+             '../externs/google_api/google_api.js',
              '../tmp/third_party/dcodeIO/fs.js',
              '../tmp/third_party/dcodeIO/buffer.js',
              '../tmp/third_party/dcodeIO/stream.js',
@@ -174,7 +175,8 @@ module.exports = function(grunt) {
         {
           expand: true,
           cwd: 'samples/web_shell/scripts/',
-          src: ['**/*.js'],
+          src: ['**/*.js',
+                '**/*.html'],
           dest: 'tmp/samples/web_shell/scripts'
         },
         {
@@ -204,7 +206,7 @@ module.exports = function(grunt) {
           dest: 'tmp/samples/use_globals/'
         }]
       },
-      samples_files: {
+      samples_landing_files: {
         files: [{
           expand: true,
           cwd: 'samples/landing',
@@ -219,17 +221,6 @@ module.exports = function(grunt) {
                 '**/*.html'
           ],
           dest: 'tmp/samples/scripts'
-        }]
-      },
-      samples_editor_files: {
-        files: [{
-          expand: true,
-          cwd: 'samples/editor/',
-          src: ['**/*.js',
-                '**/*.js.map',
-                '**/*.html'
-          ],
-          dest: 'tmp/samples/editor'
         }]
       }
     },
@@ -249,6 +240,27 @@ module.exports = function(grunt) {
         cssrefs: [
           'css/**/*.css'
         ]
+      },
+
+      test_harness: {
+        dest: 'tmp/test_harness.html',
+        title: 'test',
+        cwd: 'tmp/',
+        inlines: [
+          'node_modules/jasmine-core/lib/jasmine-core/jasmine.css',
+          'node_modules/jasmine-core/lib/jasmine-core/jasmine.js',
+          'node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js',
+          'node_modules/jasmine-core/lib/jasmine-core/boot.js',
+          'loader/axiom_amd.js'
+        ],
+        scriptrefs: [
+          'amd/lib/axiom/**/*.js',
+          'amd/lib/wash/**/*.js',
+          'test/test_main.js'
+        ],
+        cssrefs: [
+          'css/**/*.css'
+        ]
       }
     },
 
@@ -260,52 +272,35 @@ module.exports = function(grunt) {
         files: ['lib/**/*.js'],
         tasks: ['check']
       },
-      test: {
+      test_harness: {
         options: {
           atBegin: true
         },
         files: ['lib/**/*.js', 'test/**/*.js'],
-        tasks: ['transpile', 'make_main_module:test', 'karma:once']
-      },
-      check_test: {
-        options: {
-          atBegin: true
-        },
-        files: ['lib/**/*.js', 'test/**/*.js'],
-        tasks: ['check', 'transpile', 'make_main_module:test', 'karma:once']
-      },
-      dist: {
-        options: {
-          atBegin: true
-        },
-        files: ['lib/**/*.js'],
-        tasks: ['dist']
+        tasks: ['clean',
+                'make_generated',
+                'es6_transpile:amd',
+                'make_main_module:test',
+                'make_html_index:test_harness']
       },
       samples: {
         options: {
-          atBegin: true,
-          livereload: true
+          atBegin: true
         },
-        files: ['samples/**/*.js', 'samples/**/*.html',
-            '!samples/editor/**/*.js', '!samples/landing/**/*.js',
-            '!samples/scripts/**/*.js'],
-        tasks: ['samples']
+        files: ['lib/**/*.js', 'samples/**/*.js'],
+        tasks: ['check', 'samples']
       },
-      samples_no_transpile: {
+      check_test_harness: {
         options: {
-          atBegin: true,
-          livereload: true
+          atBegin: true
         },
-        files: ['samples/editor/**/*.js', 'samples/landing/**/*.js',
-            'samples/scripts/**/*.js'],
-        tasks: ['samples_no_transpile']
-      }
-
-    },
-
-    focus: {
-      dev: {
-        include: ["samples", "samples_no_transpile"]
+        files: ['lib/**/*.js', 'test/**/*.js'],
+        tasks: ['check',
+                'clean',
+                'make_generated',
+                'es6_transpile:amd',
+                'make_main_module:test',
+                'make_html_index:test_harness']
       }
     },
 
@@ -386,7 +381,8 @@ module.exports = function(grunt) {
   });
 
   // Make the generated files.
-  grunt.registerTask('make_generated', ['make_dir_module',
+  grunt.registerTask('make_generated', ['closure_externs',
+                                        'make_dir_module',
                                         'make_version_module']);
 
   // Just transpile.
@@ -411,11 +407,14 @@ module.exports = function(grunt) {
   grunt.registerTask('test', ['transpile',
                               'make_main_module:test',
                               'karma:once']);
-  grunt.registerTask('test-watch', ['clean',
-                                    'watch:test']);
+  grunt.registerTask('test-watch',
+                     ['clean',
+                      'watch:test_harness']);
 
   // Static check, transpile, test, repeat on changes.
-  grunt.registerTask('check-test-watch', ['clean', 'watch:check_test']);
+  grunt.registerTask('check-test-watch',
+                     ['clean',
+                      'watch:check_test_harness']);
 
   // Build, then run wash from node.js
   grunt.registerTask('wash', ['clean',
@@ -426,14 +425,13 @@ module.exports = function(grunt) {
   grunt.registerTask('default', ['check', 'test']);
 
   // Sample apps
-  grunt.registerTask('samples', ['dist', 'samples_no_transpile']);
+  grunt.registerTask('samples_web_shell',
+                     ['copy:samples_web_shell_files',
+                      'make_html_index:samples_web_shell']);
 
-  grunt.registerTask('samples_no_transpile', ['copy:samples_files',
-                                              'samples_web_shell',
-                                              'copy:samples_editor_files']);
-
-  grunt.registerTask('samples_web_shell', ['copy:samples_web_shell_files',
-                                           'make_html_index:samples_web_shell']);
+  grunt.registerTask('samples', ['dist', 'copy:samples_landing_files',
+                                 'samples_web_shell',
+                                 'copy:samples_use_globals_files']);
 
   grunt.registerTask('publish_samples', ['samples', 'git_deploy:samples']);
 
