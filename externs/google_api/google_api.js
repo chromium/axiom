@@ -61,47 +61,59 @@ gapi.AuthToken = function() {
 gapi.auth = {};
 
 /**
-* @param {...?} args
-* @return {undefined}
-*/
+ * @param {...?} args
+ * @return {undefined}
+ */
 gapi.auth.authorize = function(args) {};
 
 /**
-* @return {gapi.AuthToken}
-*/
+ * @return {gapi.AuthToken}
+ */
 gapi.auth.getToken = function() {};
 
 gapi.client = {};
 
 /**
-* @param {...?} args
-* @return {Object}
-*/
+ * @param {...?} args
+ * @return {Object}
+ */
 gapi.client.load = function(args) {};
 
 /**
-* @param {...?} args
-* @return {Object}
-*/
+ * @param {...?} args
+ * @return {Object}
+ */
 gapi.client.request = function(args) {};
 
 gapi.client.drive = {};
 gapi.client.drive.files = {};
 
 /**
-* @param {...?} args
-* @return {Object}
-*/
+ * @param {...?} args
+ * @return {Object}
+ */
 gapi.client.drive.files.get = function(args) {};
 
 /**
-* @param {...?} args
-* @return {Object}
-*/
+ * @param {...?} args
+ * @return {Object}
+ */
 gapi.client.drive.files.insert = function(args) {};
 
 /**
-* @param {...?} args
-* @return {Object}
-*/
+ * @param {...?} args
+ * @return {Object}
+ */
+gapi.client.drive.files.update = function(args) {};
+
+/**
+ * @param {...?} args
+ * @return {Object}
+ */
+gapi.client.drive.files.copy = function(args) {};
+
+/**
+ * @param {...?} args
+ * @return {Object}
+ */
 gapi.client.drive.files.list = function(args) {};
