@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var onReady = function(e) {}
 var onSave = function(contents) {}
 
 window.onload = function() {
   var editor = window.aceEditor = ace.edit('editor');
-  window.onReady();
+
+  var event = new Event('ready');
+  event.initEvent('ready', false, false);
+  this.dispatchEvent(event);
+
   editor.focus();
   editor.commands.addCommand({
     name: 'saveFile',
@@ -27,7 +30,10 @@ window.onload = function() {
       sender: 'editor|cli'
     },
     exec: (function(editor, args, request) {
-      return this.onSave(editor.getSession().getValue());
+      var event = new Event('save');
+      event.initEvent('save', false, false);
+      event.target = this;
+      this.dispatchEvent(event);
     }).bind(this)
   });
 }
@@ -39,4 +45,9 @@ if (window.opener && window.opener.onEditorWindowOpened) {
 function setContents(contents) {
   var session = window.aceEditor.getSession();
   session.setValue(contents, -1);
+}
+
+function getContents() {
+  var session = window.aceEditor.getSession();
+  return session.getValue();
 }

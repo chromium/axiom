@@ -99,11 +99,14 @@ Editor.prototype.edit = function(path) {
     this.contents_ = contents.data;
 
     window.onEditorWindowOpened = function() {
-     this.editorWindow_.onSave = this.saveFile_.bind(this);
-     this.editorWindow_.onReady = function() {
+      this.editorWindow_.addEventListener('save',  function(evt) {
+        this.saveFile_(evt.target.getContents());
+      }.bind(this));
+
+      this.editorWindow_.addEventListener('ready',  function() {
         this.editorWindow_.setContents(this.contents_);
         this.cx_.closeOk();
-      }.bind(this);
+      }.bind(this));
     }.bind(this);
 
     // TODO(ericarnold): multiple editors?
