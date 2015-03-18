@@ -27,40 +27,9 @@ document.currentScript.ready(function(cx) {
     var pathSpec = list.shift();
     var pwd = cx.getPwd();
 
-    this.fsm = cx.fileSystemManager;
-    this.path = axiom.fs.path.Path.abs(pwd, pathSpec);
-
-    return this.fsm.readFile(this.path).then(function(contents) {
-      return contents;
-    }).catch(function(e) {
-      if (axiom.core.error.AxiomError.NotFound.test(e)) {
-        return this.fsm.writeFile(this.path, axiom.fs.data_type.DataType.UTF8String, '')
-            .then(function() {
-              return '';
-            });
-      }
-      return Promise.reject(e);
-    }).then(function (contents) {
-      this.contents = contents.data;
-
-      window.onEditorWindowOpened = function() {
-        console.log("onEditorWindowOpened ");
-        editorWindow.onReady = function() {
-          editorWindow.setContents(this.contents);
-          cx.closeOk();
-        };
-      }.bind(this);
-
-      editorWindow.onSave = function(contents) {
-        return this.fsm.writeFile(this.path,
-            axiom.fs.data_type.DataType.UTF8String, contents);
-      }.bind(this);
-
-      // TODO(ericarnold): multiple editors?
-      var editorWindow = window.open('scripts/resources/editor', 'editor');
-    }).catch(function(e) {
-      cx.closeError(e);
-    });
+    /** @type {Editor} */
+    var editor = new Editor(cx);
+    editor.edit(axiom.fs.path.Path.abs(pwd, pathSpec))
   };
 
   editMain.signature = {
@@ -78,3 +47,73 @@ document.currentScript.ready(function(cx) {
 
   installEditor(cx);
 });
+
+/**
+ * @constructor
+ * Ace editor implementation for wash.
+ *
+ * @param {ExecuteContext} cx
+ */
+var Editor = function(cx) {
+  /** @type {Path} The file to edit */
+  this.path = null;
+
+  /** @private @type {ExecuteContext} */
+  this.cx_ = cx;
+
+  /** @private @type {FileSystemManager} */
+  this.fsm_ = cx.fileSystemManager;
+
+  /** @private @type {Element} */
+  this.editorWindow_ = null;
+}
+
+/**
+ * Edit a file in a separate window.
+ *
+ * @param {Path} Path to file to edit
+ * @return {Promise}
+ */
+Editor.prototype.edit = function(path) {
+  this.path = path;
+
+  return this.fsm_.readFile(this.path).then(function(contents) {
+    return contents;
+  }).catch(function(e) {
+    if (axiom.core.error.AxiomError.NotFound.test(e)) {
+      return this.fsm_.writeFile(this.path, axiom.fs.data_type.DataType.UTF8String, '')
+          .then(function() {
+            return '';
+          }.bind(this));
+    }
+    return Promise.reject(e);
+  }.bind(this)).then(function (contents) {
+    // TODO(ericarnold): This should all be handled in a setContents() (check if
+    // editor has been instantiated, etc)
+    this.contents_ = contents.data;
+
+    window.onEditorWindowOpened = function() {
+     this.editorWindow_.onSave = this.saveFile_.bind(this);
+     this.editorWindow_.onReady = function() {
+        this.editorWindow_.setContents(this.contents_);
+        this.cx_.closeOk();
+      }.bind(this);
+    }.bind(this);
+
+    // TODO(ericarnold): multiple editors?
+    this.editorWindow_ = window.open('scripts/resources/editor', 'editor');
+  }.bind(this)).catch(function(e) {
+    this.cx_.closeError(e);
+  }.bind(this));
+}
+
+/**
+ * Saves the file being edited by the editor.
+ *
+ * @return {Promise}
+ */
+Editor.prototype.saveFile_ = function(contents) {
+  this.contents_ = contents;
+  return this.fsm_.writeFile(this.path, axiom.fs.data_type.DataType.UTF8String,
+      contents);
+}
