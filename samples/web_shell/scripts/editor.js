@@ -15,16 +15,22 @@
 document.currentScript.ready(function(cx) {
   var EDITOR_CMD_USAGE_STRING = 'usage: edit <path>';
 
+  /**
+   * @return {void}
+   */
   var editMain = function(cx) {
     cx.ready();
 
+    /** @type {Array<string>} */
     var list = cx.getArg('_', []);
     if (list.length != 1 || cx.getArg('help')) {
       cx.stdout.write(EDITOR_CMD_USAGE_STRING + '\n');
       return cx.closeOk();
     }
 
+    /** @type {string} */
     var pathSpec = list.shift();
+    /** @type {string} */
     var pwd = cx.getPwd();
 
     /** @type {Editor} */
