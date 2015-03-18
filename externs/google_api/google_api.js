@@ -30,6 +30,8 @@ var gapi = {};
  */
 gapi.GDriveEntry = function() {
   /** @type {string} */
+  this.id = '';
+  /** @type {string} */
   this.title = '';
   /** @type {string} */
   this.mimeType = '';

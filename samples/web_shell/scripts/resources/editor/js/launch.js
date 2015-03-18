@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Google Inc. All rights reserved.
+// Copyright 2015 Google Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,21 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/** @typedef JsExecuteContext$$module$axiom$fs$js$execute_context */
-var JsExecuteContext;
+window.onload = function() {
+  window.aceEditor = ace.edit('editor');
+  window.onReady();
+}
 
-/**
- * @param {JsExecuteContext} cx
- * @return {!Promise<*>}
- */
-export var main = function(cx) {
-  cx.ready();
-  /** @type {string} */
-  var pwd = cx.getEnv('$PWD',
-      cx.fileSystemManager.defaultFileSystem.rootPath.spec);
-  return cx.closeOk(pwd);
-};
+var onReady = function(e) {}
 
-export default main;
+if (window.opener && window.opener.onEditorWindowOpened) {
+  window.opener.onEditorWindowOpened();
+}
 
-main.signature = {};
+function setContents(contents) {
+  var session = window.aceEditor.getSession();
+  session.setValue(contents, -1);
+}
