@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var onSave = function(contents) {}
-
 window.onload = function() {
   var editor = window.aceEditor = ace.edit('editor');
 
