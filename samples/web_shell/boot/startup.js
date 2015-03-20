@@ -20,7 +20,7 @@
    // modules.
     __axiomExport__(window);
     window.shell.launch.main();
-  }
+  };
 
   if (document.readyState === 'complete') {
     startup();
