@@ -181,11 +181,6 @@ TerminalView.prototype.println = function(str) {
   this.hterm_.io.println(str);
 };
 
-TerminalView.prototype.getDocument = function(str) {
-  return this.hterm_.document_;
-}
-
-
 /**
  * Handle for inbound messages from the default command.
  */
