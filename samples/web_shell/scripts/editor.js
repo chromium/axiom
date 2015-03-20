@@ -35,7 +35,11 @@ document.currentScript.ready(function(cx) {
 
     /** @type {Editor} */
     var editor = new Editor(cx);
-    editor.edit(axiom.fs.path.Path.abs(pwd, pathSpec))
+    editor.edit(axiom.fs.path.Path.abs(pwd, pathSpec)).then(function() {
+      cx.closeOk();
+    }).catch(function(e) {
+      cx.closeError(e);
+    });
   };
 
   editMain.signature = {
@@ -105,14 +109,11 @@ Editor.prototype.edit = function(path) {
 
       this.editorWindow_.addEventListener('ready',  function() {
         this.editorWindow_.setContents(this.contents_);
-        this.cx_.closeOk();
       }.bind(this));
     }.bind(this);
 
     // TODO(ericarnold): multiple editors?
     this.editorWindow_ = window.open('scripts/resources/editor', 'editor');
-  }.bind(this)).catch(function(e) {
-    this.cx_.closeError(e);
   }.bind(this));
 }
 
