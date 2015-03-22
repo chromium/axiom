@@ -11,6 +11,8 @@ require('source-map-support').install();
 
 var AxiomError = require('axiom/core/error').default;
 var Path = require('axiom/fs/path').default;
+var FileSystemManager = require('axiom/fs/base/file_system_manager').default;
+var StdioSource = require('axiom/fs/stdio_source').default;
 var JsFileSystem = require('axiom/fs/js/file_system').default;
 var NodeFileSystem = require('axiom/fs/node/file_system').default;
 var TTYState = require('axiom/fs/tty_state').default;
@@ -29,16 +31,22 @@ function onResize(cx) {
   cx.setTTY(tty);
 }
 
-function startWash(jsfs) {
-  return jsfs.createExecuteContext(new Path('/exe/wash'), {}).then(
+function startWash(fsm) {
+  // TODO(rpaquay)
+  var stdioSource = new StdioSource();
+  var stdio = stdioSource.stdio;
+  return fsm.createExecuteContext(new Path('jsfs:exe/wash'), stdio, {}).then(
     function(cx) {
-      cx.onStdOut.addListener(function(value) {
+      stdioSource.stdout.onData.addListener(function(value) {
         process.stdout.write(value);
       });
 
-      cx.onStdErr.addListener(function(value) {
+      stdioSource.stderr.onData.addListener(function(value) {
         process.stderr.write(value);
       });
+
+      stdioSource.stdout.resume();
+      stdioSource.stderr.resume();
 
       cx.onClose.addListener(function(reason, value) {
         console.log('wash closed: ' + reason + ', ' + value);
@@ -48,13 +56,13 @@ function startWash(jsfs) {
         if (buffer == '\x03')
           cx.closeError(new AxiomError.Interrupt());
 
-        cx.stdin(buffer.toString());
+        stdioSource.stdin.write(buffer.toString());
       });
 
       onResize(cx);
       process.stdout.on('resize', onResize.bind(null, cx));
 
-      cx.setEnv('@PATH', ['/exe']);
+      cx.setEnv('@PATH', ['jsfs:exe']);
 
       return cx.execute();
     });
@@ -62,16 +70,17 @@ function startWash(jsfs) {
 
 function main() {
   var jsfs = new JsFileSystem();
+  var fsm = jsfs.fileSystemManager;
   return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
     jsdir.install(washExecutables);
-    mountNodefs(jsfs);
-    return startWash(jsfs);
+    mountNodefs(fsm);
+    return startWash(fsm);
   });
 }
 
-function mountNodefs(jsfs) {
+function mountNodefs(fsm) {
   var fs = require('fs');
-  NodeFileSystem.mount(fs, 'nodefs', jsfs.rootDirectory);
+  NodeFileSystem.mount(fsm, 'nodefs', fs);
 }
 
 module.exports = { main: main };

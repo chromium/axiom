@@ -17,7 +17,7 @@
 module.exports = function(grunt) {
   grunt.registerMultiTask('make_html_index', function() {
 
-    mainsrc = '<!DOCTYPE html>\n';
+    var mainsrc = '<!DOCTYPE html>\n';
     mainsrc += '<html>\n';
     mainsrc += '<head>\n';
     mainsrc += '<title>' + this.data.title + '</title>\n';
@@ -25,7 +25,18 @@ module.exports = function(grunt) {
     if (this.data.cssrefs) {
       var cssrefs = grunt.file.expand(this.data, this.data.cssrefs);
       cssrefs.forEach(function(cssref) {
-        mainsrc += '  <link rel="stylesheet" type="text/css" href="' + cssref + '">\n';
+        mainsrc += '  <link rel="stylesheet" type="text/css" href="' + cssref +
+            '">\n';
+      }.bind(this));
+    }
+
+    if (this.data.inlines) {
+      this.data.inlines.forEach(function(inline) {
+        if (/\.js$/.test(inline)) {
+          mainsrc += '<script>' + grunt.file.read(inline) + '</script>\n';
+        } else if (/\.css$/.test(inline)) {
+          mainsrc += '<style>' + grunt.file.read(inline) + '</style>\n';
+        }
       }.bind(this));
     }
 

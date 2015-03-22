@@ -14,50 +14,82 @@
 
 import JsFileSystem from 'axiom/fs/js/file_system';
 import DomFileSystem from 'axiom/fs/dom/file_system';
+import GDriveFileSystem from 'axiom/fs/gdrive/file_system';
+import FileSystemManager from 'axiom/fs/base/file_system_manager';
 import ExecuteContext from 'axiom/fs/base/execute_context';
+import StdioSource from 'axiom/fs/stdio_source';
 import Path from 'axiom/fs/path';
 
+import scriptMain from 'shell/exe/script';
 import TerminalView from 'shell/terminal';
 import washExecutables from 'wash/exe_modules';
 
-console.log('Lauching app!');
+var welcomeMessage = [
+  'Welcome to the Axiom web_shell sample.',
+  '',
+  'This is a cross-browser interactive shell written in JavaScript which ',
+  'can be extended with new commands at runtime.',
+  '',
+  'To get started, try:',
+  ' * \x1b[1mmount\x1b[m to see a list of mounted filesystems.',
+  ' * \x1b[1mls\x1b[m to see the contents of the current directory.',
+  ' * \x1b[1mls jsfs:/exe\x1b[m to list the executables.',
+  ' * \x1b[1mcd <path>\x1b[m to change your working directory.',
+  ' * \x1b[1menv-get\x1b[m, \x1b[1menv-set\x1b[m, and \x1b[1menv-del\x1b[m ' +
+      'to view and modify environment variables.',
+  ' * \x1b[1mscript <url>\x1b[m to load third party scripts (but be careful).',
+  '',
+  'For more information, please visit: \x1b[1mhttp://goo.gl/DmDqct\x1b[m',
+  ''
+].join('\r\n');
 
-var fs = new JsFileSystem();
+export var main = function() {
+  var fsm = new FileSystemManager();
+  var jsfs = new JsFileSystem(fsm, 'jsfs');
+  fsm.mount(jsfs);
 
-// Add executables to new filesystem
-fs.rootDirectory.mkdir('exe')
-  .then(function( /** JsDirectory */ jsdir) {
-    jsdir.install(washExecutables);
-  })
-  .then(function() {
-    return fs.rootDirectory.mkdir('mnt')
-      .then(function(jsDir) {
-        return DomFileSystem.mount('permanent', 'html5', jsDir);
-      })
-      .then(function() {
-        return DomFileSystem.mount('temporary', 'tmp', fs.rootDirectory);
-      })
-      .catch(function(e) {
-        console.log("Error mounting DomFileSystem", e);
+  // Add executables to new filesystem
+  jsfs.rootDirectory.mkdir('exe')
+    .then(function( /** JsDirectory */ jsdir) {
+      jsdir.install({
+        'script': scriptMain
       });
-  })
-  .then(function() {
-    return launchHterm();
-  }).catch(function(e) {
-    console.log('Error lauching app:', e);
-  });
+      jsdir.install(washExecutables);
+    })
+    .then(function() {
+      return DomFileSystem.mount(fsm, 'html5', 'permanent')
+        .then(function() {
+          return DomFileSystem.mount(fsm, 'tmp', 'temporary');
+        })
+        .catch(function(e) {
+          console.log("Error mounting DomFileSystem", e);
+        });
+    })
+    .then(function() {
+      return launchHterm(fsm);
+    }).catch(function(e) {
+      console.log('Error lauching app:', e);
+    });
+};
 
-var launchHterm = function() {
-  return fs.createExecuteContext(
-    new Path('exe/wash'), {})
+export default main;
+
+var launchHterm = function(fsm) {
+  var stdioSource = new StdioSource();
+  return fsm.createExecuteContext(
+    new Path('jsfs:exe/wash'), stdioSource.stdio, {})
     .then(function (/** ExecutionContext */cx) {
       var tv = new TerminalView();
-      var env = cx.arg['env'] || {
-        '@PATH': ['/exe'],
-        '$TERM': 'xterm-256color'
-      };
-      cx.setEnvs(env);
-      tv.execute(cx);
+
+      tv.println(welcomeMessage);
+
+      cx.setEnvs({
+        '@PATH': ['jsfs:/exe'],
+        '$TERM': 'xterm-256color',
+        '$HOME': 'html5:/',
+        '$HISTFILE': 'html5:/.wash_history'
+      });
+      tv.execute(stdioSource, cx);
       return Promise.resolve(null);
   });
-}
+};
