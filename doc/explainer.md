@@ -12,7 +12,7 @@ If you've got more specialized needs, you might cook up your own way of talking 
 
 The situation without Axiom can be crudely summarized with this diagram:
 
-[Diagram of File System access without Axiom](fs-without-axiom.png)
+![Diagram of File System access without Axiom](fs-without-axiom.png)
 
 The cross-browser portion of your app lives in the browser, and you come up with a scheme to get a the relevant file system data.  Each back end is a little different though, so you'll probably choose something that seems right at the time.  If your needs change, you'll have to do some refactoring later.
 
@@ -20,7 +20,7 @@ If you end up writing your own server or custom browser embedding, you'll need a
 
 Axiom adds a normalization layer to this story...
 
-[Diagram of File System access with Axiom](fs-with-axiom.png)
+![Diagram of File System access with Axiom](fs-with-axiom.png)
 
 Here, your client application always conducts file system access via to the Axiom API.  File System drivers, provided by third parties, or by yourself, handle the access to and from the underlying store.  If you have special needs you can implement your own messaging transport, and leverage the Axiom API and streaming file systems for the rest.
 
