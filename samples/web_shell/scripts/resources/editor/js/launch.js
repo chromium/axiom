@@ -15,9 +15,9 @@
 window.onload = function() {
   window.aceEditor = ace.edit('editor');
   window.onReady();
-}
+};
 
-var onReady = function(e) {}
+var onReady = function(e) {};
 
 if (window.opener && window.opener.onEditorWindowOpened) {
   window.opener.onEditorWindowOpened();
