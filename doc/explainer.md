@@ -22,7 +22,7 @@ Axiom adds a normalization layer to this story...
 
 ![Diagram of File System access with Axiom](fs-with-axiom.png)
 
-Here, your client application always conducts file system access via to the Axiom API.  File System drivers, provided by third parties, or by yourself, handle the access to and from the underlying store.  If you have special needs you can implement your own messaging transport, and leverage the Axiom API and streaming file systems for the rest.
+Here, your client application always conducts file system access via to the Axiom API.  File System drivers, provided by third parties (or your own) handle the access to and from the underlying storage.  If you have special needs you can implement your own messaging transport and leverage the Axiom API and streaming file systems for the rest.
 
 ## Processes and Streams
 
@@ -30,3 +30,6 @@ The Axiom file system API also covers processes and streams.
 
 Process support means that clients can invoke any path that is marked as executable.  When this happens, a callback registered when the file was created will be invoked.  The callback will receive arguments provided by the caller, along with stdin, stdout, and stderr streams and an event stream for out-of-band signaling.  The callback can execute asynchronously, and exit with an 'ok' or 'error' disposition and a result value.
 
+This provides great freedom in decoupling caller and callee.  The conventions around passing arguments and communicating are well defined and flexible enough to cover a large number of situations.  It's also inherently "remotable", meaning that you can write a general proxy which forwards calls to another origin, or across the network.
+
+We've used this to create a "pnacl" command which can load and arbitrary [pnacl](https://www.chromium.org/nativeclient/pnacl) port from the network (such as vim or python) and run it from with our [web_shell](../samples/web_shell) sample application.  The same approach could work for asm.js, or "virtual" executables hosted by a cloud service.
