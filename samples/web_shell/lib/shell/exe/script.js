@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import AxiomError from 'axiom/core/error';
+import Washrc from 'wash/washrc';
 
 /** @typedef ExecuteContext$$module$axiom$bindings$fs$execute_context */
 var ExecuteContext;
@@ -50,6 +51,12 @@ var main = function(cx) {
     if (!state) {
       callback(cx);
       state = 1;
+      if (cx.getArg('save')) {
+        var washrc = new Washrc(cx);
+        var args = {};
+        args['_'] = list;
+        return washrc.append({'script': args});
+      }
       return cx.closeOk();
     }
 
@@ -83,5 +90,6 @@ export default main;
  */
 main.signature = {
   'help|h': '?',
+  'save|s': '?',
   '_': '@'
 };
