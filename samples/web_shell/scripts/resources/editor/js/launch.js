@@ -13,11 +13,28 @@
 // limitations under the License.
 
 window.onload = function() {
-  window.aceEditor = ace.edit('editor');
-  window.onReady();
-}
+  var editor = window.aceEditor = ace.edit('editor');
 
-var onReady = function(e) {}
+  var event = new Event('ready');
+  event.initEvent('ready', false, false);
+  this.dispatchEvent(event);
+
+  editor.focus();
+  editor.commands.addCommand({
+    name: 'saveFile',
+    bindKey: {
+      win: 'Ctrl-S',
+      mac: 'Command-S',
+      sender: 'editor|cli'
+    },
+    exec: (function(editor, args, request) {
+      var event = new Event('save');
+      event.initEvent('save', false, false);
+      event.target = this;
+      this.dispatchEvent(event);
+    }).bind(this)
+  });
+}
 
 if (window.opener && window.opener.onEditorWindowOpened) {
   window.opener.onEditorWindowOpened();
@@ -26,4 +43,9 @@ if (window.opener && window.opener.onEditorWindowOpened) {
 function setContents(contents) {
   var session = window.aceEditor.getSession();
   session.setValue(contents, -1);
+}
+
+function getContents() {
+  var session = window.aceEditor.getSession();
+  return session.getValue();
 }
