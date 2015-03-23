@@ -36,7 +36,8 @@ var main = function(cx) {
 
   if (list.length != 1 || cx.getArg('help')) {
     cx.stdout.write(IMPORT_CMD_USAGE_STRING + '\n');
-    return Promise.resolve(null);
+    cx.closeOk();
+    return;
   }
 
   var url = list[0];
@@ -55,18 +56,25 @@ var main = function(cx) {
         var washrc = new Washrc(cx);
         var args = {};
         args['_'] = list;
-        return washrc.append({'script': args});
+        console.log('comes here');
+        washrc.append({'script': args}).then(function() {
+          cx.closeOk();
+        });
+      } else {
+        cx.closeOk();
       }
-      return cx.closeOk();
+      return;
     }
 
-    if (state == 1) {
-      return cx.closeError(new AxiomError.Runtime(
+    if (state === 1) {
+      cx.closeError(new AxiomError.Runtime(
           'Duplicate call to script callback.'));
+      return;
     }
 
-      return cx.closeError(new AxiomError.Runtime(
+      cx.closeError(new AxiomError.Runtime(
           'Import script callback called after a timeout.'));
+      return;
   };
 
   document.head.appendChild(s);
@@ -78,8 +86,7 @@ var main = function(cx) {
       cx.closeError(new AxiomError.Runtime('Import script request timed out.'));
     }
   }, 5000);
-
-  return cx.ephemeralPromise;
+  return;
 };
 
 export {main};

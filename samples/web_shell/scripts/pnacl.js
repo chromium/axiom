@@ -200,7 +200,8 @@ document.currentScript.ready(function(cx) {
     cmd[pnacl.commandName] = pnaclMain;
     jsDir.install(cmd);
 
-    return cx.closeOk();
+    cx.closeOk();
+    return;
   };
 
   PnaclCommand.prototype.run = function(cx) {
