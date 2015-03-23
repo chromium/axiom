@@ -22,7 +22,7 @@ document.currentScript.ready(function(cx) {
     var list = cx.getArg('_', []);
       if (list.length < 2 || cx.getArg('help')) {
         cx.stdout.write(PNACL_CMD_USAGE_STRING + '\n');
-        return cx.closeOk();
+        return;
       }
 
       var name = list[0];
@@ -36,7 +36,7 @@ document.currentScript.ready(function(cx) {
       var pwd = cx.getEnv('$PWD', '/');
 
       var pnaclCommand = new PnaclCommand(name, url, tarFileName);
-      return pnaclCommand.run(cx);
+      pnaclCommand.run(cx);
     };
 
     pnaclMain.signature = {
