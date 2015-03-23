@@ -91,19 +91,20 @@ Editor.prototype.edit = function(path) {
     return contents;
   }).catch(function(e) {
     if (axiom.core.error.AxiomError.NotFound.test(e)) {
-      return this.fsm_.writeFile(this.path, axiom.fs.data_type.DataType.UTF8String, '')
-          .then(function() {
+      return this.fsm_.writeFile(this.path,
+          axiom.fs.data_type.DataType.UTF8String, '').then(function() {
             return '';
           }.bind(this));
     }
     return Promise.reject(e);
   }.bind(this)).then(function (contents) {
-    // TODO(ericarnold): This should all be handled in a setContents() (check if
-    // editor has been instantiated, etc)
+    // TODO(ericarnold): This should all be handled in a setContents() (check
+    // if editor has been instantiated, etc)
     this.contents_ = contents.data;
 
     window.onEditorWindowOpened = function() {
       this.editorWindow_.addEventListener('save',  function(evt) {
+        // TODO(ericarnold): This may cause console errors about leaked Promise
         this.saveFile_(evt.target.getContents());
       }.bind(this));
 
@@ -112,8 +113,7 @@ Editor.prototype.edit = function(path) {
       }.bind(this));
     }.bind(this);
 
-    // TODO(ericarnold): multiple editors?
-    this.editorWindow_ = window.open('scripts/resources/editor', 'editor');
+    this.editorWindow_ = window.open('scripts/resources/editor');
   }.bind(this));
 }
 
