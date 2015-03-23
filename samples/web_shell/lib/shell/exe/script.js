@@ -56,7 +56,6 @@ var main = function(cx) {
         var washrc = new Washrc(cx);
         var args = {};
         args['_'] = list;
-        console.log('comes here');
         washrc.append({'script': args}).then(function() {
           cx.closeOk();
         });
@@ -86,7 +85,6 @@ var main = function(cx) {
       cx.closeError(new AxiomError.Runtime('Import script request timed out.'));
     }
   }, 5000);
-  return;
 };
 
 export {main};
