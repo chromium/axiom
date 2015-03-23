@@ -62,6 +62,10 @@ function startWash(fsm) {
       onResize(cx);
       process.stdout.on('resize', onResize.bind(null, cx));
 
+      var home = 'nodefs:' + process.env.HOME;
+      cx.setEnv('$HOME', home);
+      cx.setEnv('$HISTFILE', home + '/.wash_history');
+      cx.setEnv('$PWD', 'nodefs:' + process.env.PWD);
       cx.setEnv('@PATH', ['jsfs:exe']);
 
       return cx.execute();
