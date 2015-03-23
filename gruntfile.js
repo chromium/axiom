@@ -184,6 +184,10 @@ module.exports = function(grunt) {
           cwd: 'samples/web_shell/css/',
           src: ['**/*.css'],
           dest: 'tmp/samples/web_shell/css'
+        },
+        {
+          src: 'third_party/idb.filesystem.js/idb.filesystem.min.js',
+          dest: 'tmp/samples/web_shell/polyfill'
         }]
       },
       samples_use_globals_files: {
