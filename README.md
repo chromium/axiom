@@ -12,6 +12,8 @@ If you're not already familiar with Axiom, please read our [explainer document](
 
 ## Live demo
 
+[![Screenshot](samples/web_shell/images/screenshot-20150324.png)](https://github.com/chromium/axiom/tree/master/samples/web_shell/README.md)
+
 For a live demo of Axiom in action, check out the [web_shell sample app](https://chromium.github.io/axiom/web_shell/) on our github.io page.  Read more about it in [web_shell/README.md](https://github.com/chromium/axiom/tree/master/samples/web_shell/README.md).
 
 ## Building Axiom
