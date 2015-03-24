@@ -113,7 +113,7 @@ tmp:/     "html5 file system (temporary)"
 jsfs:/> _
 ```
 
-By default you should have three available file sytems.  The jsfs: file system resides in-memory.  It contains links to the built-in executables, and any new executables you install.  You can create new directories and files here but your changes will be lost when you reload the shell.  The html5:/ file system is persistent.  It's based on the DOM FileSystem or Indexed DB API, depending on which browser you're using.  The tmp:/ file system may or may not be persisted across page reloads, it's intended to be used for temporary files.
+By default you should have three available file systems.  The jsfs: file system resides in-memory.  It contains links to the built-in executables, and any new executables you install.  You can create new directories and files here but your changes will be lost when you reload the shell.  The html5:/ file system is persistent.  It's based on the DOM FileSystem or Indexed DB API, depending on which browser you're using.  The tmp:/ file system may or may not be persisted across page reloads, it's intended to be used for temporary files.
 
 The executables are stored in `jsfs:/exe`.  You can use the `ls` command to see its contents:
 
@@ -145,7 +145,7 @@ Here you can see 16 commands that come pre-installed.  Along with each command i
 * `"?"` A Boolean value.  The argument is present or not, or can be prefixed with "--no-" to turn it off.  As in `echo --help` or `echo --no-help "foo"`.
 * `"@"` An Array value, as in `readline --input-history [1,2,3]`.
 * `"%"` A Map, as in `echo {foo: 1}`.
-* '"*"` Any type of value.  Wash will use the most appropriate parser based on the leading character.
+* `"*"` Any type of value.  Wash will use the most appropriate parser based on the leading character.
 
 Many of these commands are probably familiar to you from other environments.  Each command supports a "-h" argument which will cause it to print some help text and exit.
 
