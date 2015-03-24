@@ -328,7 +328,7 @@ document.currentScript.ready(function(cx) {
 
     this.executeContext.stdin.onData.addListener(this.onStdIn_.bind(this));
     this.executeContext.stdin.resume();
-    this.executeContext.onTTYChange.addListener(this.onTTYChange_.bind(this));
+    this.executeContext.signal.onData.addListener(this.onSignal_.bind(this));
     this.executeContext.onClose.addListener(this.onExecuteClose_.bind(this));
 
     this.executeContext.stdout.write('Loading.');
@@ -357,27 +357,27 @@ document.currentScript.ready(function(cx) {
   };
 
   SpawnNacl.prototype.onPluginLoad_ = function () {
-    this.executeContext.stdou.writet('\r\x1b[K');
+    this.executeContext.stdout.write('\r\x1b[K');
     this.executeContext.requestTTY({ interrupt: '' });
   };
 
   SpawnNacl.prototype.onPluginLoadError_ = function (e) {
     this.executeContext.stdout.write(' ERROR.\n');
     this.executeContext.closeError(
-          new axiom.core.error.AxiomError.Runtime('Plugin load error.'));
+        new axiom.core.error.AxiomError.Runtime('Plugin load error.'));
   };
 
   SpawnNacl.prototype.onPluginLoadAbort_ = function () {
     this.executeContext.stdout.write(' ABORT.\n');
     this.executeContext.closeError(
-          new axiom.core.error.AxiomError.Runtime('Plugin load abort.'));
+        new axiom.core.error.AxiomError.Runtime('Plugin load abort.'));
   };
 
   SpawnNacl.prototype.onPluginCrash_ = function () {
     if (this.executeContext.isOpen) {
       this.executeContext.closeError(
-            new axiom.core.error.AxiomError.Runtime('Plugin crash: exit code: ' +
-                this.plugin_.exitStatus));
+          new axiom.core.error.AxiomError.Runtime('Plugin crash: exit code: ' +
+              this.plugin_.exitStatus));
     }
   };
 
@@ -401,9 +401,11 @@ document.currentScript.ready(function(cx) {
     this.plugin_.postMessage(msg);
   };
 
-  SpawnNacl.prototype.onTTYChange_ = function () {
-    var tty = this.executeContext.getTTY();
-    this.plugin_.postMessage({ 'tty_resize': [tty.columns, tty.rows] });
+  SpawnNacl.prototype.onSignal_ = function (signal) {
+    if (signal.name == 'tty-change') {
+      var tty = this.executeContext.getTTY();
+      this.plugin_.postMessage({ 'tty_resize': [tty.columns, tty.rows] });
+    }
   };
 
   SpawnNacl.prototype.onExecuteClose_ = function (reason, value) {

@@ -23,12 +23,12 @@ if ('setRawMode' in process.stdin) {
   process.stdin.setRawMode(true);
 }
 
-function onResize(cx) {
+function onResize(stdioSource) {
   var tty = new TTYState();
   tty.isatty = process.stdout.isTTY;
   tty.rows = process.stdout.rows;
   tty.columns = process.stdout.columns;
-  cx.setTTY(tty);
+  stdioSource.signal.write({name: 'tty-change', value: tty});
 }
 
 function startWash(fsm) {
@@ -45,8 +45,13 @@ function startWash(fsm) {
         process.stderr.write(value);
       });
 
-      stdioSource.stdout.resume();
-      stdioSource.stderr.resume();
+      cx.onReady.addListener(function() {
+        // Resume all streams (except stdin as we want to buffer input until a
+        // consumer is ready to process it).
+        stdioSource.stdout.resume();
+        stdioSource.stderr.resume();
+        stdioSource.stdio.signal.resume();
+      }.bind(this));
 
       cx.onClose.addListener(function(reason, value) {
         console.log('wash closed: ' + reason + ', ' + value);
@@ -59,8 +64,8 @@ function startWash(fsm) {
         stdioSource.stdin.write(buffer.toString());
       });
 
-      onResize(cx);
-      process.stdout.on('resize', onResize.bind(null, cx));
+      onResize(stdioSource);
+      process.stdout.on('resize', onResize.bind(null, stdioSource));
 
       var home = 'nodefs:' + process.env.HOME;
       cx.setEnv('$HOME', home);
