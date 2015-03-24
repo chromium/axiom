@@ -4,19 +4,21 @@ Axiom is a cross browser library that provides primitives for File Systems, Stre
 
 Axiom is not a "framework" or a "toolkit".  You do not have to redesign your application to use Axiom.  Axiom doesn't mind if you're already using other JavaScript libraries.  Axiom's main goal in life is to a buffer between your application and stuff that fits into its file system view of the world.
 
-## File Systems on the web
+## File Systems
 
-If you want to work with files on the web you've got a number of options.  You can roll your your own Indexed DB based file system or use Chrome's DOM File System to store thing on the client side.  Need cloud based storage?  You can depend on one or more web APIs for Google Drive, OneDrive, DropBox, Box.net, or others.
+As a JavaScript developer you have a few options when it comes to file systems.
 
-If you've got more specialized needs, something like [Atom](https://atom.io/) or [Cloud9](https://c9.io/), you might cook up your own way of talking to a node.js server or write a native app that embeds a browser in order to talk directly to the local machine.
+On the client side, you might roll your your own Indexed DB based file system.  If you can afford to choose one browser, you might use Chrome's DOM File System API.  Or maybe you have really simple needs and can lean on window.localStorage.
+
+If you need cloud based storage, you'll probably depend on one or more web APIs from Google, Microsoft, DropBox, Box.net, or others.
+
+If you've got more specialized needs, maybe you're trying to build a local [editor](https://atom.io/) or [cloud IDE](https://c9.io/), you might write a native app that embeds a browser or cook up your own remote file system protocol.
 
 The situation can be crudely summarized with this diagram:
 
 ![Diagram of File System access without Axiom](fs-without-axiom.png)
 
-The cross-browser portion of your app lives in the blue, the web browser or something like it.  For file access, you come up with a scheme to get a the relevant file system data.  Each back end is a little different though, so you'll probably choose the one thing that seems right at the time.  If your needs change, you'll have to do some refactoring later.
-
-If you end up writing your own server or custom browser embedding, you'll need a file system API to go along with it.
+Every file system come with its own API.  Most are drastically different from each other.  In the custom solution case, you're completely on your own.
 
 Axiom adds a normalization layer to this story.
 
