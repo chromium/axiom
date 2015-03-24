@@ -18,7 +18,7 @@ The situation can be crudely summarized with this diagram:
 
 ![Diagram of File System access without Axiom](fs-without-axiom.png)
 
-Every file system come with its own API.  Most are drastically different from each other.  In the custom solution case, you're completely on your own.
+Every file system comes with its own API.  Most are drastically different from each other.  In the custom solution case, you're completely on your own.
 
 Axiom adds a normalization layer to this story.
 
@@ -38,4 +38,4 @@ Process support means that clients can invoke any path that is marked as executa
 
 This provides great freedom in decoupling caller and callee.  The conventions around passing arguments and communicating are well defined and flexible enough to cover a large number of situations.  It's also inherently "remotable", meaning that you can write a general proxy which forwards calls to another origin, or across the network.
 
-We've used this to create a "pnacl" command which can load and arbitrary [pnacl](https://www.chromium.org/nativeclient/pnacl) port from the network (such as vim or python) and run it from with our [web_shell](../samples/web_shell) sample application.  The same approach could work for asm.js, or "virtual" executables hosted by a cloud service.
+As an example, we've already used this to create a "pnacl" command which can load and arbitrary [pnacl](https://www.chromium.org/nativeclient/pnacl) port from the network (such as vim or python) and run it from with our [web_shell](../samples/web_shell) sample application.  The same approach could work for asm.js, or "virtual" executables hosted by a cloud service.
