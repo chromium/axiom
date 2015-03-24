@@ -8,6 +8,8 @@ The axiom name is taken by a [Yoeman-like workflow tool](https://www.npmjs.com/p
 
 Axiom is a cross browser library that provides primitives for File Systems, Streams, and Processes.
 
+[![Block Diagram](doc/fs-with-axiom.png)](doc/explainer.md)
+
 If you're not already familiar with Axiom, please read our [explainer document](doc/explainer.md) for a brief introduction to the project.
 
 ## Live demo
