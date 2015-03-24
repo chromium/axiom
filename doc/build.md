@@ -10,7 +10,8 @@ The home directory installation goes like this:
 
 Visit [http://nodejs.org/download/](http://nodejs.org/download/) and download the latest version of the node.js source.  Untar the source, configure and build...
 
-```sh
+```
+# install node.js and npm, if you haven't already.
 $ cd ~/path/to/nodejs/source/
 $ ./configure --path=~/opt/
 $ make install
@@ -20,11 +21,23 @@ Make sure to modify your PATH to include `~/opt/bin`.  You can check that node a
 
 ## grunt
 
-After setting up node.js and cloning the Axiom repository, you'll want to make sure you have grunt-cli installed...
+Next, make sure you have grunt-cli installed...
 
 ```
 # install the grunt cli interface globally, if you haven't already.
 $ npm install -g grunt-cli
+```
+
+## git clone
+
+Now clone the Axiom repository.
+
+```
+$ cd ~/src
+# clone using ssh
+$ git clone git@github.com:chromium/axiom.git
+# or https
+$ git clone https://github.com/chromium/axiom.git
 ```
 
 ## Axiom npm dependencies
@@ -32,7 +45,7 @@ $ npm install -g grunt-cli
 Now install Axiom dependencies.  You'll need this step the first time you build Axiom, and any time a new dependency is added.
 
 ```
-$ cd /path/to/axiom/
+$ cd ~/src/axiom/
 $ npm install
 ```
 
