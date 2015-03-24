@@ -113,7 +113,7 @@ Editor.prototype.edit = function(path) {
       }.bind(this));
     }.bind(this);
 
-    this.editorWindow_ = window.open(document.location.href + 'scripts/resources/editor');
+    this.editorWindow_ = window.open('scripts/resources/editor/index.html');
   }.bind(this));
 }
 
