@@ -186,8 +186,8 @@ module.exports = function(grunt) {
           dest: 'tmp/samples/web_shell/css'
         },
         {
-          src: 'third_party/idb.filesystem.js/idb.filesystem.min.js',
-          dest: 'tmp/samples/web_shell/polyfill'
+          src: 'third_party/idb.filesystem.js/idb.filesystem.js',
+          dest: 'tmp/samples/web_shell/polyfill/idb.filesystem.js/idb.filesystem.js'
         }]
       },
       samples_use_globals_files: {
@@ -226,6 +226,7 @@ module.exports = function(grunt) {
         title: 'Console',
         cwd: 'tmp/samples/web_shell/',
         scriptrefs: [
+          'polyfill/idb.filesystem.js/*.js',
           'js/axiom_base.amd.concat.js',
           'js/wash.amd.concat.js',
           'js/*.js',
