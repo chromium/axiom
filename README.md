@@ -38,17 +38,19 @@ The `axiom-base` library contains the file system library and drivers for a few 
 
 (The DOM and Google Drive file system drivers may move out to separate packages at some point.)
 
-The `axiom-wash` library contains the "wash" executable and supporting executables.  If your app doesn't need to provide a command line interface you won't need to include this library.
+The `axiom-wash` library contains a command line interface running on top of axiom-base.  It includes the wash command shell and a few supporting executables (cd, cp, mv, etc.).  If your application doesn't need to provide a command line interface you won't need to include this library.
 
 These libraries are available as raw ES6 modules, individual AMD-compatible files, concatenated AMD-compatible bundle, and individual CommonJS modules.  Choose whichever version suits your particular application.
 
 ## Importing Axiom
 
+NOTE: We've yet to *finalize* the name for "Axiom".  Once that's done, we'll be publishing npm packages for the axiom-base and axiom-wash libraries.  Until then, you need to build them yourself by following the instructions in our [build.md](doc/build.md) document.
+
 If your application is browser based you'll probably want to load the AMD bundle in a &lt;script&gt; tag.
 
-If your app has an AMD loader already, you may use its `require` function to import axiom modules.  Module access will look like `var FileSystem = require('axiom/fs/base/file_system').FileSystem';`.
+If your application has an AMD loader already, you may use its `require` function to import axiom modules.  Module access will look like `var FileSystem = require('axiom/fs/base/file_system').FileSystem';`.
 
-If you don't have your own AMD loader you have two options.  You can replace `require` with `__axiomRequire__` as shown above, or you can export the modules to a global variable.  To create a global variable, call `__axiomExport__(window);` before calling any Axiom code.  This will create a window.axiom object containing the Axiom modules.  You can access modules with code like `var FileSystem = axiom.fs.base.file_system.FileSystem`.
+If you don't have your own AMD loader you have two options.  You can replace `require` with `__axiomRequire__` as shown above, or you can export the modules to a global variable.  To create a global variable, call `__axiomExport__(window);` before calling any Axiom code.  This will create a `window.axiom` object containing the Axiom modules.  You can access modules with code like `var FileSystem = axiom.fs.base.file_system.FileSystem`.
 
 If you're using Axiom in a node.js environment, make sure to include the cjs/ directory from the Axiom distribution in your module path, and require modules with code like `var FileSystem = require('axiom/fs/base/file_system').FileSystem;`.
 

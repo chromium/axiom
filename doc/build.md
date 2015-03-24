@@ -4,7 +4,7 @@ First you'll need to settle few prerequisites.
 
 ## node.js and npm
 
-Axiom uses a grunt based build, so you'll need [node.js](https://nodejs.org/) to get started.   I recommend the single-user home-directory based node install, but you're free to install it your own way.
+Axiom uses a grunt based build, so you'll need [node.js](https://nodejs.org/) to get started.   Installing node in your home directory is a good way to avoid the need for sudo, but you're free to install it however you like.
 
 The home directory installation goes like this:
 
