@@ -30,7 +30,7 @@ For more detailed information see our [build.md](doc/build.md) document.
 
 ## The Axiom distribution
 
-The Axiom distribution includes two libraries, `axiom_base` and `axiom_wash`.
+The Axiom distribution includes two libraries, `axiom-base` and `axiom-wash`.
 
 The `axiom-base` library contains the file system library and drivers for a few stock file systems, including:
 
