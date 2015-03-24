@@ -21,8 +21,6 @@ var ExecuteContext;
 /** @typedef JsExecutable$$module$axiom$fs$js_executable */
 var JsExecutable;
 
-var IMPORT_CMD_USAGE_STRING = 'usage: script <url>';
-
 /**
  * An executable to import cross origin script into the shell.
  *
@@ -35,7 +33,18 @@ var main = function(cx) {
   var list = cx.getArg('_', []);
 
   if (list.length != 1 || cx.getArg('help')) {
-    cx.stdout.write(IMPORT_CMD_USAGE_STRING + '\n');
+    cx.stdout.write([
+      'usage: script <url>',
+      'Load a new script from the network.',
+      '',
+      'This will load an arbitrary script from the network and run it as',
+      'part of the web shell.  There are no security guarantees.  Please',
+      'be careful with this command, especially if you have the gdrive',
+      'file system mounted.',
+      '',
+      'Please see http://goo.gl/DmDqct#script for more information about this',
+      'command.'
+    ].join('\r\n') + '\r\n');
     cx.closeOk();
     return;
   }
