@@ -14,9 +14,15 @@ If you're not already familiar with Axiom, please read our [explainer document](
 
 ## Live demo
 
-[![Screenshot](samples/web_shell/images/screenshot-20150324.png)](https://github.com/chromium/axiom/tree/master/samples/web_shell/README.md)
+[![Screenshot of live demo](samples/web_shell/images/screenshot-20150324.png)](https://github.com/chromium/axiom/tree/master/samples/web_shell/README.md)
 
 For a live demo of Axiom in action, check out the [web_shell sample app](https://chromium.github.io/axiom/web_shell/) on our github.io page.  Read more about it in [web_shell/README.md](https://github.com/chromium/axiom/tree/master/samples/web_shell/README.md).
+
+## Axiom on node.js
+
+[![Screenshot of native shell](doc/native-shell.png)](bin/wash.js)
+
+Axiom can also be used from node.js.  The same code behind our online demo can be used to start a shell in a native terminal.  You'll need an xterm compatible terminal emulator for this, even on Windows.  See [issue #97](https://github.com/chromium/axiom/issues/97) for the details.
 
 ## Building Axiom
 
@@ -39,8 +45,9 @@ The `axiom-base` library contains the file system library and drivers for a few 
 * An in-memory file system called "jsfs".
 * A [DOM File System](http://dev.w3.org/2009/dap/file-system/pub/FileSystem/) based driver called "domfs".  (Supported cross browser using [a polyfill](https://github.com/ebidel/idb.filesystem.js).
 * A [Google Drive](https://developers.google.com/drive/v2/reference/) file system.
+* A node.js based file system which lets your access your local file system through the Axiom API in a node.js environment.
 
-(The DOM and Google Drive file system drivers may move out to separate packages at some point.)
+(The DOM, Google Drive, and node.js file system drivers may move out to separate packages at some point.)
 
 The `axiom-wash` library contains a command line interface running on top of axiom-base.  It includes the wash command shell and a few supporting executables (cd, cp, mv, etc.).  If your application doesn't need to provide a command line interface you won't need to include this library.
 

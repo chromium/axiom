@@ -1,6 +1,6 @@
 # About the Axiom web_shell sample
 
-The Axiom web_shell is an extensible command-line shell environment that runs in a browser as a normal web page.  It works in Chrome and Firefox and is live on our github.io page, here: [https://chromium.github.io/axiom/web_shell/](https://chromium.github.io/axiom/web_shell/).
+The Axiom web_shell is an extensible command-line shell environment that runs in a browser as a normal web page.  It works in Chrome and Firefox and is live on our github.io page here: [https://chromium.github.io/axiom/web_shell/](https://chromium.github.io/axiom/web_shell/).
 
 ![Screenshot](images/screenshot-20150324.png)
 
@@ -15,7 +15,7 @@ jsfs:/> _
 
 This is wash, the "Web Application Shell", telling you it's ready for your command.
 
-Wash is similar to other command shells you may already be used to, such as bash or cmd.exe.  You type a command, and the wash will try to match it to an executable.  If one is found, it's started along with whatever arguments you provide.  If not, you'll get an error message.
+Wash is similar to other command shells you may have used.  You type a command and wash will try to match it to an executable.  If one is found it's started.  If not you'll get an error message.
 
 ### Commands and arguments
 
