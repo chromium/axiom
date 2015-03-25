@@ -45,8 +45,9 @@ The `axiom-base` library contains the file system library and drivers for a few 
 * An in-memory file system called "jsfs".
 * A [DOM File System](http://dev.w3.org/2009/dap/file-system/pub/FileSystem/) based driver called "domfs".  (Supported cross browser using [a polyfill](https://github.com/ebidel/idb.filesystem.js).
 * A [Google Drive](https://developers.google.com/drive/v2/reference/) file system.
+* A node.js based file system which lets your access your local file system through the Axiom API in a node.js environment.
 
-(The DOM and Google Drive file system drivers may move out to separate packages at some point.)
+(The DOM, Google Drive, and node.js file system drivers may move out to separate packages at some point.)
 
 The `axiom-wash` library contains a command line interface running on top of axiom-base.  It includes the wash command shell and a few supporting executables (cd, cp, mv, etc.).  If your application doesn't need to provide a command line interface you won't need to include this library.
 
