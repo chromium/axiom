@@ -106,7 +106,7 @@ var DIR_OPEN_BOUND = String.fromCharCode(DIR_SEPARATOR.charCodeAt(0) + 1);
 // one. This method ensures path is legit!
 function resolveToFullPath_(cwdFullPath, path) {
   var fullPath = path;
-  
+
   var relativePath = path[0] != DIR_SEPARATOR;
   if (relativePath) {
     fullPath = cwdFullPath + DIR_SEPARATOR + path;
@@ -120,19 +120,20 @@ function resolveToFullPath_(cwdFullPath, path) {
     if (part === '..') {
       // Go up one level.
       if (!finalParts.length)
-        throw('invalid path');
+        throw Error('Invalid path');
       finalParts.pop();
     } else if (part === '.') {
       // Skip over the current directory.
     } else if (part !== '') {
-      // Eliminate sequences of '/'s as well as the possible leading/trailing '/'. 
+      // Eliminate sequences of '/'s as well as possible leading/trailing '/'s. 
       finalParts.push(part);
     }
   }
 
   fullPath = DIR_SEPARATOR + finalParts.join(DIR_SEPARATOR);
 
-  // fullPath is guaranteed to be normalized by construction at this point: '.', '..', '//' will never appear in it.
+  // fullPath is guaranteed to be normalized by construction at this point:
+  // '.'s, '..'s, '//'s will never appear in it.
 
   return fullPath;
 }
