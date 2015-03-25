@@ -14,9 +14,15 @@ If you're not already familiar with Axiom, please read our [explainer document](
 
 ## Live demo
 
-[![Screenshot](samples/web_shell/images/screenshot-20150324.png)](https://github.com/chromium/axiom/tree/master/samples/web_shell/README.md)
+[![Screenshot of live demo](samples/web_shell/images/screenshot-20150324.png)](https://github.com/chromium/axiom/tree/master/samples/web_shell/README.md)
 
 For a live demo of Axiom in action, check out the [web_shell sample app](https://chromium.github.io/axiom/web_shell/) on our github.io page.  Read more about it in [web_shell/README.md](https://github.com/chromium/axiom/tree/master/samples/web_shell/README.md).
+
+## Axiom on node.js
+
+[![Screenshot of native shell](doc/native-shell.png)](bin/wash.js)
+
+Axiom can also be used from node.js.  The same code behind our online demo can be used to start a shell in a native terminal.  You'll need an xterm compatible terminal emulator for this, even on Windows.  See [issue #97](https://github.com/chromium/axiom/issues/97) for the details.
 
 ## Building Axiom
 
