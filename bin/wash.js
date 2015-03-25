@@ -71,7 +71,7 @@ function startWash(fsm) {
       cx.setEnv('$HOME', home.spec);
       cx.setEnv('$HISTFILE', home.combine('.wash_history').spec);
       if (process.env.PWD) {
-        cx.setEnv('$PWD', new Path('nodefs:').combine(process.env.PWD));
+        cx.setEnv('$PWD', new Path('nodefs:').combine(process.env.PWD).spec);
       }
       cx.setEnv('@PATH', [new Path('jsfs:exe').spec]);
 
