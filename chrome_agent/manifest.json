@@ -5,6 +5,7 @@
   "version": "0.0.1",
 
   "icons": {
+    "32": "assets/icon_32.png",
     "128": "assets/icon_128.png"
   },
 
@@ -26,7 +27,23 @@
     }
   ],
 
+  "browser_action": {
+     "default_icon": "assets/icon_32.png",
+     "default_title": "Axiom"
+  },
+
+  "externally_connectable": {
+    "matches": [
+      "https://localhost:8080/*",
+      "https://localhost:8282/*",
+      "https://127.0.0.1:8080/*",
+      "https://127.0.0.1:8282/*",
+      "https://chromium.github.io/axiom/web_shell/*"
+    ]
+  },
+
   "permissions": [
+    "<all_urls>",
     "debugger",
     "tabs",
     "downloads",
@@ -37,17 +54,5 @@
     "topSites"
   ],
 
-  "externally_connectable": {
-    "matches": [
-      "https://localhost:8080/*",
-      "https://localhost:8282/*"
-    ]
-  },
-
-  "browser_action": {
-    "default_title": "Axiom",
-    "default_icon": "assets/icon_32.png"
-  },
-
-  "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCIipMWcMFWW93IWLZXaL2cZf9TIgrVBvCZ5EoH7DVPdqycGYq9xFmQ1PNVpFQa/sgiBO+tShKIRz/v9jwCZtkPcaq2aRGvGoacORT9CjF+ExZVnrwkTlnI1DQKZmLG/3YybVPQFk9pbBOFmc9U9zfOq0nXLx8A3jgQpS5yi+IxrQIDAQAB"
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgqy2WGh6F/FmkradRYQ3fFcLIagYp6WgOTl03ChEvm+NxcbLUIZGFgWk74L+9rww2TIRGrr8lJJL1+Ey39WFe1Px/yBNsTGCYa7f1Ui7NKUe7p8tqowEnBbif25xB29vXd/6iZUgFyWDqMufrq9NbK4dHZ1BfCSYq7ixKLJtJsIApb76dvX9aPlzNV1blyG/KrONJvLL14FJbhD1djBuTz+BMTfr8kXTIKqmgsmskF6JcnxGKDdM/CL5WkiN+c7ZNwYraXaC0nv30+GnF/XOig6eZS/PUJF8t/kcLPRYOCIvysjXWiGNwsFFTdwmvn6C4EyqqssM2rtYM/WeRoGBVwIDAQAB"
 }

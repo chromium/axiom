@@ -44,12 +44,17 @@ var callApi_ = function(apiName, args) {
   // NOTE: Skip apiParts[0], which is 'chrome'.
   for (var i = 1; i < apiParts.length; ++i) {
     api = api[apiParts[i]];  
+    if (!api)
+      return Promise.reject('No such API');
   }
 
   return new Promise(function(resolve, reject) {
-    api.call(api, args, function(result) {
+    var callback = function(result) {
       resolve(result);
-    });
+    };
+    var argv = args;
+    argv.push(callback);
+    api.apply(api, argv);
   });
 };
 
