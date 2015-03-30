@@ -48,6 +48,20 @@ var TerminalView = function() {
   this.onSendString_.bind(this);
   this.hterm_.io.onTerminalResize = this.onTerminalResize_.bind(this);
 
+  var overlay = document.createElement('a');
+  overlay.setAttribute('value', 'file');
+  overlay.style.cssText = (
+      'position: absolute; ' +
+      'visibility: hidden; ' +
+      'opacity: 0.4; ' +
+      'background-color: grey; ' +
+      'top: 0px; ' +
+      'left: 0px; ' +
+      'height: 100%; ' +
+      'width: 100%;');
+  this.htermElem_.appendChild(overlay);
+  this.overlay = overlay;
+
   this.elem_ = null;
 
   this.executeContext = null;
@@ -57,8 +71,8 @@ var TerminalView = function() {
       'position: absolute; ' +
       'top: 0px; ' +
       'left: 0px; ' +
-      'height: 100%;' +
-      'width: 100%');
+      'height: 100%; ' +
+      'width: 100%;');
   document.body.appendChild(viewElem);
 
   this.viewElem_ = viewElem;
