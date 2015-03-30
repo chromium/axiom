@@ -48,7 +48,7 @@ var TerminalView = function() {
   this.onSendString_.bind(this);
   this.hterm_.io.onTerminalResize = this.onTerminalResize_.bind(this);
 
-  var overlay = document.createElement('a');
+  var overlay = document.createElement('div');
   overlay.setAttribute('value', 'file');
   overlay.style.cssText = (
       'position: absolute; ' +
