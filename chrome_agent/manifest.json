@@ -1,0 +1,49 @@
+{
+  "manifest_version": 2,
+  "name": "Axiom Agent",
+  "minimum_chrome_version": "41.0.0.0",
+  "version": "0.0.1",
+
+  "icons": {
+    "16": "assets/icon_16.png",
+    "128": "assets/icon_128.png"
+  },
+
+  "background": {
+    "persistent": true,
+    "scripts": [
+      "scripts/agent_background.js"
+    ]
+  },
+
+  "content_scripts": [
+    {
+      "js": [
+        "scripts/agent_content_script.js"
+      ],
+      "matches": [ "*://*/*" ],
+      "run_at" : "document_end",
+      "all_frames": true
+    }
+  ],
+
+  "permissions": [
+    "debugger",
+    "tabs",
+    "downloads",
+    "history",
+    "pageCapture",
+    "sessions",
+    "tabCapture",
+    "topSites"
+  ],
+
+  "externally_connectable": {
+    "matches": [
+      "https://localhost:8080/*",
+      "https://localhost:8282/*"
+    ]
+  },
+  
+  "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCIipMWcMFWW93IWLZXaL2cZf9TIgrVBvCZ5EoH7DVPdqycGYq9xFmQ1PNVpFQa/sgiBO+tShKIRz/v9jwCZtkPcaq2aRGvGoacORT9CjF+ExZVnrwkTlnI1DQKZmLG/3YybVPQFk9pbBOFmc9U9zfOq0nXLx8A3jgQpS5yi+IxrQIDAQAB"
+}
