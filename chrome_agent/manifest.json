@@ -5,7 +5,6 @@
   "version": "0.0.1",
 
   "icons": {
-    "16": "assets/icon_16.png",
     "128": "assets/icon_128.png"
   },
 
@@ -44,6 +43,11 @@
       "https://localhost:8282/*"
     ]
   },
-  
+
+  "browser_action": {
+    "default_title": "Axiom",
+    "default_icon": "assets/icon_32.png"
+  },
+
   "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCIipMWcMFWW93IWLZXaL2cZf9TIgrVBvCZ5EoH7DVPdqycGYq9xFmQ1PNVpFQa/sgiBO+tShKIRz/v9jwCZtkPcaq2aRGvGoacORT9CjF+ExZVnrwkTlnI1DQKZmLG/3YybVPQFk9pbBOFmc9U9zfOq0nXLx8A3jgQpS5yi+IxrQIDAQAB"
 }
