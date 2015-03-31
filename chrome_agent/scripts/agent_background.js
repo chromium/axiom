@@ -97,3 +97,36 @@ chrome.runtime.onMessageExternal.addListener(
     return true;
   }
 );
+
+var WEB_SHELL_TAB_PROPS_ = {
+  title: 'Console',
+  url: '*://*/**/web_shell/index.html'
+};
+
+var HOSTED_WEB_SHELL_URL_ = 
+    'http://chromium.github.io/axiom/web_shell/index.html';
+
+var activeWebShellTabIdx_ = -1;
+
+/**
+ * Clicking on the extension icon in the toolbar will:
+ * - If no tabs with the Web Shell are open, open a hosted Shell in a new tab;
+ * - If one or more tabs with the Web Shell are already open (e.g. a test
+ *   and a hosted instances), then cycle through them.
+ */
+chrome.browserAction.onClicked.addListener(function() {
+  chrome.tabs.query(WEB_SHELL_TAB_PROPS_, function(tabs) {
+    if (tabs && tabs.length > 0) {
+      ++activeWebShellTabIdx_;
+      if (activeWebShellTabIdx_ >= tabs.length) {
+        activeWebShellTabIdx_ = 0;
+      }
+      var tab = tabs[activeWebShellTabIdx_];
+      lastFocusedWebShellTabUrl_ = tab.url;
+      chrome.tabs.update(tab.id, {active: true}, function() {});
+      chrome.windows.update(tab.windowId, {focused: true}, function() {});
+    } else {
+      chrome.tabs.create({url: HOSTED_WEB_SHELL_URL_, active: true});
+    }
+  });
+});
