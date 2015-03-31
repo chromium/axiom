@@ -43,15 +43,28 @@
   },
 
   "permissions": [
-    "<all_urls>",
-    "debugger",
-    "tabs",
     "downloads",
-    "history",
-    "pageCapture",
-    "sessions",
     "tabCapture",
-    "topSites"
+    "tabs",
+    "sessions"
+  ],
+  
+  "optional_permissions": [
+    "<all_urls>",
+    "background",
+    "bookmarks",
+    "clipboardRead",
+    "clipboardWrite",
+    "contentSettings",
+    "cookies",
+    "debugger",
+    "history",
+    "management",
+    "pageCapture",
+    "topSites",
+    "webNavigation",
+    "webRequest",
+    "webRequestBlocking"
   ],
 
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgqy2WGh6F/FmkradRYQ3fFcLIagYp6WgOTl03ChEvm+NxcbLUIZGFgWk74L+9rww2TIRGrr8lJJL1+Ey39WFe1Px/yBNsTGCYa7f1Ui7NKUe7p8tqowEnBbif25xB29vXd/6iZUgFyWDqMufrq9NbK4dHZ1BfCSYq7ixKLJtJsIApb76dvX9aPlzNV1blyG/KrONJvLL14FJbhD1djBuTz+BMTfr8kXTIKqmgsmskF6JcnxGKDdM/CL5WkiN+c7ZNwYraXaC0nv30+GnF/XOig6eZS/PUJF8t/kcLPRYOCIvysjXWiGNwsFFTdwmvn6C4EyqqssM2rtYM/WeRoGBVwIDAQAB"
