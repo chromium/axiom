@@ -81,7 +81,7 @@ var launchHterm = function(fsm) {
   var stdioSource = new StdioSource();
   return fsm.createExecuteContext(
     new Path('jsfs:exe/wash'), stdioSource.stdio, {})
-    .then(function (/** ExecutionContext */cx) {
+    .then(function (/** ExecuteContext */cx) {
       var tv = new TerminalView();
 
       tv.println(welcomeMessage);

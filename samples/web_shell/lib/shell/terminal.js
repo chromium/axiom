@@ -149,21 +149,24 @@ TerminalView.prototype.execute = function(stdioSource, cx) {
     throw new AxiomError.Runtime('Already executing');
 
   this.stdioSource = stdioSource;
-  this.stdioSource.stdout.onData.addListener(this.onStdOut_, this);
-  this.stdioSource.stderr.onData.addListener(this.onStdOut_, this);
-  this.stdioSource.stdout.resume();
-  this.stdioSource.stderr.resume();
+  this.stdioSource.stdout.onData.addListener(this.printStdMessage_, this);
+  this.stdioSource.stderr.onData.addListener(this.printStdMessage_, this);
   this.executeContext = cx;
   this.executeContext.onClose.addListener(this.onExecuteClose_, this);
   this.executeContext.onTTYRequest.addListener(this.onTTYRequest_, this);
-  this.executeContext.setTTY({
+  this.stdioSource.signal.write({name: 'tty-change', value: {
     rows: this.hterm_.io.rowCount,
     columns: this.hterm_.io.columnCount
-  });
+  }});
 
   this.executeContext.onReady.addListener(function() {
     console.log('TerminalView: execute ready');
-  });
+    // Resume all streams (except stdin as we want to buffer input until a
+    // consumer is ready to process it).
+    this.stdioSource.stdout.resume();
+    this.stdioSource.stderr.resume();
+    this.stdioSource.stdio.signal.resume();
+  }.bind(this));
 
   this.executeContext.onClose.addListener(function(reason, value) {
     console.log('TerminalView: execute closed: ' + reason, value);
@@ -184,7 +187,7 @@ TerminalView.prototype.println = function(str) {
 /**
  * Handle for inbound messages from the default command.
  */
-TerminalView.prototype.onStdOut_ = function(str) {
+TerminalView.prototype.printStdMessage_ = function(str) {
   if (typeof str == 'string') {
     str = str.replace(/\n/g, '\r\n');
   } else {
@@ -211,7 +214,9 @@ TerminalView.prototype.onExecuteClose_ = function(reason, value) {
 TerminalView.prototype.onTTYRequest_ = function(request) {
   console.log('tty request');
   if (typeof request.interrupt == 'string')
-    this.executeContext.setTTY({interrupt: request.interrupt});
+    this.stdioSource.signal.write({name: 'tty-change', value: {
+      interrupt: request.interrupt
+    }});
 };
 
 /**
@@ -220,16 +225,12 @@ TerminalView.prototype.onTTYRequest_ = function(request) {
  * We just forward them on to the default command.
  */
 TerminalView.prototype.onSendString_ = function(str) {
-  if (this.executeContext.isEphemeral('Ready')) {
-    var interruptChar = this.executeContext.getTTY().getInterrupt();
-    if (interruptChar && str == interruptChar) {
-      console.log('interrupt');
-      this.executeContext.signal('interrupt');
-    } else {
-      this.stdioSource.stdin.write(str);
-    }
+  var interruptChar = this.executeContext.getTTY().getInterrupt();
+  if (interruptChar && str == interruptChar) {
+    console.log('interrupt');
+    this.stdioSource.signal.write({name: 'interrupt'});
   } else {
-    console.warn('Execute not ready, ignoring input: ' + str);
+    this.stdioSource.stdin.write(str);
   }
 };
 
@@ -240,5 +241,8 @@ TerminalView.prototype.onSendString_ = function(str) {
  */
 TerminalView.prototype.onTerminalResize_ = function(columns, rows) {
   if (this.executeContext && this.executeContext.isEphemeral('Ready'))
-    this.executeContext.setTTY({columns: columns, rows: rows});
+    this.stdioSource.signal.write({name: 'tty-change', value: {
+      columns: columns,
+      rows: rows
+    }});
 };
