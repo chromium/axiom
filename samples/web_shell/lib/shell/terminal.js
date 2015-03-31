@@ -53,12 +53,13 @@ var TerminalView = function() {
   overlay.style.cssText = (
       'position: absolute; ' +
       'visibility: hidden; ' +
+      'margin: 0px; ' +
       'opacity: 0.4; ' +
       'background-color: grey; ' +
       'top: 0px; ' +
       'left: 0px; ' +
-      'height: 100%; ' +
-      'width: 100%;');
+      'right: 0px; ' +
+      'bottom: 0px;');
   this.htermElem_.appendChild(overlay);
   this.overlay = overlay;
 
