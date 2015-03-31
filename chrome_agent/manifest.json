@@ -28,7 +28,7 @@
   ],
 
   "browser_action": {
-     "default_icon": "assets/icon_32.png",
+     "default_icon": "assets/icon_38.png",
      "default_title": "Axiom"
   },
 
