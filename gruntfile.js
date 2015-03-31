@@ -235,6 +235,12 @@ module.exports = function(grunt) {
         ],
         cssrefs: [
           'css/**/*.css'
+        ],
+        links: [
+          {
+            rel: 'chrome-webstore-item',
+            href: 'https://chrome.google.com/webstore/detail/lfbhahfblgmngkkgbgbccedhhnkkhknb'
+          }
         ]
       },
 
