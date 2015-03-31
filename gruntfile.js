@@ -75,7 +75,7 @@ module.exports = function(grunt) {
         strip: 2,
         dest: 'lib/wash/exe_modules.js',
         cwd: 'lib',
-        modules: ['wash/exe/*.js']
+        modules: ['wash/exe/*.js', '!wash/exe/*.test.js']
       }
     },
 
