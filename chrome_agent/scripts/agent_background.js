@@ -21,9 +21,12 @@ var handleRequest_ = function(request, sendResponse) {
   var promise;
   if (request.type === 'call_api') {
     promise = callApi_(request.api, request.args);
-  } else if (request.type === 'execute_code_in_tab') {
-    promise = executeCodeInTab_(request.tabId, request.code);
+  } else if (request.type === 'execute_code') {
+    promise = executeCodeInTabs_(request.code, request.tabIds);
+  } else if (request.type === 'insert_css') {
+    promise = insertCssIntoTabs_(request.css, request.tabIds);
   }
+
   promise.then(function(result) {
     sendResponse({success: true, result: result});
   }).catch(function(error) {
@@ -54,22 +57,105 @@ var callApi_ = function(apiName, args) {
     };
     var argv = args;
     argv.push(callback);
-    api.apply(api, argv);
+    try {
+      api.apply(api, argv);
+     } catch (err) {
+        if (/^Error: Invocation of form .+ doesn't match definition/.test(err)) {
+          reject({message: 'Wrong API arguments'});
+        } else {
+          // Standard error already contains 'message' field.
+          reject(err);
+        }
+     }
   });
 };
 
 /**
  *
  */
-var executeCodeInTab_ = function(tabId, code, opt_allFramse, opt_runAt) {
+var executeCodeInTab_ = function(code, tabId, opt_allFrames, opt_runAt) {
   return new Promise(function(resolve, reject) {
     var details = {
       code: code,
       allFrames: opt_allFrames || false,
-      runAt: opt_runAt || 'document_end'
+      runAt: opt_runAt || 'document_idle'
     };
     chrome.tabs.executeScript(tabId, details, function(resultAry) {
-      resolve(resultAry);
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve(resultAry);
+      }
+    });
+  });
+};
+
+/**
+ *
+ */
+var executeCodeInTabs_ = function(code, opt_tabIds, opt_allFrames, opt_runAt) {
+  return normalizeTabIds_(opt_tabIds).then(function(tabIds) {
+    var promises = [];
+    for (var i = 0; i < tabIds.length; ++i) {
+      promises.push(
+          executeCodeInTab_(code, tabIds[i], opt_allFrames, opt_runAt));
+    }
+    return Promise.all(promises);
+  });
+};
+
+/**
+ *
+ */
+var insertCssIntoTab_ = function(css, tabId, opt_allFrames, opt_runAt) {
+  return new Promise(function(resolve, reject) {
+    var details = {
+      code: css,
+      allFrames: opt_allFrames || false,
+      runAt: opt_runAt || 'document_idle'
+    };
+    chrome.tabs.insertCSS(tabId, details, function() {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve();
+      }
+    });
+  });
+};
+
+/**
+ *
+ */
+var insertCssIntoTabs_ = function(css, opt_tabIds, opt_allFrames, opt_runAt) {
+  return normalizeTabIds_(opt_tabIds).then(function(tabIds) {
+    var promises = [];
+    for (var i = 0; i < tabIds.length; ++i) {
+      promises.push(
+          insertCssIntoTab_(css, tabIds[i], opt_allFrames, opt_runAt));
+    }
+    return Promise.all(promises).then(function() {
+      // Convert the array of results from Promise.all to just undefined.
+      return;
+    });
+  });
+};
+
+/**
+ *
+ */
+var normalizeTabIds_ = function(opt_tabIds) {
+  return (opt_tabIds && opt_tabIds.length) ? 
+    Promise.resolve(opt_tabIds) : getAllTabIds_();
+};
+
+/**
+ *
+ */
+var getAllTabIds_ = function() {
+  return new Promise(function(resolve, reject) {
+    chrome.tabs.query({}, function(tabs) {
+      resolve(tabs.map(function(tab) { return tab.id; }));
     });
   });
 };

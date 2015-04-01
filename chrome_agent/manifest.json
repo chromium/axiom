@@ -43,6 +43,7 @@
   },
 
   "permissions": [
+    "<all_urls>",
     "downloads",
     "tabCapture",
     "tabs",
@@ -50,7 +51,6 @@
   ],
 
   "optional_permissions": [
-    "<all_urls>",
     "background",
     "bookmarks",
     "clipboardRead",
