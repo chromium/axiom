@@ -54,8 +54,8 @@ var TerminalView = function() {
       'position: absolute; ' +
       'visibility: hidden; ' +
       'margin: 0px; ' +
-      'opacity: 0.4; ' +
-      'background-color: grey; ' +
+      'opacity: 0.85; ' +
+      'background-color: #333; ' +
       'top: 0px; ' +
       'left: 0px; ' +
       'right: 0px; ' +
