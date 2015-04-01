@@ -75,6 +75,9 @@ var callApi_ = function(apiName, args) {
  */
 var executeCodeInTab_ = function(code, tabId, opt_allFrames, opt_runAt) {
   return new Promise(function(resolve, reject) {
+    // TODO(ussuri): Catch and return possible exceptions in the user's code.
+    // The below didn't work.
+    // code = 'try {' + code + '} catch (err) { console.log("CAUGHT"); err; }';
     var details = {
       code: code,
       allFrames: opt_allFrames || false,
@@ -84,7 +87,7 @@ var executeCodeInTab_ = function(code, tabId, opt_allFrames, opt_runAt) {
       if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError);
       } else {
-        resolve(resultAry);
+        resolve(resultAry.length > 1 ? resultAry : resultAry[0]);
       }
     });
   });
@@ -95,12 +98,16 @@ var executeCodeInTab_ = function(code, tabId, opt_allFrames, opt_runAt) {
  */
 var executeCodeInTabs_ = function(code, opt_tabIds, opt_allFrames, opt_runAt) {
   return normalizeTabIds_(opt_tabIds).then(function(tabIds) {
-    var promises = [];
-    for (var i = 0; i < tabIds.length; ++i) {
-      promises.push(
-          executeCodeInTab_(code, tabIds[i], opt_allFrames, opt_runAt));
+    if (tabIds.length === 1) {
+      return executeCodeInTab_(code, tabIds[0], opt_allFrames, opt_runAt);
+    } else {
+      var promises = [];
+      for (var i = 0; i < tabIds.length; ++i) {
+        promises.push(
+            executeCodeInTab_(code, tabIds[i], opt_allFrames, opt_runAt));
+      }
+      return Promise.all(promises);
     }
-    return Promise.all(promises);
   });
 };
 
