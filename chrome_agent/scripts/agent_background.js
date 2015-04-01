@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /**
- * 
+ *
  */
 var handleRequest_ = function(request, sendResponse) {
   console.log("Handling request:", JSON.stringify(request));
@@ -32,18 +32,18 @@ var handleRequest_ = function(request, sendResponse) {
 };
 
 /**
- * 
+ *
  */
 var callApi_ = function(apiName, args) {
   var apiParts = apiName.split('.');
 
   if (apiParts[0] !== 'chrome')
     return Promise.reject('Only chrome.* APIs are supported');
-  
+
   var api = chrome;
   // NOTE: Skip apiParts[0], which is 'chrome'.
   for (var i = 1; i < apiParts.length; ++i) {
-    api = api[apiParts[i]];  
+    api = api[apiParts[i]];
     if (!api)
       return Promise.reject('No such API');
   }
@@ -79,7 +79,6 @@ var executeCodeInTab_ = function(tabId, code, opt_allFramse, opt_runAt) {
  */
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    console.log('Message: ', request, sender);
     handleRequest_(request, sendResponse);
     // Indicate that the response is sent asynchronously.
     return true;
@@ -91,7 +90,7 @@ chrome.runtime.onMessage.addListener(
  */
 chrome.runtime.onMessageExternal.addListener(
   function(request, sender, sendResponse) {
-    console.log('External message: ', request, sender);
+    // TODO(ussuri): Verify the sender.
     handleRequest_(request, sendResponse);
     // Indicates that the response is sent asynchronously.
     return true;
@@ -103,7 +102,7 @@ var WEB_SHELL_TAB_PROPS_ = {
   url: '*://*/**/web_shell/index.html'
 };
 
-var HOSTED_WEB_SHELL_URL_ = 
+var HOSTED_WEB_SHELL_URL_ =
     'http://chromium.github.io/axiom/web_shell/index.html';
 
 var activeWebShellTabIdx_ = -1;

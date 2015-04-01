@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// window.onload = function() {
-//   chrome.runtime.sendMessage(
-//     {type: 'body', JSON.stringify(document.querySelector('body'))},
-//     function(response) {
-//       if (!response.success) {
-//         window.open(this.href);
-//       }
-//     }
-//   );
-// };
+window.onload = function() {
+  // This is half-precise, but false positives will be very rare, so it's ok.
+  if (document.title === 'Console') {
+    // TODO(ussuri): This won't be needed once owned URLs are registered with the
+    // extension in CWS.
+    var isInstalledMarker = document.createElement('div');
+    isInstalledMarker.id = 'chrome-agent-is-installed';
+    document.body.appendChild(isInstalledMarker);
+  }
+};
