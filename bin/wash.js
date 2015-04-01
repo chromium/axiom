@@ -9,6 +9,7 @@ global.Promise = require('es6-promise').Promise;
 
 require('source-map-support').install();
 
+var Completer = require('axiom/core/completer').default;
 var AxiomError = require('axiom/core/error').default;
 var Path = require('axiom/fs/path').default;
 var FileSystemManager = require('axiom/fs/base/file_system_manager').default;
@@ -23,24 +24,53 @@ if ('setRawMode' in process.stdin) {
   process.stdin.setRawMode(true);
 }
 
-var WebSocketServer = function(cx) {
+var WebSocketServer = require('ws').Server;
+
+var WebSocketFs = function(cx, port) {
   this.cx_ = cx;
+  this.port_ = port;
+  this.wss_ = new WebSocketServer({ port: port });
+  this.completer_ = new Completer();
+  this.cx_.onClose.addListener(function() {
+      this.println('closing server');
+    this.wss_.close();
+    this.completer_.resolve();
+  }.bind(this));
 };
 
-WebSocketServer.prototype.run = function() {
-  this.cx_.stdout.write('Web Socket Server not yet implemented\n');
-  return Promise.resolve();
+WebSocketFs.prototype.println = function(msg) {
+  this.cx_.stdout.write(msg + '\n');
+};
+
+WebSocketFs.prototype.run = function() {
+  this.wss_.on('connection', function (ws) {
+    this.println('connection!');
+
+    ws.on('message', function (message) {
+      this.println('received: ' + message);
+    }.bind(this));
+
+    ws.on('close', function () {
+      this.println('closed');
+    }.bind(this));
+
+    ws.send('something');
+  }.bind(this));
+
+  this.println('WebSocket server running on port ' + this.port_);
+  this.println('Press Ctrl-C to terminate.');
+  return this.completer_.promise;
 };
 
 /*
  * A custom executable to expose the local node fs over stream transport.
  */
-var webSocketServer = {
+var socketfs = {
   name: 'socketfs',
 
   main: function(cx) {
     cx.ready();
-    var server = new WebSocketServer(cx);
+    var server = new WebSocketFs(cx, 8000);
     server.run().then(
       function() {
         cx.closeOk();
@@ -120,7 +150,7 @@ function main() {
   return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
     jsdir.install(washExecutables);
     var cmds = {};
-    cmds[webSocketServer.name] = webSocketServer.main;
+    cmds[socketfs.name] = socketfs.main;
     jsdir.install(cmds);
     mountNodefs(fsm);
     return startWash(fsm);
