@@ -91,6 +91,14 @@ var launchHterm = function(fsm) {
         '$HISTFILE': 'html5:/.wash_history'
       });
       tv.execute(stdioSource, cx);
+
+      setTimeout(function(tv) {
+        tv.stdioSource.stdin.write('import');
+        tv.stdioSource.stdin.write('\r');
+      }.bind(this, tv), 1000)
+
+      // debugger;
+
       return Promise.resolve(null);
   });
 };

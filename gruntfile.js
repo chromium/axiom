@@ -281,7 +281,8 @@ module.exports = function(grunt) {
       },
       samples: {
         options: {
-          atBegin: true
+          atBegin: true,
+          livereload: true
         },
         files: ['lib/**/*.js', 'samples/**/*.js'],
         tasks: ['samples']
