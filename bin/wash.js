@@ -23,6 +23,41 @@ if ('setRawMode' in process.stdin) {
   process.stdin.setRawMode(true);
 }
 
+var WebSocketServer = function(cx) {
+  this.cx_ = cx;
+};
+
+WebSocketServer.prototype.run = function() {
+  this.cx_.stdout.write('Web Socket Server not yet implemented\n');
+  return Promise.resolve();
+};
+
+/*
+ * A custom executable to expose the local node fs over stream transport.
+ */
+var webSocketServer = {
+  name: 'socketfs',
+
+  main: function(cx) {
+    cx.ready();
+    var server = new WebSocketServer(cx);
+    server.run().then(
+      function() {
+        cx.closeOk();
+      }
+    ).catch(
+      function(error) {
+        cx.closeError(error);
+      }
+    );
+  },
+
+  signature: {
+    'help|h': '?',
+    '_': '@'
+  }
+};
+
 function onResize(stdioSource) {
   var tty = new TTYState();
   tty.isatty = process.stdout.isTTY;
@@ -84,6 +119,9 @@ function main() {
   var fsm = jsfs.fileSystemManager;
   return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
     jsdir.install(washExecutables);
+    var cmds = {};
+    cmds[webSocketServer.name] = webSocketServer.main;
+    jsdir.install(cmds);
     mountNodefs(fsm);
     return startWash(fsm);
   });
@@ -95,6 +133,7 @@ function mountNodefs(fsm) {
 }
 
 module.exports = { main: main };
+
 
 if (/wash.js$/.test(process.argv[1])) {
   // Keep node from exiting due to lack of events.
