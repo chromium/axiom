@@ -20,93 +20,70 @@ var handleRequest_ = function(request, sendResponse) {
 
   var promise;
   if (request.type === 'call_api') {
-    promise = callApi_(request.api, request.args);
+    promise = callApi_(resolveApi_(request.api), request.args);
   } else if (request.type === 'execute_code') {
-    promise = executeCodeInTabs_(request.code, request.tabIds);
+    promise = executeScriptInTabs_(request.tabIds, request.code);
   } else if (request.type === 'insert_css') {
-    promise = insertCssIntoTabs_(request.css, request.tabIds);
+    promise = insertCssIntoTabs_(request.tabIds, request.css);
   }
 
   promise.then(function(result) {
     sendResponse({success: true, result: result});
   }).catch(function(error) {
-    sendResponse({success: false, error: error.message});
+    sendResponse({success: false, error: error.message ? error.message : error});
   });
 };
 
 /**
  *
  */
-var callApi_ = function(apiName, args) {
-  var apiParts = apiName.split('.');
-
-  if (apiParts[0] !== 'chrome')
-    return Promise.reject('Only chrome.* APIs are supported');
-
-  var api = chrome;
-  // NOTE: Skip apiParts[0], which is 'chrome'.
-  for (var i = 1; i < apiParts.length; ++i) {
-    api = api[apiParts[i]];
-    if (!api)
-      return Promise.reject('No such API');
+var resolveApi_ = function(apiName) {
+  var nameParts = apiName.split('.');
+  var resolvedApi = window;
+  for (var i = 0; i < nameParts.length; ++i) {
+    resolvedApi = resolvedApi[nameParts[i]];
+    if (!resolvedApi)
+      return null;
   }
+  return resolvedApi;
+};
 
+var BAD_API_INVOCATION_ERROR_RE_ = 
+    /^Error: Invocation of form (.+) doesn't match definition (.+)$/;
+
+/**
+ *
+ */
+var callApi_ = function(api, args) {
   return new Promise(function(resolve, reject) {
+    if (!api)
+      return reject('No such API');
+
     var callback = function(result) {
-      resolve(result);
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve(result);
+      }
     };
+
+    // `args` is an array, so we must use `apply` to invoke the API. The API,
+    // however, requires a callback as one extra argument: append it to `args`.
     var argv = args;
     argv.push(callback);
+
     try {
-      api.apply(api, argv);
-     } catch (err) {
-        if (/^Error: Invocation of form .+ doesn't match definition/.test(err)) {
-          reject({message: 'Wrong API arguments'});
-        } else {
-          // Standard error already contains 'message' field.
-          reject(err);
-        }
-     }
-  });
-};
-
-/**
- *
- */
-var executeCodeInTab_ = function(code, tabId, opt_allFrames, opt_runAt) {
-  return new Promise(function(resolve, reject) {
-    // TODO(ussuri): Catch and return possible exceptions in the user's code.
-    // The below didn't work.
-    // code = 'try {' + code + '} catch (err) { console.log("CAUGHT"); err; }';
-    var details = {
-      code: code,
-      allFrames: opt_allFrames || false,
-      runAt: opt_runAt || 'document_idle'
-    };
-    chrome.tabs.executeScript(tabId, details, function(resultAry) {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError);
+      // NOTE: Since the callback of this call will resolve/reject the outer
+      // Promise, make sure this is the last call in the outer function.
+      api.apply(null, argv);
+    } catch (error) {
+      var match = BAD_API_INVOCATION_ERROR_RE_.exec(error);
+      if (match) {
+        // Massage this particularly frequent error message to be clearer.
+        reject('Wrong API arguments: got ' + match[1] + ', need ' + match[2]);
       } else {
-        resolve(resultAry.length > 1 ? resultAry : resultAry[0]);
+        reject(error);
       }
-    });
-  });
-};
-
-/**
- *
- */
-var executeCodeInTabs_ = function(code, opt_tabIds, opt_allFrames, opt_runAt) {
-  return normalizeTabIds_(opt_tabIds).then(function(tabIds) {
-    if (tabIds.length === 1) {
-      return executeCodeInTab_(code, tabIds[0], opt_allFrames, opt_runAt);
-    } else {
-      var promises = [];
-      for (var i = 0; i < tabIds.length; ++i) {
-        promises.push(
-            executeCodeInTab_(code, tabIds[i], opt_allFrames, opt_runAt));
-      }
-      return Promise.all(promises);
     }
   });
 };
@@ -114,36 +91,78 @@ var executeCodeInTabs_ = function(code, opt_tabIds, opt_allFrames, opt_runAt) {
 /**
  *
  */
-var insertCssIntoTab_ = function(css, tabId, opt_allFrames, opt_runAt) {
-  return new Promise(function(resolve, reject) {
-    var details = {
-      code: css,
-      allFrames: opt_allFrames || false,
-      runAt: opt_runAt || 'document_idle'
-    };
-    chrome.tabs.insertCSS(tabId, details, function() {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError);
-      } else {
-        resolve();
-      }
-    });
-  });
+var executeScriptInTab_ = function(tabId, code, opt_allFrames, opt_runAt) {
+  // TODO(ussuri): Catch and return possible exceptions in the user's code.
+  // The following didn't work:
+  // code = 'try {' + code + '} catch (err) { console.log("CAUGHT"); err; }';
+  var details = {
+    code: code,
+    allFrames: opt_allFrames || false,
+    runAt: opt_runAt || 'document_idle'
+  };
+  return callApi_(chrome.tabs.executeScript, [tabId, details]);
 };
 
 /**
  *
  */
-var insertCssIntoTabs_ = function(css, opt_tabIds, opt_allFrames, opt_runAt) {
-  return normalizeTabIds_(opt_tabIds).then(function(tabIds) {
+var executeScriptInTabs_ = function(tabIds, code, opt_allFrames, opt_runAt) {
+  return performActionInTabs_(
+      tabIds, executeScriptInTab_, [code, opt_allFrames, opt_runAt]);
+};
+
+/**
+ *
+ */
+var insertCssIntoTab_ = function(tabId, css, opt_allFrames, opt_runAt) {
+  var details = {
+    code: css,
+    allFrames: opt_allFrames || false,
+    runAt: opt_runAt || 'document_idle'
+  };
+  return callApi_(chrome.tabs.insertCSS, [tabId, details]);
+};
+
+/**
+ *
+ */
+var insertCssIntoTabs_ = function(tabIds, css, opt_allFrames, opt_runAt) {
+  return performActionInTabs_(
+      tabIds, insertCssIntoTab_, [css, opt_allFrames, opt_runAt]);
+};
+
+/**
+ *
+ */
+var performActionInTabs_ = function(tabIds, action, args) {
+  return normalizeTabIds_(tabIds).then(function(nTabIds) {
+    if (nTabIds.length === 1) {
+      return insertCssIntoTab_(code, nTabIds[0], opt_allFrames, opt_runAt);
+    }
+
     var promises = [];
-    for (var i = 0; i < tabIds.length; ++i) {
-      promises.push(
-          insertCssIntoTab_(css, tabIds[i], opt_allFrames, opt_runAt));
+    var errors = false;
+
+    var errorHandler = function(error) { 
+      errors = true;
+      return Promise.resolve('ERROR: ' + error.message); 
+    };
+    
+    for (var i = 0; i < nTabIds.length; ++i) {
+      var fullArgs = [nTabIds[i]].concat(args);
+      var promise = action.apply(null, fullArgs).catch(errorHandler);
+      promises.push(promise);
     }
-    return Promise.all(promises).then(function() {
-      // Convert the array of results from Promise.all to just undefined.
-      return;
+    
+    return Promise.all(promises).then(function(results) {
+      var resultsMap = {};
+      for (var i = 0; i < nTabIds.length; ++i) {
+        resultsMap[+nTabIds[i]] = results[i];
+      }
+      // TODO(ussuri): Right now, multi-tab request will always "succeed":
+      // possible errors will be simply returned as part of the result.
+      // Add a way to return mixed results/errors and indicate that to callers.
+      return Promise.resolve(resultsMap);
     });
   });
 };
@@ -151,9 +170,12 @@ var insertCssIntoTabs_ = function(css, opt_tabIds, opt_allFrames, opt_runAt) {
 /**
  *
  */
-var normalizeTabIds_ = function(opt_tabIds) {
-  return (opt_tabIds && opt_tabIds.length) ? 
-    Promise.resolve(opt_tabIds) : getAllTabIds_();
+var normalizeTabIds_ = function(tabIds) {
+  if (!tabIds || tabIds === 'all') {
+    return getAllTabIds_();
+  } else {
+    return Promise.resolve(tabIds);
+  }
 };
 
 /**
