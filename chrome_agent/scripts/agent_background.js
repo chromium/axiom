@@ -100,14 +100,17 @@ var executeScriptInTab_ = function(tabId, code, opt_allFrames, opt_runAt) {
     allFrames: opt_allFrames || false,
     runAt: opt_runAt || 'document_idle'
   };
-  return callApi_(chrome.tabs.executeScript, [tabId, details]);
+  return callApi_(chrome.tabs.executeScript, [tabId, details])
+      .then(function(result) {
+        return Promise.resolve(result.length === 1 ? result[0] : result);
+      });
 };
 
 /**
  *
  */
 var executeScriptInTabs_ = function(tabIds, code, opt_allFrames, opt_runAt) {
-  return performActionInTabs_(
+  return applyActionToTabs_(
       tabIds, executeScriptInTab_, [code, opt_allFrames, opt_runAt]);
 };
 
@@ -127,30 +130,39 @@ var insertCssIntoTab_ = function(tabId, css, opt_allFrames, opt_runAt) {
  *
  */
 var insertCssIntoTabs_ = function(tabIds, css, opt_allFrames, opt_runAt) {
-  return performActionInTabs_(
+  return applyActionToTabs_(
       tabIds, insertCssIntoTab_, [css, opt_allFrames, opt_runAt]);
 };
 
 /**
  *
  */
-var performActionInTabs_ = function(tabIds, action, args) {
+var applyActionToTabs_ = function(tabIds, action, args) {
   return normalizeTabIds_(tabIds).then(function(nTabIds) {
-    if (nTabIds.length === 1) {
-      return insertCssIntoTab_(code, nTabIds[0], opt_allFrames, opt_runAt);
-    }
-
-    var promises = [];
-    var errors = false;
+    var applyAction = function(tabId) {
+      return action.apply(null, [tabId].concat(args));
+    };
 
     var errorHandler = function(error) { 
       errors = true;
       return Promise.resolve('ERROR: ' + error.message); 
     };
     
+    // For a single tab, return a single result or a possible error.  
+    if (nTabIds.length === 1) {
+      return applyAction(nTabIds[0]);
+    }
+
+    // For multiple tabs, return a map of tabId -> result, with errors being
+    // reported as strings, but not flagged to the caller; that is, a multi-tab
+    // call will always "succeed" from the caller's perspective.
+    // TODO(ussuri): Find a way to return mixed results/errors, while indicating
+    // to callers that error(s) have occurred.
+    var promises = [];
+    var errors = false;
+
     for (var i = 0; i < nTabIds.length; ++i) {
-      var fullArgs = [nTabIds[i]].concat(args);
-      var promise = action.apply(null, fullArgs).catch(errorHandler);
+      var promise = applyAction(nTabIds[i]).catch(errorHandler);
       promises.push(promise);
     }
     
@@ -159,9 +171,6 @@ var performActionInTabs_ = function(tabIds, action, args) {
       for (var i = 0; i < nTabIds.length; ++i) {
         resultsMap[+nTabIds[i]] = results[i];
       }
-      // TODO(ussuri): Right now, multi-tab request will always "succeed":
-      // possible errors will be simply returned as part of the result.
-      // Add a way to return mixed results/errors and indicate that to callers.
       return Promise.resolve(resultsMap);
     });
   });
