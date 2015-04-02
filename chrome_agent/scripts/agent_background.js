@@ -13,7 +13,9 @@
 // limitations under the License.
 
 /**
- *
+ * @param {!Object<string, *>} request
+ * @param {function(*)} sendResponse
+ * @return {void}
  */
 var handleRequest_ = function(request, sendResponse) {
   console.log("Handling request:", JSON.stringify(request));
@@ -35,7 +37,8 @@ var handleRequest_ = function(request, sendResponse) {
 };
 
 /**
- *
+ * @param {!string} apiName
+ * @return {Object} Resolved API object or null.
  */
 var resolveApi_ = function(apiName) {
   var nameParts = apiName.split('.');
@@ -52,7 +55,9 @@ var BAD_API_INVOCATION_ERROR_RE_ =
     /^Error: Invocation of form (.+) doesn't match definition (.+)$/;
 
 /**
- *
+ * @param {Object} api
+ * @param {!Object<string, *>} args
+ * @return {!Promise<*>} Result of the API call.
  */
 var callApi_ = function(api, args) {
   return new Promise(function(resolve, reject) {
@@ -89,7 +94,11 @@ var callApi_ = function(api, args) {
 };
 
 /**
- *
+ * @param {!number} tabId
+ * @param {!string} code
+ * @param {boolean=} opt_allFrames
+ * @param {string=} opt_runAt
+ * @return {!Promise<*>}
  */
 var executeScriptInTab_ = function(tabId, code, opt_allFrames, opt_runAt) {
   // TODO(ussuri): Catch and return possible exceptions in the user's code.
@@ -107,7 +116,11 @@ var executeScriptInTab_ = function(tabId, code, opt_allFrames, opt_runAt) {
 };
 
 /**
- *
+ * @param {!(Array<number>|string)} tabIds
+ * @param {!string} code
+ * @param {boolean=} opt_allFrames
+ * @param {string=} opt_runAt
+ * @return {!Promise<*>}
  */
 var executeScriptInTabs_ = function(tabIds, code, opt_allFrames, opt_runAt) {
   return applyActionToTabs_(
@@ -115,7 +128,11 @@ var executeScriptInTabs_ = function(tabIds, code, opt_allFrames, opt_runAt) {
 };
 
 /**
- *
+ * @param {!number} tabId
+ * @param {!string} css
+ * @param {boolean=} opt_allFrames
+ * @param {string=} opt_runAt
+ * @return {!Promise<*>}
  */
 var insertCssIntoTab_ = function(tabId, css, opt_allFrames, opt_runAt) {
   var details = {
@@ -127,7 +144,11 @@ var insertCssIntoTab_ = function(tabId, css, opt_allFrames, opt_runAt) {
 };
 
 /**
- *
+ * @param {!(Array<number>|string)} tabIds
+ * @param {!string} css
+ * @param {boolean=} opt_allFrames
+ * @param {string=} opt_runAt
+ * @return {!Promise<*>}
  */
 var insertCssIntoTabs_ = function(tabIds, css, opt_allFrames, opt_runAt) {
   return applyActionToTabs_(
@@ -135,7 +156,10 @@ var insertCssIntoTabs_ = function(tabIds, css, opt_allFrames, opt_runAt) {
 };
 
 /**
- *
+ * @param {!(Array<number>|string)} tabIds
+ * @param {!function(!number, !string, boolean=, string=)} action
+ * @param {!Array<*>} args
+ * @return {!Promise<*>}
  */
 var applyActionToTabs_ = function(tabIds, action, args) {
   return normalizeTabIds_(tabIds).then(function(nTabIds) {
@@ -177,7 +201,8 @@ var applyActionToTabs_ = function(tabIds, action, args) {
 };
 
 /**
- *
+ * @param {!(Array<number>|string)} tabIds
+ * @return {!Promise<number>}
  */
 var normalizeTabIds_ = function(tabIds) {
   if (!tabIds || tabIds === 'all') {
@@ -188,7 +213,7 @@ var normalizeTabIds_ = function(tabIds) {
 };
 
 /**
- *
+ * @return {!Promise<number>} IDs of all the open tabs in all the windows.
  */
 var getAllTabIds_ = function() {
   return new Promise(function(resolve, reject) {
@@ -225,16 +250,14 @@ var WEB_SHELL_TAB_PROPS_ = {
   title: 'Console',
   url: '*://*/**/web_shell/index.html'
 };
-
 var HOSTED_WEB_SHELL_URL_ =
     'http://chromium.github.io/axiom/web_shell/index.html';
-
 var activeWebShellTabIdx_ = -1;
 
 /**
  * Clicking on the extension icon in the toolbar will:
- * - If no tabs with the Web Shell are open, open a hosted Shell in a new tab;
- * - If one or more tabs with the Web Shell are already open (e.g. a test
+ * - If no tabs with web shell are open, open a hosted shell in a new tab;
+ * - If one or more tabs with the web shell are already open (e.g. a test
  *   and a hosted instances), then cycle through them.
  */
 chrome.browserAction.onClicked.addListener(function() {

@@ -40,6 +40,7 @@ module.exports = function(grunt) {
         js: ['**/*.js',
              '../third_party/closure-compiler/contrib/externs/jasmine.js',
              '../externs/google_api/google_api.js',
+             '../externs/google_api/chrome_api.js',
              '../tmp/third_party/dcodeIO/fs.js',
              '../tmp/third_party/dcodeIO/buffer.js',
              '../tmp/third_party/dcodeIO/stream.js',
