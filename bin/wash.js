@@ -48,6 +48,7 @@ WebSocketFs.prototype.run = function() {
 
     ws.on('message', function (message) {
       this.println('received: ' + message);
+      ws.send('echo: ' + message);
     }.bind(this));
 
     ws.on('close', function () {
