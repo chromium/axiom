@@ -49,18 +49,6 @@ WebSocketFs.prototype.run = function() {
     // TODO(rpaquay): Hard code to be "nodefs:" for now.
     var localFs = this.cx_.fileSystemManager.getFileSystems[1];
     var fs = new NodeSkeletonFileSystem(ws, localFs);
-    /*
-    ws.on('message', function (message) {
-      this.println('received: ' + message);
-      ws.send('echo: ' + message);
-    }.bind(this));
-
-    ws.on('close', function () {
-      this.println('closed');
-    }.bind(this));
-
-    ws.send('something');
-    */
   }.bind(this));
 
   this.println('WebSocket server running on port ' + this.port_);
