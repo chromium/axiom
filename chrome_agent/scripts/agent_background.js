@@ -51,7 +51,7 @@ var resolveApi_ = function(apiName) {
   return resolvedApi;
 };
 
-var BAD_API_INVOCATION_ERROR_RE_ = 
+var BAD_API_INVOCATION_ERROR_RE_ =
     /^Error: Invocation of form (.+) doesn't match definition (.+)$/;
 
 /**
@@ -62,8 +62,17 @@ var BAD_API_INVOCATION_ERROR_RE_ =
  */
 var callApi_ = function(api, args, options) {
   return new Promise(function(resolve, reject) {
-    if (!api)
-      return reject('No such API');
+    if (!api) {
+      return reject('No such API, or no permission to use it');
+    }
+
+    if (typeof api !== 'function') {
+      // This can be an API property that the caller wants to read.
+      if (args.length > 0) {
+        return reject('This API is not a function: use with no arguments');
+      }
+      return resolve(api);
+    }
 
     // Complete the promise either via a callback or a timeout.
     var timedOut = false;
@@ -124,7 +133,7 @@ var executeScriptInTab_ = function(tabId, code, options) {
     allFrames: options.allFrames || false,
     runAt: options.runAt || 'document_idle'
   };
-  
+
   return callApi_(chrome.tabs.executeScript, [tabId, details], options)
     .then(function(result) {
       return details.allFrames ? result: result[0];
