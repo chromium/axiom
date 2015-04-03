@@ -16,6 +16,7 @@ var FileSystemManager = require('axiom/fs/base/file_system_manager').default;
 var StdioSource = require('axiom/fs/stdio_source').default;
 var JsFileSystem = require('axiom/fs/js/file_system').default;
 var NodeFileSystem = require('axiom/fs/node/file_system').default;
+var NodeSkeletonFileSystem = require('axiom/fs/stream/node_skeleton_file_system').default;
 var TTYState = require('axiom/fs/tty_state').default;
 var washExecutables = require('wash/exe_modules').dir;
 
@@ -45,7 +46,10 @@ WebSocketFs.prototype.println = function(msg) {
 WebSocketFs.prototype.run = function() {
   this.wss_.on('connection', function (ws) {
     this.println('connection!');
-
+    // TODO(rpaquay): Hard code to be "nodefs:" for now.
+    var localFs = this.cx_.fileSystemManager.getFileSystems[1];
+    var fs = new NodeSkeletonFileSystem(ws, localFs);
+    /*
     ws.on('message', function (message) {
       this.println('received: ' + message);
       ws.send('echo: ' + message);
@@ -56,11 +60,16 @@ WebSocketFs.prototype.run = function() {
     }.bind(this));
 
     ws.send('something');
+    */
   }.bind(this));
 
   this.println('WebSocket server running on port ' + this.port_);
   this.println('Press Ctrl-C to terminate.');
   return this.completer_.promise;
+};
+
+var WebSocketFileSystem = function(webSocket) {
+  this.webSocket_ = webSocket;
 };
 
 /*
