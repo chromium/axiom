@@ -47,7 +47,7 @@ WebSocketFs.prototype.run = function() {
   this.wss_.on('connection', function (ws) {
     this.println('connection!');
     // TODO(rpaquay): Hard code to be "nodefs:" for now.
-    var localFs = this.cx_.fileSystemManager.getFileSystems[1];
+    var localFs = this.cx_.fileSystemManager.getFileSystems()[1];
     var fs = new NodeSkeletonFileSystem(ws, localFs);
   }.bind(this));
 
