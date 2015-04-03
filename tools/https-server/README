@@ -1,0 +1,11 @@
+To regenerate the key and the certificate:
+
+$ generate-cert.sh
+
+To install the http-server NPM package:
+
+$ install-server.sh
+
+To run the server:
+
+$ run-server.sh

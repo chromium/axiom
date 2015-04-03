@@ -121,8 +121,11 @@ function startWash(fsm) {
       });
 
       process.stdin.on('data', function(buffer) {
-        if (buffer == '\x03')
-          cx.closeError(new AxiomError.Interrupt());
+        // Ctrl-C
+        if (buffer == '\x03') {
+          stdioSource.signal.write({name: 'interrupt'});
+          return;
+        }
 
         stdioSource.stdin.write(buffer.toString());
       });
