@@ -14,7 +14,7 @@
 
 /**
  * @param {!Object<string, *>} request
- * @param {function(*)} sendResponse
+ * @param {function(*): void} sendResponse
  * @return {void}
  */
 var handleRequest_ = function(request, sendResponse) {
@@ -22,11 +22,22 @@ var handleRequest_ = function(request, sendResponse) {
 
   var promise;
   if (request.type === 'call_api') {
-    promise = callApi_(resolveApi_(request.api), request.args);
+    promise = callApi_(
+        resolveApi_(request.api), 
+        request.args);
   } else if (request.type === 'execute_code') {
-    promise = executeScriptInTabs_(request.tabIds, request.code);
+    promise = executeScriptInTabs_(
+        request.tabIds,
+        request.code,
+        request.allFrames,
+        request.runAt,
+        request.timeout);
   } else if (request.type === 'insert_css') {
-    promise = insertCssIntoTabs_(request.tabIds, request.css);
+    promise = insertCssIntoTabs_(
+        request.tabIds,
+        request.css,
+        request.allFrames,
+        request.runAt);
   }
 
   promise.then(function(result) {
@@ -79,13 +90,15 @@ var callApi_ = function(api, args) {
 
     try {
       // NOTE: Since the callback of this call will resolve/reject the outer
-      // Promise, make sure this is the last call in the outer function.
+      // Promise, make sure the following is the last call of this function.
       api.apply(null, argv);
     } catch (error) {
       var match = BAD_API_INVOCATION_ERROR_RE_.exec(error);
       if (match) {
         // Massage this particularly frequent error message to be clearer.
-        reject('Wrong API arguments: got ' + match[1] + ', need ' + match[2]);
+        reject(
+            'Wrong API arguments: expected ' + match[2] +
+            ' but got ' + match[2]);
       } else {
         reject(error);
       }
@@ -98,21 +111,43 @@ var callApi_ = function(api, args) {
  * @param {!string} code
  * @param {boolean=} opt_allFrames
  * @param {string=} opt_runAt
+ * @param {number=} opt_timeout
  * @return {!Promise<*>}
  */
-var executeScriptInTab_ = function(tabId, code, opt_allFrames, opt_runAt) {
-  // TODO(ussuri): Catch and return possible exceptions in the user's code.
-  // The following didn't work:
-  // code = 'try {' + code + '} catch (err) { console.log("CAUGHT"); err; }';
-  var details = {
-    code: code,
-    allFrames: opt_allFrames || false,
-    runAt: opt_runAt || 'document_idle'
-  };
-  return callApi_(chrome.tabs.executeScript, [tabId, details])
+var executeScriptInTab_ = function(
+    tabId, code, opt_allFrames, opt_runAt, opt_timeout) {
+  return new Promise(function(resolve, reject) {
+    // TODO(ussuri): Catch and return possible exceptions in the user's code.
+    // The following didn't work:
+    // code = 'try {' + code + '} catch (err) { console.log("CAUGHT"); err; }';
+    var details = {
+      code: code,
+      allFrames: opt_allFrames || false,
+      runAt: opt_runAt || 'document_idle'
+    };
+    
+    var timedOut = false;
+    var timeout = null;
+    if (opt_timeout) {
+      timeout = setTimeout(function() {
+        timedOut = true;
+        reject('Timed out');
+      }, opt_timeout);
+    }
+
+    callApi_(chrome.tabs.executeScript, [tabId, details])
       .then(function(result) {
-        return Promise.resolve(result.length === 1 ? result[0] : result);
+        if (!timedOut) {
+          clearTimeout(timeout);
+          resolve(details.allFrames ? result: result[0]);
+        }
+      }).catch(function(error) {
+        if (!timedOut) {
+          clearTimeout(timeout);
+          reject(error);
+        }
       });
+  });
 };
 
 /**
@@ -120,11 +155,15 @@ var executeScriptInTab_ = function(tabId, code, opt_allFrames, opt_runAt) {
  * @param {!string} code
  * @param {boolean=} opt_allFrames
  * @param {string=} opt_runAt
+ * @param {number=} opt_timeout
  * @return {!Promise<*>}
  */
-var executeScriptInTabs_ = function(tabIds, code, opt_allFrames, opt_runAt) {
+var executeScriptInTabs_ = function(
+    tabIds, code, opt_allFrames, opt_runAt, opt_timeout) {
   return applyActionToTabs_(
-      tabIds, executeScriptInTab_, [code, opt_allFrames, opt_runAt]);
+      tabIds, 
+      executeScriptInTab_, 
+      [code, opt_allFrames, opt_runAt, opt_timeout]);
 };
 
 /**
@@ -156,46 +195,34 @@ var insertCssIntoTabs_ = function(tabIds, css, opt_allFrames, opt_runAt) {
 };
 
 /**
+ * Return a map of {tabId -> result} pairs, with per-tab errors reported as
+ * string results, but not flagged to the caller in an explicit way;
+ * that is, a call will always "succeed" from the caller's perspective.
+ *
  * @param {!(Array<number>|string)} tabIds
  * @param {!function(!number, !string, boolean=, string=)} action
  * @param {!Array<*>} args
  * @return {!Promise<*>}
  */
 var applyActionToTabs_ = function(tabIds, action, args) {
+  // TODO(ussuri): Somehow return mixed results/errors, while explicitly
+  // indicating to callers that error(s) have occurred.
   return normalizeTabIds_(tabIds).then(function(nTabIds) {
+    var results = {};
+
     var applyAction = function(tabId) {
-      return action.apply(null, [tabId].concat(args));
+      return action.apply(null, [tabId].concat(args))
+          .then(function(result) {
+            results[tabId] = result;
+          }).catch(function(error) {
+            results[tabId] =
+                '<ERROR: ' + (error.message ? error.message : error) + '>';
+          });
     };
 
-    var errorHandler = function(error) { 
-      errors = true;
-      return Promise.resolve('ERROR: ' + error.message); 
-    };
-    
-    // For a single tab, return a single result or a possible error.  
-    if (nTabIds.length === 1) {
-      return applyAction(nTabIds[0]);
-    }
-
-    // For multiple tabs, return a map of tabId -> result, with errors being
-    // reported as strings, but not flagged to the caller; that is, a multi-tab
-    // call will always "succeed" from the caller's perspective.
-    // TODO(ussuri): Find a way to return mixed results/errors, while indicating
-    // to callers that error(s) have occurred.
-    var promises = [];
-    var errors = false;
-
-    for (var i = 0; i < nTabIds.length; ++i) {
-      var promise = applyAction(nTabIds[i]).catch(errorHandler);
-      promises.push(promise);
-    }
-    
-    return Promise.all(promises).then(function(results) {
-      var resultsMap = {};
-      for (var i = 0; i < nTabIds.length; ++i) {
-        resultsMap[+nTabIds[i]] = results[i];
-      }
-      return Promise.resolve(resultsMap);
+    var promises = nTabIds.map(function(tabId) { return applyAction(tabId); });
+    return Promise.all(promises).then(function() {
+      return results;
     });
   });
 };
