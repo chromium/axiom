@@ -50,8 +50,6 @@
     "sessions",
     "background",
     "bookmarks",
-    "clipboardRead",
-    "clipboardWrite",
     "contentSettings",
     "cookies",
     "debugger",
