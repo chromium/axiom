@@ -20,14 +20,13 @@
 var handleRequest_ = function(request, sendResponse) {
   var promise;
   if (request.type === 'call_api') {
-    promise =
-        callApi_(resolveApi_(request.api), request.args, request.options);
-  } else if (request.type === 'execute_code') {
-    promise =
-        executeScriptInTabs_(request.tabIds, request.code, request.options);
+    promise = callApi_(resolveApi_(request.api), request.args, request.options);
+  } else if (request.type === 'execute_script') {
+    promise = executeScriptInTabs_(request.tabIds, request.code, request.options);
   } else if (request.type === 'insert_css') {
-    promise =
-        insertCssIntoTabs_(request.tabIds, request.css, request.options);
+    promise = insertCssIntoTabs_(request.tabIds, request.css, request.options);
+  } else {
+    promise = Promise.reject('Unrecognized request type "' + request.type + '"');
   }
 
   promise.then(function(result) {
@@ -66,54 +65,7 @@ var callApi_ = function(api, args, options) {
     if (!api)
       return reject('No such API');
 
-    var callback = function(result) {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError);
-      } else {
-        resolve(result);
-      }
-    };
-
-    // `args` is an array, so we must use `apply` to invoke the API. The API,
-    // however, requires a callback as one extra argument: append it to `args`.
-    var argv = args;
-    argv.push(callback);
-
-    try {
-      // NOTE: Since the callback of this call will resolve/reject the outer
-      // Promise, make sure the following is the last call of this function.
-      api.apply(null, argv);
-    } catch (error) {
-      var match = BAD_API_INVOCATION_ERROR_RE_.exec(error);
-      if (match) {
-        // Massage this particularly frequent error message to be clearer.
-        reject(
-            'Wrong API arguments: expected ' + match[2] +
-            ' but got ' + match[2]);
-      } else {
-        reject(error);
-      }
-    }
-  });
-};
-
-/**
- * @param {!number} tabId
- * @param {!string} code
- * @param {{allFrames: boolean, runAt: string, timeout: number}} options
- * @return {!Promise<*>}
- */
-var executeScriptInTab_ = function(tabId, code, options) {
-  return new Promise(function(resolve, reject) {
-    // TODO(ussuri): Catch and return possible exceptions in the user's code.
-    // The following didn't work:
-    // code = 'try {' + code + '} catch (err) { console.log("CAUGHT"); err; }';
-    var details = {
-      code: code,
-      allFrames: options.allFrames || false,
-      runAt: options.runAt || 'document_idle'
-    };
-    
+    // Complete the promise either via a callback or a timeout.
     var timedOut = false;
     var timeout = null;
     if (options.timeout) {
@@ -123,25 +75,66 @@ var executeScriptInTab_ = function(tabId, code, options) {
       }, options.timeout);
     }
 
-    callApi_(chrome.tabs.executeScript, [tabId, details])
-      .then(function(result) {
-        if (!timedOut) {
-          clearTimeout(timeout);
-          resolve(details.allFrames ? result: result[0]);
+    var callback = function(result) {
+      if (!timedOut) {
+        clearTimeout(timeout);
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        } else {
+          resolve(result);
         }
-      }).catch(function(error) {
-        if (!timedOut) {
-          clearTimeout(timeout);
+      }
+    };
+
+    try {
+      // `args` is an array, so we must use `apply` to invoke the API. The API,
+      // however, requires a callback as one extra argument: append it to `args`.
+      // NOTE: Since the callback of this call will resolve/reject the outer
+      // Promise, make sure the following is the last call of this function.
+      api.apply(null, args.concat([callback]));
+    } catch (error) {
+      if (!timedOut) {
+        clearTimeout(timeout);
+        var match = BAD_API_INVOCATION_ERROR_RE_.exec(error);
+        if (match) {
+          // Massage this particularly frequent error message to be clearer.
+          reject(
+              'Wrong API arguments: expected ' + match[2] +
+              ' but got ' + match[1] + ' <= ' + JSON.stringify(args));
+        } else {
           reject(error);
         }
-      });
+      }
+    }
   });
+};
+
+/**
+ * @param {!number} tabId
+ * @param {!string} code
+ * @param {{allFrames=: boolean, runAt=: string, timeout=: number}} options
+ * @return {!Promise<*>}
+ */
+var executeScriptInTab_ = function(tabId, code, options) {
+  // TODO(ussuri): Catch and return possible exceptions in the user's code.
+  // The following didn't work:
+  // code = 'try {' + code + '} catch (err) { console.log("CAUGHT"); err; }';
+  var details = {
+    code: code,
+    allFrames: options.allFrames || false,
+    runAt: options.runAt || 'document_idle'
+  };
+  
+  return callApi_(chrome.tabs.executeScript, [tabId, details], options)
+    .then(function(result) {
+      return details.allFrames ? result: result[0];
+    });
 };
 
 /**
  * @param {!(Array<number>|string)} tabIds
  * @param {!string} code
- * @param {{allFrames: boolean, runAt: string, timeout: number}} options
+ * @param {{allFrames=: boolean, runAt=: string, timeout=: number}} options
  * @return {!Promise<Object<string, *>>}
  */
 var executeScriptInTabs_ = function(tabIds, code, options) {
@@ -160,7 +153,7 @@ var insertCssIntoTab_ = function(tabId, css, options) {
     allFrames: options.allFrames || false,
     runAt: options.runAt || 'document_idle'
   };
-  return callApi_(chrome.tabs.insertCSS, [tabId, details]);
+  return callApi_(chrome.tabs.insertCSS, [tabId, details], options);
 };
 
 /**
@@ -191,18 +184,18 @@ var applyActionToTabs_ = function(tabIds, action, args) {
 
     var applyAction = function(tabId) {
       return action.apply(null, [tabId].concat(args))
-          .then(function(result) {
-            results[tabId] = result;
-          }).catch(function(error) {
-            results[tabId] =
-                '<ERROR: ' + (error.message ? error.message : error) + '>';
-          });
+        .then(function(result) {
+          results[tabId] = result;
+        }).catch(function(error) {
+          results[tabId] =
+              '<ERROR: ' + (error.message ? error.message : error) + '>';
+        });
     };
 
     var promises = nTabIds.map(function(tabId) {
       return applyAction(tabId);
     });
-    return Promise.all(promises).then(function() {
+    return Promise.all(promises).then(function(_) {
       return results;
     });
   });
