@@ -18,26 +18,16 @@
  * @return {void}
  */
 var handleRequest_ = function(request, sendResponse) {
-  console.log("Handling request:", JSON.stringify(request));
-
   var promise;
   if (request.type === 'call_api') {
-    promise = callApi_(
-        resolveApi_(request.api), 
-        request.args);
+    promise =
+        callApi_(resolveApi_(request.api), request.args, request.options);
   } else if (request.type === 'execute_code') {
-    promise = executeScriptInTabs_(
-        request.tabIds,
-        request.code,
-        request.allFrames,
-        request.runAt,
-        request.timeout);
+    promise =
+        executeScriptInTabs_(request.tabIds, request.code, request.options);
   } else if (request.type === 'insert_css') {
-    promise = insertCssIntoTabs_(
-        request.tabIds,
-        request.css,
-        request.allFrames,
-        request.runAt);
+    promise =
+        insertCssIntoTabs_(request.tabIds, request.css, request.options);
   }
 
   promise.then(function(result) {
@@ -49,7 +39,7 @@ var handleRequest_ = function(request, sendResponse) {
 
 /**
  * @param {!string} apiName
- * @return {Object} Resolved API object or null.
+ * @return {?Object} Resolved API object or null.
  */
 var resolveApi_ = function(apiName) {
   var nameParts = apiName.split('.');
@@ -68,9 +58,10 @@ var BAD_API_INVOCATION_ERROR_RE_ =
 /**
  * @param {Object} api
  * @param {!Object<string, *>} args
+ * @param {{timeout: number}} options
  * @return {!Promise<*>} Result of the API call.
  */
-var callApi_ = function(api, args) {
+var callApi_ = function(api, args, options) {
   return new Promise(function(resolve, reject) {
     if (!api)
       return reject('No such API');
@@ -109,30 +100,27 @@ var callApi_ = function(api, args) {
 /**
  * @param {!number} tabId
  * @param {!string} code
- * @param {boolean=} opt_allFrames
- * @param {string=} opt_runAt
- * @param {number=} opt_timeout
+ * @param {{allFrames: boolean, runAt: string, timeout: number}} options
  * @return {!Promise<*>}
  */
-var executeScriptInTab_ = function(
-    tabId, code, opt_allFrames, opt_runAt, opt_timeout) {
+var executeScriptInTab_ = function(tabId, code, options) {
   return new Promise(function(resolve, reject) {
     // TODO(ussuri): Catch and return possible exceptions in the user's code.
     // The following didn't work:
     // code = 'try {' + code + '} catch (err) { console.log("CAUGHT"); err; }';
     var details = {
       code: code,
-      allFrames: opt_allFrames || false,
-      runAt: opt_runAt || 'document_idle'
+      allFrames: options.allFrames || false,
+      runAt: options.runAt || 'document_idle'
     };
     
     var timedOut = false;
     var timeout = null;
-    if (opt_timeout) {
+    if (options.timeout) {
       timeout = setTimeout(function() {
         timedOut = true;
         reject('Timed out');
-      }, opt_timeout);
+      }, options.timeout);
     }
 
     callApi_(chrome.tabs.executeScript, [tabId, details])
@@ -153,31 +141,24 @@ var executeScriptInTab_ = function(
 /**
  * @param {!(Array<number>|string)} tabIds
  * @param {!string} code
- * @param {boolean=} opt_allFrames
- * @param {string=} opt_runAt
- * @param {number=} opt_timeout
- * @return {!Promise<*>}
+ * @param {{allFrames: boolean, runAt: string, timeout: number}} options
+ * @return {!Promise<Object<string, *>>}
  */
-var executeScriptInTabs_ = function(
-    tabIds, code, opt_allFrames, opt_runAt, opt_timeout) {
-  return applyActionToTabs_(
-      tabIds, 
-      executeScriptInTab_, 
-      [code, opt_allFrames, opt_runAt, opt_timeout]);
+var executeScriptInTabs_ = function(tabIds, code, options) {
+  return applyActionToTabs_(tabIds, executeScriptInTab_, [code, options]);
 };
 
 /**
  * @param {!number} tabId
  * @param {!string} css
- * @param {boolean=} opt_allFrames
- * @param {string=} opt_runAt
+ * @param {{allFrames: boolean, runAt: string, timeout: number}} options
  * @return {!Promise<*>}
  */
-var insertCssIntoTab_ = function(tabId, css, opt_allFrames, opt_runAt) {
+var insertCssIntoTab_ = function(tabId, css, options) {
   var details = {
     code: css,
-    allFrames: opt_allFrames || false,
-    runAt: opt_runAt || 'document_idle'
+    allFrames: options.allFrames || false,
+    runAt: options.runAt || 'document_idle'
   };
   return callApi_(chrome.tabs.insertCSS, [tabId, details]);
 };
@@ -185,13 +166,11 @@ var insertCssIntoTab_ = function(tabId, css, opt_allFrames, opt_runAt) {
 /**
  * @param {!(Array<number>|string)} tabIds
  * @param {!string} css
- * @param {boolean=} opt_allFrames
- * @param {string=} opt_runAt
- * @return {!Promise<*>}
+ * @param {{allFrames: boolean, runAt: string, timeout: number}} options
+ * @return {!Promise<Object<string, *>>}
  */
-var insertCssIntoTabs_ = function(tabIds, css, opt_allFrames, opt_runAt) {
-  return applyActionToTabs_(
-      tabIds, insertCssIntoTab_, [css, opt_allFrames, opt_runAt]);
+var insertCssIntoTabs_ = function(tabIds, css, options) {
+  return applyActionToTabs_(tabIds, insertCssIntoTab_, [css, options]);
 };
 
 /**
@@ -202,7 +181,7 @@ var insertCssIntoTabs_ = function(tabIds, css, opt_allFrames, opt_runAt) {
  * @param {!(Array<number>|string)} tabIds
  * @param {!function(!number, !string, boolean=, string=)} action
  * @param {!Array<*>} args
- * @return {!Promise<*>}
+ * @return {!Promise<Object<string, *>>}
  */
 var applyActionToTabs_ = function(tabIds, action, args) {
   // TODO(ussuri): Somehow return mixed results/errors, while explicitly
@@ -220,7 +199,9 @@ var applyActionToTabs_ = function(tabIds, action, args) {
           });
     };
 
-    var promises = nTabIds.map(function(tabId) { return applyAction(tabId); });
+    var promises = nTabIds.map(function(tabId) {
+      return applyAction(tabId);
+    });
     return Promise.all(promises).then(function() {
       return results;
     });
