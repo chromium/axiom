@@ -207,18 +207,21 @@ var applyActionToTabs_ = function(tabIds, action, args) {
  */
 var normalizeTabIds_ = function(tabIds) {
   if (!tabIds || tabIds === 'all') {
-    return getAllTabIds_();
+    return getAllTabIds_(false);
+  } else if (tabIds === 'window') {
+    return getAllTabIds_(true);
   } else {
     return Promise.resolve(tabIds);
   }
 };
 
 /**
+ * @param {boolean} currentWindow
  * @return {!Promise<number>} IDs of all the open tabs in all the windows.
  */
-var getAllTabIds_ = function() {
+var getAllTabIds_ = function(currentWindow) {
   return new Promise(function(resolve, reject) {
-    chrome.tabs.query({}, function(tabs) {
+    chrome.tabs.query({currentWindow: currentWindow}, function(tabs) {
       resolve(tabs.map(function(tab) { return tab.id; }));
     });
   });
