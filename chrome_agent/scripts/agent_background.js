@@ -221,7 +221,10 @@ var normalizeTabIds_ = function(tabIds) {
  */
 var getAllTabIds_ = function(currentWindow) {
   return new Promise(function(resolve, reject) {
-    chrome.tabs.query({currentWindow: currentWindow}, function(tabs) {
+    // NOTE: {currentWindow: false} means "other windows", but we want "all",
+    // so use {}.
+    var options = currentWindow ? {currentWindow: true} : {};
+    chrome.tabs.query(options, function(tabs) {
       resolve(tabs.map(function(tab) { return tab.id; }));
     });
   });
