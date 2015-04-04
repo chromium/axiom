@@ -284,7 +284,7 @@ module.exports = function(grunt) {
           atBegin: true
         },
         files: ['lib/**/*.js', 'samples/**/*.js'],
-        tasks: ['samples']
+        tasks: ['check', 'samples']
       },
       check_test_harness: {
         options: {
