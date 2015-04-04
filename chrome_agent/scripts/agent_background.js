@@ -121,7 +121,7 @@ var callApi_ = function(api, args, options) {
 /**
  * @param {!number} tabId
  * @param {!string} code
- * @param {{allFrames=: boolean, runAt=: string, timeout=: number}} options
+ * @param {{allFrames: boolean, runAt: string, timeout: number}} options
  * @return {!Promise<*>}
  */
 var executeScriptInTab_ = function(tabId, code, options) {
@@ -143,7 +143,7 @@ var executeScriptInTab_ = function(tabId, code, options) {
 /**
  * @param {!(Array<number>|string)} tabIds
  * @param {!string} code
- * @param {{allFrames=: boolean, runAt=: string, timeout=: number}} options
+ * @param {{allFrames: boolean, runAt: string, timeout: number}} options
  * @return {!Promise<Object<string, *>>}
  */
 var executeScriptInTabs_ = function(tabIds, code, options) {
@@ -181,7 +181,7 @@ var insertCssIntoTabs_ = function(tabIds, css, options) {
  * that is, a call will always "succeed" from the caller's perspective.
  *
  * @param {!(Array<number>|string)} tabIds
- * @param {!function(!number, !string, boolean=, string=)} action
+ * @param {!function(!number, !string, {allFrames: boolean, runAt: string, timeout: number})} action
  * @param {!Array<*>} args
  * @return {!Promise<Object<string, *>>}
  */
@@ -212,7 +212,7 @@ var applyActionToTabs_ = function(tabIds, action, args) {
 
 /**
  * @param {!(Array<number>|string)} tabIds
- * @return {!Promise<number>}
+ * @return {!Promise<!Array<number>>}
  */
 var normalizeTabIds_ = function(tabIds) {
   if (!tabIds || tabIds === 'all') {
@@ -220,13 +220,13 @@ var normalizeTabIds_ = function(tabIds) {
   } else if (tabIds === 'window') {
     return getAllTabIds_(true);
   } else {
-    return Promise.resolve(tabIds);
+    return /**@type {?}*/(Promise.resolve(tabIds));
   }
 };
 
 /**
  * @param {boolean} currentWindow
- * @return {!Promise<number>} IDs of all the open tabs in all the windows.
+ * @return {!Promise<!Array<number>>} IDs of all the open tabs in all the windows.
  */
 var getAllTabIds_ = function(currentWindow) {
   return new Promise(function(resolve, reject) {
@@ -283,8 +283,7 @@ chrome.browserAction.onClicked.addListener(function() {
       if (activeWebShellTabIdx_ >= tabs.length) {
         activeWebShellTabIdx_ = 0;
       }
-      var tab = tabs[activeWebShellTabIdx_];
-      lastFocusedWebShellTabUrl_ = tab.url;
+      var tab = /** chrome.tabs.Tab */tabs[activeWebShellTabIdx_];
       chrome.tabs.update(tab.id, {active: true}, function() {});
       chrome.windows.update(tab.windowId, {focused: true}, function() {});
     } else {

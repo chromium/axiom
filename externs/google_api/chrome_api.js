@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /**
- * @fileoverview Externs for Google APIs.
+ * @fileoverview Externs for Google APIs (a minimal subset required by this app)
  *
  * @see Examples in https://developers.google.com/drive/v2/reference/
  *
@@ -23,17 +23,50 @@
 /**
  * @const
  */
-// var chrome = {};
+chrome.runtime = {
+  /**
+   * @param {!string} id
+   * @param {!Object<string, *>} request
+   * @param {!Object<string, *>} options
+   * @param {!function({success, error, result})} callback
+   */
+  sendMessage: function(id, request, options, callback) {},
+  
+  onMessage: {
+    addListener: function(listener) {}
+  },
+  
+  onMessageExternal: {
+    addListener: function(listener) {}
+  }
+};
 
 /**
  * @const
  */
-chrome.runtime = {};
+chrome.tabs = {
+  executeScript: function(id, script, callback) {},
+  insertCSS: function(id, css, callback) {},
+  query: function(options, callback) {},
+  create: function(options) {},
+  update: function(id, options, callback) {},
+  Tab: {
+    windowId: 0
+  }
+};
 
 /**
- * @param {!string} id
- * @param {!Object<string, *>} request
- * @param {!Object<string, *>} options
- * @param {!function({success, error, result})} callback
+ * @const
  */
-chrome.runtime.sendMessage = function(id, request, options, callback) {};
+chrome.windows = {
+  update: function(id, options, callback) {}
+};
+
+/**
+ * @const
+ */
+chrome.browserAction = {
+  onClicked: {
+    addListener: function(listener) {}
+  }
+};
