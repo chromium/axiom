@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Chrome Agent",
   "minimum_chrome_version": "41.0.0.0",
-  "version": "0.0.3",
+  "version": "0.0.4",
 
   "icons": {
     "32": "assets/icon_32.png",
@@ -26,7 +26,7 @@
         "*://localhost:8282/**/web_shell/index.html",
         "*://127.0.0.1:8080/**/web_shell/index.html",
         "*://127.0.0.1:8282/**/web_shell/index.html",
-        "http://chromium.github.io/axiom/web_shell/index.html"
+        "*://chromium.github.io/axiom/web_shell/index.html"
       ],
       "run_at" : "document_end",
       "all_frames": false
@@ -44,7 +44,7 @@
       "*://localhost:8282/*",
       "*://127.0.0.1:8080/*",
       "*://127.0.0.1:8282/*",
-      "http://chromium.github.io/axiom/web_shell/*"
+      "*://chromium.github.io/axiom/web_shell/*"
     ]
   },
 
