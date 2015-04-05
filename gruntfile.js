@@ -187,6 +187,12 @@ module.exports = function(grunt) {
           dest: 'tmp/samples/web_shell/css'
         },
         {
+          expand: true,
+          cwd: 'samples/web_shell/assets/',
+          src: ['**/*'],
+          dest: 'tmp/samples/web_shell/assets'
+        },
+        {
           src: 'third_party/idb.filesystem.js/idb.filesystem.js',
           dest: 'tmp/samples/web_shell/polyfill/idb.filesystem.js/idb.filesystem.js'
         }]
@@ -241,6 +247,10 @@ module.exports = function(grunt) {
           {
             rel: 'chrome-webstore-item',
             href: 'https://chrome.google.com/webstore/detail/lfbhahfblgmngkkgbgbccedhhnkkhknb'
+          },
+          {
+            rel: 'shortcut icon',
+            href: 'assets/favicon.png'
           }
         ]
       },
