@@ -39,6 +39,7 @@ module.exports = function(grunt) {
         cwd: 'lib/',
         js: ['**/*.js',
              '../third_party/closure-compiler/contrib/externs/jasmine.js',
+             '../chrome_agent/scripts/*.js',
              '../externs/google_api/google_api.js',
              '../externs/google_api/chrome_api.js',
              '../tmp/third_party/dcodeIO/fs.js',
