@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Chrome Agent",
   "minimum_chrome_version": "41.0.0.0",
-  "version": "0.0.3",
+  "version": "0.0.5",
 
   "icons": {
     "32": "assets/icon_32.png",
@@ -22,11 +22,16 @@
         "scripts/agent_content_script.js"
       ],
       "matches": [
+        "http://localhost:8080/**/web_shell/index.html",
+        "http://localhost:8282/**/web_shell/index.html",
+        "http://127.0.0.1:8080/**/web_shell/index.html",
+        "http://127.0.0.1:8282/**/web_shell/index.html",
         "https://localhost:8080/**/web_shell/index.html",
         "https://localhost:8282/**/web_shell/index.html",
         "https://127.0.0.1:8080/**/web_shell/index.html",
         "https://127.0.0.1:8282/**/web_shell/index.html",
-        "http://chromium.github.io/axiom/web_shell/index.html"
+        "http://chromium.github.io/axiom/web_shell/index.html",
+        "https://chromium.github.io/axiom/web_shell/index.html"
       ],
       "run_at" : "document_end",
       "all_frames": false
@@ -40,10 +45,15 @@
 
   "externally_connectable": {
     "matches": [
+      "http://localhost:8080/*",
+      "http://localhost:8282/*",
+      "http://127.0.0.1:8080/*",
+      "http://127.0.0.1:8282/*",
       "https://localhost:8080/*",
       "https://localhost:8282/*",
       "https://127.0.0.1:8080/*",
       "https://127.0.0.1:8282/*",
+      "http://chromium.github.io/axiom/web_shell/*",
       "https://chromium.github.io/axiom/web_shell/*"
     ]
   },
