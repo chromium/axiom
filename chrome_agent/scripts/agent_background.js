@@ -267,7 +267,7 @@ var WEB_SHELL_TAB_PROPS_ = {
   url: '*://*/**/web_shell/index.html'
 };
 var HOSTED_WEB_SHELL_URL_ =
-    'http://chromium.github.io/axiom/web_shell/index.html';
+    'https://chromium.github.io/axiom/web_shell/index.html';
 var activeWebShellTabIdx_ = -1;
 
 /**
