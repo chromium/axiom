@@ -12,23 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * @constructor
- * @template T
- */
-export var Completer = function() {
-  /** @type {function(T)} */
-  this.resolve = function() {};
-
-  /** @type {function(*)} */
-  this.reject = function() {};
-
-  /** @type {!Promise<T>} */
-  this.promise = new Promise(
-    function(/** function(T) */ resolve, /** function(*) */ reject) {
-      this.resolve = resolve;
-      this.reject = reject;
-    }.bind(this));
+window.onload = function() {
+  // TODO(ussuri): This won't be needed once owned URLs are registered with the
+  // extension in CWS.
+  var isInstalledMarker = document.createElement('div');
+  isInstalledMarker.id = 'chrome-agent-is-installed';
+  document.body.appendChild(isInstalledMarker);
 };
-
-export default Completer;
