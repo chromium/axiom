@@ -21,6 +21,7 @@ import StdioSource from 'axiom/fs/stdio_source';
 import Path from 'axiom/fs/path';
 
 import scriptMain from 'shell/exe/script';
+import ServiceWorker from 'shell/service_worker';
 import TerminalView from 'shell/terminal';
 import washExecutables from 'wash/exe_modules';
 
@@ -66,7 +67,13 @@ export var main = function() {
         });
     })
     .then(function() {
-      return registerServiceWorker();
+      var serviceWorker = new ServiceWorker(fsm);
+      return serviceWorker.register().then(function() {
+        // This starts an open messaging channel between service worker and
+        // the page. The promise lifetime is the lifetime of the page so don't
+        // return.
+        serviceWorker.sendMessage();
+      });
     })
     .then(function() {
       return launchHterm(fsm);
@@ -96,47 +103,3 @@ var launchHterm = function(fsm) {
       return Promise.resolve(null);
   });
 };
-
-var registerServiceWorker = function() {
-  console.log('came in service worker');
-  if ('serviceWorker' in navigator) {
-    return navigator.serviceWorker.register('/sw.js',
-        { scope: '/' }).then(function(reg) {
-      // registration worked
-      console.log('Registration succeeded. Scope is ' + reg.scope);
-      var s = document.createElement('script');
-      s.src = '../test.js';
-      s.type = 'text/javascript';
-      document.head.appendChild(s);
-    }).catch(function(error) {
-      // registration failed
-      console.log('Registration failed with ' + error);
-    });
-  }
-};
-
-
-function loadUrl(url) {
-  // return a promise for an image loading
-  return new Promise(function(resolve, reject) {
-    var request = new XMLHttpRequest();
-    request.open('GET', url);
-    request.responseType = 'text';
-
-    request.onload = function() {
-      if (request.status == 200) {
-        resolve(request.response);
-      } else {
-        reject(Error('Image didn\'t load successfully; error code:' + request.statusText));
-      }
-    };
-
-    request.onerror = function() {
-      reject(Error('There was a network error.'));
-    };
-
-    // Send the request
-    request.send();
-  });
-};
-
