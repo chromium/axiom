@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+var state = 0;
 var messagePort = null;
+var messageQueue = [];
+var promiseQueue = {};
 var messageId = 1;
-// TODO(grv): implement a message queue.
-var gresolve = null;
 
 function genMessageId() {
   messageId++;
@@ -30,16 +31,21 @@ function createMessage(request) {
   return message;
 };
 
-var resolveRequest = function(message) {
-  gresolve(new Response(message));
-  gresolve = null;
-};
-
 function isFileSystemUrl(url) {
   var re = /\/local\/.*/;
   var matches = re.exec(url);
-  console.log(matches);
   return !!matches;
+};
+
+// First in First out message queue implementation.
+// TODO(grv): Add timeout for failed requests.
+function processQueue() {
+  if (!state && messageQueue.length > 0 && messagePort) {
+    state = 1;
+    var next = messageQueue.shift();
+    messagePort.postMessage(next.message);
+    promiseQueue[next.message.subject] = next;
+  }
 };
 
 // Currently it is not possible to initiate post message request from service
@@ -57,10 +63,13 @@ this.addEventListener('fetch', function(event) {
     });
   } else {
     var message = createMessage(event.request);
-    messagePort.postMessage(message);
     event.respondWith(new Promise(function(resolve, reject) {
-      // TODO(grv): add timeout for failed request.
-      gresolve = resolve;
+      messageQueue.push({
+        'message': message,
+        'resolve': resolve,
+        'reject': reject
+      });
+      processQueue();
     }));
   }
 });
@@ -68,7 +77,12 @@ this.addEventListener('fetch', function(event) {
 this.addEventListener('message', function(event) {
   var message = event.data;
   if (message.name == 'response') {
-    resolveRequest(message.result[0]);
+    var obj = promiseQueue[message.subject];
+    if (obj) {
+      obj.resolve(new Response(message.result[0]));
+    }
   }
   messagePort = event.ports[0];
+  state = 0;
+  processQueue();
 });
