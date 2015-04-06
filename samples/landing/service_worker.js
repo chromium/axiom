@@ -79,7 +79,11 @@ this.addEventListener('message', function(event) {
   if (message.name == 'response') {
     var obj = promiseQueue[message.subject];
     if (obj) {
-      obj.resolve(new Response(message.result[0]));
+      if (!message.error) {
+        obj.resolve(new Response(message.result[0]));
+      } else {
+        obj.resolve(new Response(message.error));
+      }
     }
   }
   messagePort = event.ports[0];

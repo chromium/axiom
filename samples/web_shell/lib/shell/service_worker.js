@@ -65,6 +65,9 @@ ServiceWorker.prototype.processMessage = function(message) {
     return this.readUrl(url).then(function(data) {
       var response = this.createResponse(message.subject, data);
       return this.sendMessage(response);
+    }.bind(this)).catch(function(e) {
+      var response = this.createResponse(message.subject, null, e);
+      return this.sendMessage(response);
     }.bind(this));
   }.bind(this));
 };
@@ -76,11 +79,12 @@ ServiceWorker.prototype.processMessage = function(message) {
  *
  * @return {@}
  */
-ServiceWorker.prototype.createResponse = function(subject, data) {
+ServiceWorker.prototype.createResponse = function(subject, data, error) {
   var response = {};
   response.subject = subject;
   response.name = 'response';
   response.result = [data];
+  response.error = error;
   return response;
 };
 
@@ -94,7 +98,9 @@ ServiceWorker.prototype.readUrl = function(url) {
   return new Promise(function(resolve, reject) {
     return this.fsm.readFile(new Path(url)).then(function(result) {
       return resolve(result.data);
-    }.bind(this));
+    }.bind(this)).catch(function(e) {
+      reject(url + ' : Error in reading file.');
+    });
   }.bind(this));
 };
 
