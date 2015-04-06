@@ -130,7 +130,7 @@ var socketfs = {
 
   signature: {
     'help|h': '?',
-    'port|p': '$',
+    'port|p': '*',
     'filesystem|f': '$',
     '_': '@'
   }
