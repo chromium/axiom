@@ -16,7 +16,10 @@ var FileSystemManager = require('axiom/fs/base/file_system_manager').default;
 var StdioSource = require('axiom/fs/stdio_source').default;
 var JsFileSystem = require('axiom/fs/js/file_system').default;
 var NodeFileSystem = require('axiom/fs/node/file_system').default;
-var NodeSkeletonFileSystem = require('axiom/fs/stream/node_skeleton_file_system').default;
+var NodeWebSocketStreams = require('axiom/fs/stream/node_web_socket_streams').default;
+var Transport = require('axiom/fs/stream/transport').default;
+var Channel = require('axiom/fs/stream/channel').default;
+var SkeletonFileSystem = require('axiom/fs/stream/skeleton_file_system').default;
 var TTYState = require('axiom/fs/tty_state').default;
 var washExecutables = require('wash/exe_modules').dir;
 
@@ -27,13 +30,14 @@ if ('setRawMode' in process.stdin) {
 
 var WebSocketServer = require('ws').Server;
 
-var WebSocketFs = function(cx, port) {
+var WebSocketFs = function(cx, port, fileSystemName) {
   this.cx_ = cx;
   this.port_ = port;
+  this.fileSystemName_ = fileSystemName;
   this.wss_ = new WebSocketServer({ port: port });
   this.completer_ = new Completer();
   this.cx_.onClose.addListener(function() {
-      this.println('closing server');
+    this.println('closing server');
     this.wss_.close();
     this.completer_.resolve();
   }.bind(this));
@@ -45,10 +49,14 @@ WebSocketFs.prototype.println = function(msg) {
 
 WebSocketFs.prototype.run = function() {
   this.wss_.on('connection', function (ws) {
-    this.println('connection!');
-    // TODO(rpaquay): Hard code to be "nodefs:" for now.
-    var localFs = this.cx_.fileSystemManager.getFileSystems()[1];
-    var fs = new NodeSkeletonFileSystem(ws, localFs);
+    try {
+     this.openFileSystem(ws);
+     this.println('WebSocket file system connection accepted');
+    }
+    catch(error) {
+      this.println('WebSocket file system connection error: ' + error.message);
+      console.log(error);
+    }
   }.bind(this));
 
   this.println('WebSocket server running on port ' + this.port_);
@@ -56,8 +64,24 @@ WebSocketFs.prototype.run = function() {
   return this.completer_.promise;
 };
 
-var WebSocketFileSystem = function(webSocket) {
-  this.webSocket_ = webSocket;
+WebSocketFs.prototype.openFileSystem = function(webSocket) {
+  var fileSystem = null;
+  this.cx_.fileSystemManager.getFileSystems().forEach(function(fs) {
+    if (fs.rootPath.root === this.fileSystemName_) {
+      fileSystem = fs;
+    }
+  }.bind(this));
+  if (!fileSystem)
+    throw new AxiomError.NotFound('file system', this.fileSystemName_);
+
+  var streams = new NodeWebSocketStreams(webSocket);
+  var transport = new Transport(
+      'NodeWebSocketTransport',
+      streams.readableStream,
+      streams.writableStream);
+  var channel = new Channel('NodeWebSocketChannel', transport);
+  var skeleton = new SkeletonFileSystem('nodefs', fileSystem, channel);
+  streams.resume();
 };
 
 /*
@@ -68,7 +92,30 @@ var socketfs = {
 
   main: function(cx) {
     cx.ready();
-    var server = new WebSocketFs(cx, 8000);
+
+    var port = cx.getArg('port');
+    var fileSystem = cx.getArg('filesystem');
+    if (!port || !fileSystem || cx.getArg('help')) {
+      cx.stdout.write([
+        'usage: socketfs -p|--port <port> -f|--filesystem <file-system-name>',
+        'Create a new stream located at <path>.',
+        '',
+        'Options:',
+        '',
+        '  -h, --help',
+        '      Print this help message and exit.',
+        '  -p, --port <port>',
+        '      The WebSocket port to listen to.',
+        '  -f, --filesystem <file-system-name>',
+        '      The name of the filesystem to expose on WebSocket connections.',
+        '',
+      ].join('\r\n') + '\r\n');
+
+      cx.closeOk();
+      return;
+    }
+
+    var server = new WebSocketFs(cx, port, fileSystem);
     server.run().then(
       function() {
         cx.closeOk();
@@ -82,6 +129,8 @@ var socketfs = {
 
   signature: {
     'help|h': '?',
+    'port|p': '$',
+    'filesystem|f': '$',
     '_': '@'
   }
 };
@@ -151,6 +200,7 @@ function main() {
   return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
     jsdir.install(washExecutables);
     var cmds = {};
+    socketfs.main.signature = socketfs.signature;
     cmds[socketfs.name] = socketfs.main;
     jsdir.install(cmds);
     mountNodefs(fsm);
