@@ -56,6 +56,7 @@ WebSocketFs.prototype.run = function() {
     catch(error) {
       this.println('WebSocket file system connection error: ' + error.message);
       console.log(error);
+      ws.close();
     }
   }.bind(this));
 
