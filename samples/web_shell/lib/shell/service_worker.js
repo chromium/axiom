@@ -1,0 +1,163 @@
+// Copyright 2015 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import JsFileSystem from 'axiom/fs/js/file_system';
+import DomFileSystem from 'axiom/fs/dom/file_system';
+import GDriveFileSystem from 'axiom/fs/gdrive/file_system';
+import FileSystemManager from 'axiom/fs/base/file_system_manager';
+import ExecuteContext from 'axiom/fs/base/execute_context';
+import StdioSource from 'axiom/fs/stdio_source';
+import Path from 'axiom/fs/path';
+import AxiomError from 'axiom/core/error';
+
+/**
+ * @constructor
+ *
+ * A Service worker class.
+ *
+ * @param FileSystemManager fsm
+ */
+var ServiceWorker = function(fsm) {
+  this.fsm = fsm;
+};
+
+export {ServiceWorker};
+export default ServiceWorker;
+
+/**
+ *
+ * @return Promise<null>
+ */
+ServiceWorker.prototype.register = function() {
+  if ('serviceWorker' in navigator) {
+    return navigator.serviceWorker.register('/service_worker.js',
+        {scope: '/'}).then(function(reg) {
+      // registration worked
+      console.log('Registration succeeded. Scope is ' + reg.scope);
+    }).catch(function(error) {
+      // registration failed
+      console.log('Registration failed with ' + error);
+    });
+  }
+}
+
+/**
+ * @param {string} message
+ *
+ * @return Promise<@>
+ */
+ServiceWorker.prototype.processMessage = function(message) {
+
+  var url = this.getFileSystemUrl(message);
+
+  return new Promise(function(resolve, reject) {
+    return this.readUrl(url).then(function(data) {
+      var response = this.createResponse(message.subject, data);
+      return this.sendMessage(response);
+    }.bind(this));
+  }.bind(this));
+};
+
+/**
+ *
+ * @param {string} subject
+ * @param {@} data
+ *
+ * @return {@}
+ */
+ServiceWorker.prototype.createResponse = function(subject, data) {
+  var response = {};
+  response.subject = subject;
+  response.name = 'response';
+  response.result = [data];
+  return response;
+};
+
+/**
+ *
+ * @param {string} url
+ *
+ * @return Promise<*>
+ */
+ServiceWorker.prototype.readUrl = function(url) {
+  return new Promise(function(resolve, reject) {
+    return this.fsm.readFile(new Path(url)).then(function(result) {
+      return resolve(result.data);
+    }.bind(this));
+  }.bind(this));
+};
+
+/**
+ * @param {@} message
+ *
+ * @return {string}
+ */
+ServiceWorker.prototype.getFileSystemUrl = function(message) {
+  if (!message || message.name !== 'filesystem' || !message.args
+      || !message.args.url) {
+    throw new AxiomError.Invalid(message);
+  }
+
+  var re = /\/local\/.*/;
+  var matches = re.exec(message.args.url);
+  if (!matches || !matches[0].startsWith('/local/')) {
+    throw new AxiomError.Invalid(message);
+  }
+
+  var result = matches[0];
+
+  // Remove /local/ prefix.
+  result = result.substr(7);
+
+  if (result.startsWith('html5')) {
+     result = result.substr(0, 5) + ':' + result.substr(5);
+  } else if (result.startsWith('gdrive')) {
+     result = result.substr(0, 5) + ':' + result.substr(5);
+  } else {
+    throw new AxiomError.Invalid(message);
+  }
+  return result;
+}
+
+/*
+ * @param {string} message
+ *
+ * @return Promise<@>
+ */
+ServiceWorker.prototype.sendMessage = function(message) {
+  if (!message) {
+    message = {
+      'subject': 0,
+      'name': 'welcome'
+    };
+  }
+
+  return new Promise(function(resolve, reject) {
+    var messageChannel = new MessageChannel();
+    messageChannel.port1.onmessage = function(event) {
+      if (event.data.error) {
+        reject(event.data.error);
+      } else {
+        return this.processMessage(event.data);
+      }
+    }.bind(this);
+
+    if (navigator.serviceWorker.ready) {
+      console.log(navigator.serviceWorker);
+      navigator.serviceWorker.ready.then(function(reg) {
+        reg.active.postMessage(message, [messageChannel.port2]);
+      });
+    }
+  }.bind(this));
+};
