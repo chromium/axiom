@@ -154,7 +154,6 @@ ServiceWorker.prototype.sendMessage = function(message) {
     }.bind(this);
 
     if (navigator.serviceWorker.ready) {
-      console.log(navigator.serviceWorker);
       navigator.serviceWorker.ready.then(function(reg) {
         reg.active.postMessage(message, [messageChannel.port2]);
       });
