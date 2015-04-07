@@ -39,7 +39,9 @@ module.exports = function(grunt) {
         cwd: 'lib/',
         js: ['**/*.js',
              '../third_party/closure-compiler/contrib/externs/jasmine.js',
+             '../chrome_agent/scripts/*.js',
              '../externs/google_api/google_api.js',
+             '../externs/google_api/chrome_api.js',
              '../tmp/third_party/dcodeIO/fs.js',
              '../tmp/third_party/dcodeIO/buffer.js',
              '../tmp/third_party/dcodeIO/stream.js',
@@ -186,6 +188,12 @@ module.exports = function(grunt) {
           dest: 'tmp/samples/web_shell/css'
         },
         {
+          expand: true,
+          cwd: 'samples/web_shell/assets/',
+          src: ['**/*'],
+          dest: 'tmp/samples/web_shell/assets'
+        },
+        {
           src: 'third_party/idb.filesystem.js/idb.filesystem.js',
           dest: 'tmp/samples/web_shell/polyfill/idb.filesystem.js/idb.filesystem.js'
         }]
@@ -235,6 +243,16 @@ module.exports = function(grunt) {
         ],
         cssrefs: [
           'css/**/*.css'
+        ],
+        links: [
+          {
+            rel: 'chrome-webstore-item',
+            href: 'https://chrome.google.com/webstore/detail/lfbhahfblgmngkkgbgbccedhhnkkhknb'
+          },
+          {
+            rel: 'shortcut icon',
+            href: 'assets/favicon.png'
+          }
         ]
       },
 
