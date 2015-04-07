@@ -12,12 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import JsFileSystem from 'axiom/fs/js/file_system';
-import DomFileSystem from 'axiom/fs/dom/file_system';
-import GDriveFileSystem from 'axiom/fs/gdrive/file_system';
 import FileSystemManager from 'axiom/fs/base/file_system_manager';
-import ExecuteContext from 'axiom/fs/base/execute_context';
-import StdioSource from 'axiom/fs/stdio_source';
 import Path from 'axiom/fs/path';
 import AxiomError from 'axiom/core/error';
 
@@ -47,7 +42,8 @@ ServiceWorker.prototype.register = function() {
       console.log('Registration succeeded. Scope is ' + reg.scope);
     }).catch(function(error) {
       // registration failed
-      console.log('Registration failed with ' + error);
+      reject(new AxiomError.Runtime(
+        'Runtime Error:', 'Registration failed with ' + error));
     });
   }
 }
@@ -59,10 +55,10 @@ ServiceWorker.prototype.register = function() {
  */
 ServiceWorker.prototype.processMessage = function(message) {
 
-  var url = this.getFileSystemUrl(message);
+  var path = this.getFileSystemUrl(message);
 
   return new Promise(function(resolve, reject) {
-    return this.readUrl(url).then(function(data) {
+    return this.readPath(path).then(function(data) {
       var response = this.createResponse(message.subject, data);
       return this.sendMessage(response);
     }.bind(this)).catch(function(e) {
@@ -90,16 +86,16 @@ ServiceWorker.prototype.createResponse = function(subject, data, error) {
 
 /**
  *
- * @param {string} url
+ * @param {Path} path
  *
  * @return Promise<*>
  */
-ServiceWorker.prototype.readUrl = function(url) {
+ServiceWorker.prototype.readPath = function(path) {
   return new Promise(function(resolve, reject) {
-    return this.fsm.readFile(new Path(url)).then(function(result) {
+    return this.fsm.readFile(path).then(function(result) {
       return resolve(result.data);
     }.bind(this)).catch(function(e) {
-      reject(url + ' : Error in reading file.');
+      reject(path.spec + ' : Error in reading file.');
     });
   }.bind(this));
 };
@@ -107,7 +103,7 @@ ServiceWorker.prototype.readUrl = function(url) {
 /**
  * @param {@} message
  *
- * @return {string}
+ * @return {Path}
  */
 ServiceWorker.prototype.getFileSystemUrl = function(message) {
   if (!message || message.name !== 'filesystem' || !message.args
@@ -118,7 +114,7 @@ ServiceWorker.prototype.getFileSystemUrl = function(message) {
   var re = /\/local\/.*/;
   var matches = re.exec(message.args.url);
   if (!matches || !matches[0].startsWith('/local/')) {
-    throw new AxiomError.Invalid(message);
+    throw new AxiomError.Invalid('Invalid Error:', message);
   }
 
   var result = matches[0];
@@ -126,14 +122,17 @@ ServiceWorker.prototype.getFileSystemUrl = function(message) {
   // Remove /local/ prefix.
   result = result.substr(7);
 
-  if (result.startsWith('html5')) {
-     result = result.substr(0, 5) + ':' + result.substr(5);
-  } else if (result.startsWith('gdrive')) {
-     result = result.substr(0, 5) + ':' + result.substr(5);
-  } else {
-    throw new AxiomError.Invalid(message);
+  var fileSystems = this.fsm.getFileSystems();
+
+  for (var i = 0; i < fileSystems.length; ++i) {
+    if (result.startsWith(fileSystems[i].name)) {
+       var length = fileSystems[i].name.length;
+       result = result.substr(0, length) + ':' + result.substr(length);
+       return new Path(result);
+    }
   }
-  return result;
+
+  throw new AxiomError.Invalid('Invalid Error:', message.args.url);
 }
 
 /*
