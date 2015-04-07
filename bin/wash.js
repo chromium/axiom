@@ -62,7 +62,7 @@ WebSocketFs.prototype.run = function() {
 
   this.println('WebSocket server for file system "' + this.fileSystemName_ +
       '" running on port ' + this.port_);
-  this.println('Waiting for connectons, press Ctrl-C to terminate.');
+  this.println('Waiting for connections, press Ctrl-C to terminate.');
   return this.completer_.promise;
 };
 
