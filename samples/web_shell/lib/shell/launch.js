@@ -73,6 +73,8 @@ export var main = function() {
         // the page. The promise lifetime is the lifetime of the page so don't
         // return.
         serviceWorker.sendMessage();
+      }).catch(function(e) {
+        console.log('Unable to connect to service worker: ' + e);
       });
     })
     .then(function() {

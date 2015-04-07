@@ -42,8 +42,8 @@ ServiceWorker.prototype.register = function() {
       console.log('Registration succeeded. Scope is ' + reg.scope);
     }).catch(function(error) {
       // registration failed
-      reject(new AxiomError.Runtime(
-        'Runtime Error:', 'Registration failed with ' + error));
+      return Promise.reject(new AxiomError.Runtime(
+          'Registration failed with ' + error));
     });
   }
 }

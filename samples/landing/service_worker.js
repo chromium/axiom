@@ -80,7 +80,8 @@ this.addEventListener('message', function(event) {
     var obj = promiseQueue[message.subject];
     if (obj) {
       if (!message.error) {
-        obj.resolve(new Response(message.result[0]));
+        obj.resolve(new Response(message.result[0]), {headers: {
+            'Content-Type': 'text/plain'}});
       } else {
         obj.resolve(new Response(message.error));
       }
