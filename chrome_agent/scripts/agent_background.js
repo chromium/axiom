@@ -351,7 +351,8 @@ var HOSTED_WEB_SHELL_URL_ =
     'https://chromium.github.io/axiom/web_shell/index.html';
 
 /**
- * @private @const
+ * @private
+ * @type {number}
  */
 var activeWebShellTabIdx_ = -1;
 
