@@ -13,21 +13,23 @@
 // limitations under the License.
 
 /**
+ * Route a request to an appropriate worker function, wait for it to return
+ * a result, then asynchronously send it in a response.
+ * 
+ * @private
  * @param {!Object<string, *>} request
  * @param {function(*): void} sendResponse
  * @return {void}
  */
 var handleRequest_ = function(request, sendResponse) {
-  var promise;
-  if (request.type === 'call_api') {
-    promise = callApi_(resolveApi_(request.api), request.args, request.options);
-  } else if (request.type === 'execute_script') {
-    promise = executeScriptInTabs_(request.tabIds, request.code, request.options);
-  } else if (request.type === 'insert_css') {
-    promise = insertCssIntoTabs_(request.tabIds, request.css, request.options);
-  } else {
-    promise = Promise.reject('Unrecognized request type "' + request.type + '"');
-  }
+  var promise =
+      request.type === 'call_api' ?
+          callApi_(resolveApi_(request.api), request.args, request.options) :
+      request.type === 'execute_script' ?
+          executeScriptInTabs_(request.tabIds, request.code, request.options) :
+      request.type === 'insert_css' ?
+          insertCssIntoTabs_(request.tabIds, request.css, request.options) :
+          Promise.reject('Unrecognized request type "' + request.type + '"');
 
   promise.then(function(result) {
     sendResponse({success: true, result: result});
@@ -37,6 +39,10 @@ var handleRequest_ = function(request, sendResponse) {
 };
 
 /**
+ * Resolve an API name to a corresponding API object, if any. This is generic,
+ * i.e. not restricted to just the Chrome APIs. 
+ * 
+ * @private
  * @param {!string} apiName
  * @return {?Object} Resolved API object or null.
  */
@@ -51,10 +57,21 @@ var resolveApi_ = function(apiName) {
   return resolvedApi;
 };
 
+/**
+ * A regexp for one particularly frequent error message that needs to be
+ * translated for the client.
+ * 
+ * @private @const
+ */
 var BAD_API_INVOCATION_ERROR_RE_ =
     /^Error: Invocation of form (.+) doesn't match definition (.+)$/;
 
 /**
+ * Invoke a Chrome API with the given name and arguments, and return the result
+ * If the API's name resolves to something different from a function, and there
+ * no arguments, the value of the resolved object is returned instead.
+ * 
+ * @private
  * @param {Object} api
  * @param {!Object<string, *>} args
  * @param {{timeout: number}} options
@@ -119,6 +136,27 @@ var callApi_ = function(api, args, options) {
 };
 
 /**
+ * Execute a script in the given tab's "isolated world" (with full access to
+ * the DOM context but not the JavaScript context).
+ * 
+ * The result of the executions is passed back as a single value for a single
+ * requested tab, or as a map of form { tabId1: result1, ... } for multiple
+ * requested tabs (special values 'all' and 'window' are considered multiple
+ * tabs even if they resolve to just one).
+ * 
+ * The execution is resilient to errors and/or timeouts in individual tabs,
+ * which can happen for various reasons (the script itself never returns or
+ * attempts to return too much data; a tab may be hung ("Aw, snap!"); a tab may
+ * be a special chrome:// tab, in which scripts are prohibited and error out).
+ * Such errors are returned in the results map as special string values.
+ *
+ * Request the Agent extension to execute the given script in the given list
+ * of tabs, with the given options. The result of the executions is passed back 
+ * as a single value for a single requested tab, or as a map of form
+ * { tabId1: result1, ... } for multiple requested tabs (special values 'all'
+ * and 'window' are considered multiple tabs even if they resolve to just one).
+ * 
+ * @private
  * @param {!number} tabId
  * @param {!string} code
  * @param {{allFrames: boolean, runAt: string, timeout: number}} options
@@ -141,6 +179,27 @@ var executeScriptInTab_ = function(tabId, code, options) {
 };
 
 /**
+ * Execute a script in the given tabs' "isolated world" (with full access to
+ * the DOM context but not the JavaScript context).
+ * 
+ * The result of the executions is passed back as a single value for a single
+ * requested tab, or as a map of form { tabId1: result1, ... } for multiple
+ * requested tabs (special values 'all' and 'window' are considered multiple
+ * tabs even if they resolve to just one).
+ * 
+ * The execution is resilient to errors and/or timeouts in individual tabs,
+ * which can happen for various reasons (the script itself never returns or
+ * attempts to return too much data; a tab may be hung ("Aw, snap!"); a tab may
+ * be a special chrome:// tab, in which scripts are prohibited and error out).
+ * Such errors are returned in the results map as special string values.
+ *
+ * Request the Agent extension to execute the given script in the given list
+ * of tabs, with the given options. The result of the executions is passed back 
+ * as a single value for a single requested tab, or as a map of form
+ * { tabId1: result1, ... } for multiple requested tabs (special values 'all'
+ * and 'window' are considered multiple tabs even if they resolve to just one).
+ *
+ * @private
  * @param {!(Array<number>|string)} tabIds
  * @param {!string} code
  * @param {{allFrames: boolean, runAt: string, timeout: number}} options
@@ -151,6 +210,10 @@ var executeScriptInTabs_ = function(tabIds, code, options) {
 };
 
 /**
+ * Insert a fragment of CSS into the given tab and return the result of the
+ * underlying API call (mostly useful in case of errors).
+ *
+ * @private
  * @param {!number} tabId
  * @param {!string} css
  * @param {{allFrames: boolean, runAt: string, timeout: number}} options
@@ -166,6 +229,17 @@ var insertCssIntoTab_ = function(tabId, css, options) {
 };
 
 /**
+ * Insert the given CSS fragment into the given list of tabs, with the given
+ * options. If there are any errors, they are returned as a single string for
+ * a single requested tab, or as a map of form { tabId1: error1, ... } for
+ * multiple requested tabs (special values 'all' and 'window' are considered
+ * multiple tabs even if they resolve to just one).
+ * 
+ * Note that the author styles take precedence over any iserted styles, so
+ * if there is a clash for some setting, the inserted CSS will have no effect
+ * (this is the limitation of the underlying Chrome API).
+ *
+ * @private
  * @param {!(Array<number>|string)} tabIds
  * @param {!string} css
  * @param {{allFrames: boolean, runAt: string, timeout: number}} options
@@ -176,10 +250,13 @@ var insertCssIntoTabs_ = function(tabIds, css, options) {
 };
 
 /**
- * Return a map of {tabId -> result} pairs, with per-tab errors reported as
- * string results, but not flagged to the caller in an explicit way;
- * that is, a call will always "succeed" from the caller's perspective.
+ * Apply an action (a function-like entity) to the multiple requested tabs, and
+ * return a map of form {tabId1: result1, ...}. Per-tab errors are reported as
+ * strings with special values in the same map, but not flagged to the caller
+ * in a more explicit way; that is, a call will always "succeed" from the
+ * caller's perspective.
  *
+ * @private
  * @param {!(Array<number>|string)} tabIds
  * @param {!function(!number, !string, {allFrames: boolean, runAt: string, timeout: number})} action
  * @param {!Array<*>} args
@@ -211,6 +288,10 @@ var applyActionToTabs_ = function(tabIds, action, args) {
 };
 
 /**
+ * Expand special values 'all' and 'window' of a tab ID list into an actual list
+ * of IDs. Regular lists are returned as-is.
+ *
+ * @private
  * @param {!(Array<number>|string)} tabIds
  * @return {!Promise<!Array<number>>}
  */
@@ -225,14 +306,18 @@ var normalizeTabIds_ = function(tabIds) {
 };
 
 /**
- * @param {boolean} currentWindow
+ * Return a list of all tab IDs in all the open windows or the current
+ * window only.
+ *
+ * @private
+ * @param {boolean} thisWindowOnly
  * @return {!Promise<!Array<number>>} IDs of all the open tabs in all the windows.
  */
-var getAllTabIds_ = function(currentWindow) {
+var getAllTabIds_ = function(thisWindowOnly) {
   return new Promise(function(resolve, reject) {
-    // NOTE: {currentWindow: false} means "other windows", but we want "all",
+    // NOTE: {thisWindowOnly: false} means "other windows", but we want "all",
     // so use {}.
-    var options = currentWindow ? {currentWindow: true} : {};
+    var options = thisWindowOnly ? {currentWindow: true} : {};
     chrome.tabs.query(options, function(tabs) {
       resolve(tabs.map(function(tab) { return tab.id; }));
     });
@@ -240,18 +325,7 @@ var getAllTabIds_ = function(currentWindow) {
 };
 
 /**
- * This is sent by our companion content script injected into a browser tab.
- */
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    handleRequest_(request, sendResponse);
-    // Indicate that the response is sent asynchronously.
-    return true;
-  }
-);
-
-/**
- * This is sent by a client to request some service from us.
+ * This is the API end-point to listen to service requests from external clients.
  */
 chrome.runtime.onMessageExternal.addListener(
   function(request, sender, sendResponse) {
@@ -262,17 +336,28 @@ chrome.runtime.onMessageExternal.addListener(
   }
 );
 
+/**
+ * @private @const
+ */
 var WEB_SHELL_TAB_PROPS_ = {
   title: 'Console',
   url: '*://*/**/web_shell/index.html'
 };
+
+/**
+ * @private @const
+ */
 var HOSTED_WEB_SHELL_URL_ =
     'https://chromium.github.io/axiom/web_shell/index.html';
+
+/**
+ * @private @const
+ */
 var activeWebShellTabIdx_ = -1;
 
 /**
  * Clicking on the extension icon in the toolbar will:
- * - If no tabs with web shell are open, open a hosted shell in a new tab;
+ * - If no tabs with the web shell are open, open a hosted shell in a new tab;
  * - If one or more tabs with the web shell are already open (e.g. a test
  *   and a hosted instances), then cycle through them.
  */
