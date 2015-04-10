@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// State is set to true when waiting for a response from the page.
 var state = 0;
 var messagePort = null;
 var messageQueue = [];
@@ -82,6 +83,7 @@ this.addEventListener('message', function(event) {
       if (!message.error) {
         obj.resolve(new Response(message.result[0]), {headers: {
             'Content-Type': 'text/plain'}});
+        delete promiseQueue[message.subject];
       } else {
         obj.resolve(new Response(message.error));
       }

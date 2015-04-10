@@ -55,7 +55,7 @@ ServiceWorker.prototype.register = function() {
  */
 ServiceWorker.prototype.processMessage = function(message) {
 
-  var path = this.getFileSystemUrl(message);
+  var path = this.getFileSystemPath(message);
 
   return new Promise(function(resolve, reject) {
     return this.readPath(path).then(function(data) {
@@ -105,7 +105,7 @@ ServiceWorker.prototype.readPath = function(path) {
  *
  * @return {Path}
  */
-ServiceWorker.prototype.getFileSystemUrl = function(message) {
+ServiceWorker.prototype.getFileSystemPath = function(message) {
   if (!message || message.name !== 'filesystem' || !message.args
       || !message.args.url) {
     throw new AxiomError.Invalid(message);
