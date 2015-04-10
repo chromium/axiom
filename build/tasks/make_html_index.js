@@ -20,7 +20,7 @@ module.exports = function(grunt) {
     var mainsrc = '<!DOCTYPE html>\n';
     mainsrc += '<html>\n';
     mainsrc += '<head>\n';
-    mainsrc += '<title>' + this.data.title + '</title>\n';
+    mainsrc += '  <title>' + this.data.title + '</title>\n';
 
     if (this.data.cssrefs) {
       var cssrefs = grunt.file.expand(this.data, this.data.cssrefs);
@@ -28,6 +28,12 @@ module.exports = function(grunt) {
         mainsrc += '  <link rel="stylesheet" type="text/css" href="' + cssref +
             '">\n';
       }.bind(this));
+    }
+
+    if (this.data.links) {
+      this.data.links.forEach(function(link) {
+        mainsrc += '  <link rel="' + link.rel + '" href="' + link.href + '">\n';
+      });
     }
 
     if (this.data.inlines) {
