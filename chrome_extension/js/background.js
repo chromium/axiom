@@ -1,3 +1,9 @@
+import JsFileSystem from 'axiom/fs/js/file_system';
+import PostMessageStreams from 'axiom/fs/stream/post_message_streams';
+import washExecutables from 'wash/exe_modules';
+
+// import JsFileSystem from 'axiom/fs/js/file_system';
+
 // Copyright (c) 2015 Google Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +26,8 @@
 var handleRequest_ = function(request, sendResponse) {
   console.log(request);
   var promise;
-  promise = Promise.resolve("okay!");
+  promise = Promise.resolve("guid");
+  var Streams
 
   // if (request.type === 'call_api') {
   //   promise = callApi_(resolveApi_(request.api), request.args, request.options);
@@ -33,18 +40,24 @@ var handleRequest_ = function(request, sendResponse) {
   // }
 
   promise.then(function(result) {
+
     sendResponse({success: true, result: result});
   }).catch(function(error) {
     sendResponse({success: false, error: error.message ? error.message : error});
   });
 };
 
+chrome.runtime.onConnect.addListener(function(port) {
+  var streams = new PostMessageStreams(this);
+  streams.open(port);
+});
+
 /**
  * This is sent by our companion content script injected into a browser tab.
  */
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    handleRequest_(request, sendResponse);
+
     // Indicate that the response is sent asynchronously.
     return true;
   }
@@ -68,7 +81,7 @@ chrome.runtime.onMessageExternal.addListener(
 // var FileSystemManager = require('axiom/fs/base/file_system_manager').default;
 
 function init() {
-  var jsfs = new FileSystemManager$$module$axiom$fs$base$file_system_manager();
+  var jsfs = new JsFileSystem();
   var fsm = jsfs.fileSystemManager;
   return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
     jsdir.install(washExecutables);

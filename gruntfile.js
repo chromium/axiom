@@ -226,6 +226,26 @@ module.exports = function(grunt) {
           dest: 'tmp/samples'
         }]
       },
+      chrome_extension: {
+        files: [{
+          expand: true,
+          cwd: 'chrome_extension',
+          src: ['**'],
+          dest: 'tmp/chrome_extension'
+        },
+        {
+          expand: true,
+          cwd: 'dist/axiom_base/amd/lib/',
+          src: ['*.js', '*.map'],
+          dest: 'tmp/chrome_extension/js/'
+        },
+        {
+          expand: true,
+          cwd: 'dist/axiom_wash/amd/lib/',
+          src: ['*.js'],
+          dest: 'tmp/chrome_extension/js/'
+        }]
+      },
       fail_message: {
         files: [{
           expand: true,
@@ -327,6 +347,16 @@ module.exports = function(grunt) {
                 'es6_transpile:amd',
                 'make_main_module:test',
                 'make_html_index:test_harness']
+      },
+      chrome_extension: {
+        options: {
+          atBegin: true
+        },
+        files: ['chrome_extension/**/*.html',
+                'chrome_extension/**/*.js',
+                'chrome_extension/**/*.json',
+                'chrome_extension/**/*.png'],
+        tasks: ['chrome_extension']
       }
     },
 
@@ -362,6 +392,17 @@ module.exports = function(grunt) {
           cwd: 'samples/web_shell/lib/',
           src: ['**/*.js'],
           dest: 'tmp/samples/web_shell/js/'
+        }]
+      },
+      chrome_extension: {
+        type: "amd",
+        fileResolver: ['lib/',
+                       'chrome_extension/'],
+        files: [{
+          expand: true,
+          cwd: 'chrome_extension/',
+          src: ['js/background.js'],
+          dest: 'tmp/chrome_extension'
         }]
       }
     },
@@ -464,4 +505,7 @@ module.exports = function(grunt) {
   grunt.registerTask('publish_npm', ['dist',
                                      'shell:publish_axiom',
                                      'shell:publish_wash']);
+  grunt.registerTask('chrome_extension', ['dist', 'samples',
+                                     'copy:chrome_extension',
+                                     'es6_transpile:chrome_extension']);
 };
