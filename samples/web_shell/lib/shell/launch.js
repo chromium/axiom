@@ -25,7 +25,7 @@ import TerminalView from 'shell/terminal';
 import washExecutables from 'wash/exe_modules';
 
 var welcomeMessage = [
-  'Welcome to the Axiom web_shell sample!!',
+  'Welcome to the Axiom web_shell sample.',
   '',
   'This is a cross-browser interactive shell written in JavaScript which ',
   'can be extended with new commands at runtime.',
