@@ -2,7 +2,23 @@
   <head>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.8/ace.js'
         type="text/javascript" charset="utf-8"></script>
-    <script src='js/launch.js'></script>
+    <script>
+      chrome.runtime.sendMessage(
+        'lfbhahfblgmngkkgbgbccedhhnkkhknb',
+        {command: 'open'},
+        {}, // options
+        function(response) {
+          if (chrome.runtime.lastError) {
+            console.log('error1');
+          } else if (!response.success) {
+          	console.log('error1');
+          } else {
+          	var portId = response.result;
+          	this.port_ = chrome.runtime.connect({name: portId});
+          }
+        }.bind(this)
+      );
+    </script>
   </head>
   <body>
     <div id='editor' style='width:100%; height:100%;'></div>
