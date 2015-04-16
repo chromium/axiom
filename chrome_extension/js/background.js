@@ -1,4 +1,7 @@
 import JsFileSystem from 'axiom/fs/js/file_system';
+import SkeletonFileSystem from 'axiom/fs/stream/skeleton_file_system';
+import Transport from 'axiom/fs/stream/transport';
+import Channel from 'axiom/fs/stream/channel';
 import PostMessageStreams from 'axiom/fs/stream/post_message_streams';
 import washExecutables from 'wash/exe_modules';
 
@@ -47,11 +50,6 @@ var handleRequest_ = function(request, sendResponse) {
   });
 };
 
-chrome.runtime.onConnect.addListener(function(port) {
-  var streams = new PostMessageStreams(this);
-  streams.open(port);
-});
-
 /**
  * This is sent by our companion content script injected into a browser tab.
  */
@@ -83,15 +81,35 @@ chrome.runtime.onMessageExternal.addListener(
 function init() {
   var jsfs = new JsFileSystem();
   var fsm = jsfs.fileSystemManager;
-  return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
-    jsdir.install(washExecutables);
-    var cmds = {};
+
+  var streams = new PostMessageStreams();
+  var transport = new Transport(
+      'PostMessageTransport',
+      streams.readableStream,
+      streams.writableStream);
+  var channel = new Channel('PostMessageChannel', transport);
+  var skeleton = new SkeletonFileSystem('extfs', jsfs, channel);
+  streams.resume();
+  chrome.runtime.onConnect.addListener(function(port) {
+    setTimeout(function () {
+      /*%*/ console.log("setTimeout!"); /*%*/
+      port.postMessage({command: 'connected'})
+    }, 5000);
+    streams.open(port);
+    port.postMessage({command: 'connected'})
+  });
+
+
+
+
+  // return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
+  //   jsdir.install(washExecutables);
+  //   var cmds = {};
     // socketfs.main.signature = socketfs.signature;
     // cmds[socketfs.name] = socketfs.main;
     // jsdir.install(cmds);
     // mountNodefs(fsm);
     // return startWash(fsm);
-  });
 }
 
 init();
