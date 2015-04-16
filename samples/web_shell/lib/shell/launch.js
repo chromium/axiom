@@ -92,7 +92,9 @@ var launchHterm = function(fsm) {
     new Path('jsfs:exe/wash'), stdioSource.stdio, {})
     .then(function (/** ExecuteContext */cx) {
       var tv = new TerminalView();
-      stdioSource.stdio.overlay = tv.overlay;
+      // TODO (ericarnold): We should find a better way to pass the overlay to
+      // interested commands.
+      stdioSource.stdio['overlay'] = tv.overlay;
 
       tv.println(welcomeMessage);
 
@@ -103,7 +105,6 @@ var launchHterm = function(fsm) {
         '$HISTFILE': 'html5:/.wash_history'
       });
       tv.execute(stdioSource, cx);
-
       return Promise.resolve(null);
   });
 };
