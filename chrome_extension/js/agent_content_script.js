@@ -19,5 +19,4 @@ window.onload = function() {
   var isInstalledMarker = document.createElement('div');
   isInstalledMarker.id = 'chrome-agent-is-installed';
   document.body.appendChild(isInstalledMarker);
-  window.chromePort = chrome.runtime.connect({name: 'extension_stream'});
 };

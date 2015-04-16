@@ -68,17 +68,6 @@ chrome.runtime.onMessageExternal.addListener(
 // var FileSystemManager = require('axiom/fs/base/file_system_manager').default;
 
 function init() {
-  var jsfs = new FileSystemManager$$module$axiom$fs$base$file_system_manager();
-  var fsm = jsfs.fileSystemManager;
-  return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
-    jsdir.install(washExecutables);
-    var cmds = {};
-    // socketfs.main.signature = socketfs.signature;
-    // cmds[socketfs.name] = socketfs.main;
-    // jsdir.install(cmds);
-    // mountNodefs(fsm);
-    // return startWash(fsm);
-  });
 }
 
 init();

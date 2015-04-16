@@ -38,6 +38,42 @@ chrome.runtime = {
   
   onMessageExternal: {
     addListener: function(listener) {}
+  },
+
+  /**
+   * @return {chrome.runtime.Port}
+   * @param {string} appId
+   */
+  connect: function(appId) {}
+};
+
+/**
+ * @constructor
+ */
+chrome.runtime.Port = function() {
+  this.name = "";
+  this.disconnect = function() {};
+  /**
+   * @type {*}
+   */
+  this.onDisconnect = {};
+  /**
+   * @type {*}
+   */
+  this.onMessage = {};
+  /**
+   * @return {void}
+   * @param {*} message
+   * @param {*} targetOrigin
+   * @param {Array<*>=} transfer
+   */ 
+  this.postMessage = function(message, targetOrigin, transfer) {};
+  this.MessageSender = function() {
+    this.tab = new chrome.tabs.Tab();
+    this.frameId = 0;
+    this.id = "";
+    this.url = "";
+    this.tlsChannelId = "";
   }
 };
 
@@ -49,11 +85,15 @@ chrome.tabs = {
   insertCSS: function(id, css, callback) {},
   query: function(options, callback) {},
   create: function(options) {},
-  update: function(id, options, callback) {},
-  Tab: {
-    windowId: 0
-  }
+  update: function(id, options, callback) {}
 };
+
+/**
+ * @constructor
+ */
+chrome.tabs.Tab = function() {
+  this.windowId = 0;
+}
 
 /**
  * @const
