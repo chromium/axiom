@@ -55,6 +55,7 @@ var handleRequest_ = function(request, sendResponse) {
  */
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
+  /*%*/ console.log("onMessage!"); /*%*/
 
     // Indicate that the response is sent asynchronously.
     return true;
@@ -66,6 +67,7 @@ chrome.runtime.onMessage.addListener(
  */
 chrome.runtime.onMessageExternal.addListener(
   function(request, sender, sendResponse) {
+  /*%*/ console.log("onMessageExternal!"); /*%*/
     // TODO(ussuri): Verify the sender.
     handleRequest_(request, sendResponse);
     // Indicates that the response is sent asynchronously.
