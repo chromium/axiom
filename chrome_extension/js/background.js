@@ -55,7 +55,6 @@ var handleRequest_ = function(request, sendResponse) {
  */
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-  /*%*/ console.log("onMessage!"); /*%*/
 
     // Indicate that the response is sent asynchronously.
     return true;
@@ -67,7 +66,6 @@ chrome.runtime.onMessage.addListener(
  */
 chrome.runtime.onMessageExternal.addListener(
   function(request, sender, sendResponse) {
-  /*%*/ console.log("onMessageExternal!"); /*%*/
     // TODO(ussuri): Verify the sender.
     handleRequest_(request, sendResponse);
     // Indicates that the response is sent asynchronously.
@@ -92,11 +90,7 @@ function init() {
   var channel = new Channel('PostMessageChannel', transport);
   var skeleton = new SkeletonFileSystem('extfs', jsfs, channel);
   streams.resume();
-  chrome.runtime.onConnect.addListener(function(port) {
-    setTimeout(function () {
-      /*%*/ console.log("setTimeout!"); /*%*/
-      port.postMessage({command: 'connected'})
-    }, 5000);
+  chrome.runtime.onConnectExternal.addListener(function(port) {
     streams.open(port);
     port.postMessage({command: 'connected'})
   });

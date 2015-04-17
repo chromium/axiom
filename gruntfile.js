@@ -355,7 +355,10 @@ module.exports = function(grunt) {
         files: ['chrome_extension/**/*.html',
                 'chrome_extension/**/*.js',
                 'chrome_extension/**/*.json',
-                'chrome_extension/**/*.png'],
+                'chrome_extension/**/*.png',
+                'lib/**/*.js',
+                'samples/**/*.js'],
+
         tasks: ['chrome_extension']
       }
     },
