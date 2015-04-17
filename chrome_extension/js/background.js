@@ -91,7 +91,7 @@ function init() {
   var skeleton = new SkeletonFileSystem('extfs', jsfs, channel);
   streams.resume();
   chrome.runtime.onConnectExternal.addListener(function(port) {
-    streams.open(port, true);
+    streams.openPort(port, true);
     port.postMessage({command: 'connected'})
   });
 
