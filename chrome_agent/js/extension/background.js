@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Google Inc. All rights reserved.
+// Copyright 2015 Google Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-window.onload = function() {
-	/*%*/ console.log("onload!"); /*%*/
-  // TODO(ussuri): This won't be needed once owned URLs are registered with the
-  // extension in CWS.
-  var isInstalledMarker = document.createElement('div');
-  isInstalledMarker.id = 'chrome-agent-is-installed';
-  document.body.appendChild(isInstalledMarker);
-};
+__axiomExport__(this);
+var chromeAgent = new chrome_agent.ChromeAgent();

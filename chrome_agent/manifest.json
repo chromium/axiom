@@ -17,10 +17,10 @@
   "content_scripts": [
     {
       "js": [
-        "scripts/agent_content_script.js"
+        "js/extension/agent_content_script.js"
       ],
       "matches": [
-        "http://axiom-sample.localhost/web_shell/index.html",
+        "*://axiom-sample.localhost/*",
         "http://localhost:8080/**/web_shell/index.html",
         "http://localhost:8282/**/web_shell/index.html",
         "http://127.0.0.1:8080/**/web_shell/index.html",
@@ -44,7 +44,7 @@
 
   "externally_connectable": {
     "matches": [
-      "http://axiom-sample.localhost/web_shell/index.html",
+      "*://axiom-sample.localhost/*",
       "http://localhost:8080/*",
       "http://localhost:8282/*",
       "http://127.0.0.1:8080/*",

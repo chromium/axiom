@@ -39,7 +39,7 @@ module.exports = function(grunt) {
         cwd: 'lib/',
         js: ['**/*.js',
              '../third_party/closure-compiler/contrib/externs/jasmine.js',
-             '../chrome_agent/scripts/*.js',
+             '../chrome_agent/js/*.js',
              '../externs/google_api/google_api.js',
              '../externs/google_api/chrome_api.js',
              '../tmp/third_party/dcodeIO/fs.js',
@@ -226,24 +226,24 @@ module.exports = function(grunt) {
           dest: 'tmp/samples'
         }]
       },
-      chrome_extension: {
+      chrome_agent: {
         files: [{
           expand: true,
-          cwd: 'chrome_extension',
+          cwd: 'chrome_agent',
           src: ['**'],
-          dest: 'tmp/chrome_extension'
+          dest: 'tmp/chrome_agent'
         },
         {
           expand: true,
           cwd: 'dist/axiom_base/amd/lib/',
           src: ['*.js', '*.map'],
-          dest: 'tmp/chrome_extension/js/'
+          dest: 'tmp/chrome_agent/js/lib/'
         },
         {
           expand: true,
           cwd: 'dist/axiom_wash/amd/lib/',
           src: ['*.js'],
-          dest: 'tmp/chrome_extension/js/'
+          dest: 'tmp/chrome_agent/js/lib/'
         }]
       },
       fail_message: {
@@ -348,18 +348,16 @@ module.exports = function(grunt) {
                 'make_main_module:test',
                 'make_html_index:test_harness']
       },
-      chrome_extension: {
+      chrome_agent: {
         options: {
           atBegin: true
         },
-        files: ['chrome_extension/**/*.html',
-                'chrome_extension/**/*.js',
-                'chrome_extension/**/*.json',
-                'chrome_extension/**/*.png',
-                'lib/**/*.js',
-                'samples/**/*.js'],
-
-        tasks: ['chrome_extension']
+        files: ['chrome_agent/**/*.html',
+                'chrome_agent/**/*.json',
+                'chrome_agent/**/*.png',
+                'chrome_agent/js/extension/**/*.js',
+                'lib/**/*.js'],
+        tasks: ['chrome_agent']
       }
     },
 
@@ -397,15 +395,15 @@ module.exports = function(grunt) {
           dest: 'tmp/samples/web_shell/js/'
         }]
       },
-      chrome_extension: {
+      chrome_agent: {
         type: "amd",
         fileResolver: ['lib/',
-                       'chrome_extension/'],
+                       'chrome_agent/js'],
         files: [{
           expand: true,
-          cwd: 'chrome_extension/',
-          src: ['js/background.js'],
-          dest: 'tmp/chrome_extension'
+          cwd: 'chrome_agent/js/',
+          src: ['*.js'],
+          dest: 'tmp/chrome_agent/js'
         }]
       }
     },
@@ -508,7 +506,7 @@ module.exports = function(grunt) {
   grunt.registerTask('publish_npm', ['dist',
                                      'shell:publish_axiom',
                                      'shell:publish_wash']);
-  grunt.registerTask('chrome_extension', ['dist', 'samples',
-                                     'copy:chrome_extension',
-                                     'es6_transpile:chrome_extension']);
+  grunt.registerTask('chrome_agent', ['dist', 'samples',
+                                     'copy:chrome_agent',
+                                     'es6_transpile:chrome_agent']);
 };
