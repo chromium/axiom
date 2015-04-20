@@ -352,6 +352,7 @@ var HOSTED_WEB_SHELL_URL_ =
 
 /**
  * @private
+ * @type {number}
  */
 var activeWebShellTabIdx_ = -1;
 

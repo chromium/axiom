@@ -21,6 +21,7 @@ import StdioSource from 'axiom/fs/stdio_source';
 import Path from 'axiom/fs/path';
 
 import scriptMain from 'shell/exe/script';
+import ServiceWorker from 'shell/service_worker';
 import TerminalView from 'shell/terminal';
 import washExecutables from 'wash/exe_modules';
 
@@ -64,6 +65,17 @@ export var main = function() {
         .catch(function(e) {
           console.log("Error mounting DomFileSystem", e);
         });
+    })
+    .then(function() {
+      var serviceWorker = new ServiceWorker(fsm);
+      return serviceWorker.register().then(function() {
+        // This starts an open messaging channel between service worker and
+        // the page. The promise lifetime is the lifetime of the page so don't
+        // return.
+        serviceWorker.sendMessage();
+      }).catch(function(e) {
+        console.log('Unable to connect to service worker: ' + e);
+      });
     })
     .then(function() {
       return launchHterm(fsm);

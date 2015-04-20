@@ -34,6 +34,15 @@ module.exports = function(grunt) {
       all: ['tmp', 'dist']
     },
 
+    // Install closure compiler locally
+    'closure-compiler-build': {
+      build: {
+        url: 'http://dl.google.com/closure-compiler/compiler-20150126.zip',
+        dir: 'node_modules/grunt-closure-compiler-build/build/',
+        filename: 'compiler.zip'
+      }
+    },
+
     'closure-compiler': {
       check: {
         cwd: 'lib/',
@@ -48,7 +57,10 @@ module.exports = function(grunt) {
              '../tmp/third_party/dcodeIO/events.js'
             ],
         jsOutputFile: 'tmp/closure/out.js',
-        options: require('./build/closure-options.json')
+        options: require('./build/closure-options.json'),
+        closurePath: process.env.CLOSURE_PATH ?
+            process.env.CLOSURE_PATH :
+            '../node_modules/grunt-closure-compiler-build'
       }
     },
 
@@ -188,6 +200,12 @@ module.exports = function(grunt) {
           dest: 'tmp/samples/web_shell/css'
         },
         {
+          expand: true,
+          cwd: 'samples/web_shell/assets/',
+          src: ['**/*'],
+          dest: 'tmp/samples/web_shell/assets'
+        },
+        {
           src: 'third_party/idb.filesystem.js/idb.filesystem.js',
           dest: 'tmp/samples/web_shell/polyfill/idb.filesystem.js/idb.filesystem.js'
         }]
@@ -242,6 +260,10 @@ module.exports = function(grunt) {
           {
             rel: 'chrome-webstore-item',
             href: 'https://chrome.google.com/webstore/detail/lfbhahfblgmngkkgbgbccedhhnkkhknb'
+          },
+          {
+            rel: 'shortcut icon',
+            href: 'assets/favicon.png'
           }
         ]
       },
@@ -383,6 +405,9 @@ module.exports = function(grunt) {
       main: {}
     }
   });
+
+  // Install local copy of closure compiler.
+  grunt.registerTask('closure_install', ['closure-compiler-build']);
 
   // Make the generated files.
   grunt.registerTask('make_generated', ['closure_externs',
