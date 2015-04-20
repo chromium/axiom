@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/**
+ * Insert into the current page's DOM an artificial marker node that indicates
+ * to the page that we're installed and enabled and the page can post messages
+ * to us. The list of matching pages is restricted in the manifest.
+ */
 window.onload = function() {
   // TODO(ussuri): This won't be needed once owned URLs are registered with the
   // extension in CWS.
