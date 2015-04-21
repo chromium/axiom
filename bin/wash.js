@@ -81,7 +81,7 @@ WebSocketFs.prototype.openFileSystem = function(webSocket) {
       'NodeWebSocketTransport',
       streams.readableStream,
       streams.writableStream);
-  var channel = new Channel('NodeWebSocketChannel', transport);
+  var channel = new Channel('socketfs', 'socketfs', transport);
   var skeleton = new SkeletonFileSystem('nodefs', fileSystem, channel);
   streams.resume();
 };
