@@ -1,2 +1,0 @@
-
-__axiomExport__(this);
