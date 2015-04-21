@@ -83,6 +83,11 @@ WebSocketFs.prototype.openFileSystem = function(webSocket) {
       streams.writableStream);
   var channel = new Channel('socketfs', 'socketfs', transport);
   var skeleton = new SkeletonFileSystem('nodefs', fileSystem, channel);
+  skeleton.onClose.addListener(function(reason, value) {
+    this.println('WebSocket file system closed');
+    this.println('  reason: ' + reason);
+    this.println('  value: ' + value);
+  }.bind(this));
   streams.resume();
 };
 
