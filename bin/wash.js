@@ -67,14 +67,13 @@ WebSocketFs.prototype.run = function() {
 };
 
 WebSocketFs.prototype.openFileSystem = function(webSocket) {
-  var fileSystem = null;
-  this.cx_.fileSystemManager.getFileSystems().forEach(function(fs) {
-    if (fs.rootPath.root === this.fileSystemName_) {
-      fileSystem = fs;
-    }
-  }.bind(this));
-  if (!fileSystem)
+  var fileSystems = this.cx_.fileSystemManager.getFileSystems().filter(
+    function(fs) {
+      return fs.name === this.fileSystemName_;
+    }.bind(this));
+  if (fileSystems.length !== 1)
     throw new AxiomError.NotFound('file system', this.fileSystemName_);
+  var fileSystem = fileSystems[0];
 
   var streams = new NodeWebSocketStreams(webSocket);
   var transport = new Transport(
