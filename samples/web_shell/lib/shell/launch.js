@@ -112,7 +112,7 @@ var launchHterm = function(fsm) {
           'mkstream --src ws://localhost:8000 --type extension --src lfbhahfblgmngkkgbgbccedhhnkkhknb jsfs:/bar3.str').then(function () {return delay(100,
           'mount.stream jsfs:/bar3.str')}).then(function () {return delay(100,
           'mount')}).then(function () {return delay(100,
-          // 'ls streamfs:/')}).then(function () {return delay(100,
+          'streamfs:/exe/chrome')}).then(function () {return delay(100,
           '')});
 
       // delay(100,
