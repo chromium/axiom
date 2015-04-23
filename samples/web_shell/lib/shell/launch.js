@@ -108,12 +108,12 @@ var launchHterm = function(fsm) {
           function() {rs() }, ms)}).then(function() {tv.stdioSource.stdin.write(command);
           tv.stdioSource.stdin.write('\r');})};
 
-      delay(100,
-          'mkstream --src ws://localhost:8000 --type extension --src lfbhahfblgmngkkgbgbccedhhnkkhknb jsfs:/bar3.str').then(function () {return delay(100,
-          'mount.stream jsfs:/bar3.str')}).then(function () {return delay(100,
-          'mount')}).then(function () {return delay(100,
-          'streamfs:/exe/chrome')}).then(function () {return delay(100,
-          '')});
+      // delay(100,
+      //     'mkstream --src ws://localhost:8000 --type extension --src lfbhahfblgmngkkgbgbccedhhnkkhknb jsfs:/bar3.str').then(function () {return delay(100,
+      //     'mount.stream jsfs:/bar3.str')}).then(function () {return delay(100,
+      //     'mount')}).then(function () {return delay(100,
+      //     'streamfs:/exe/chrome')}).then(function () {return delay(100,
+      //     '')});
 
       // delay(100,
       //     'mkstream --src ws://localhost:8000 --type extension jsfs:/bar3.str').then(function () {return delay(100,

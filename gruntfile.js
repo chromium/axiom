@@ -362,7 +362,8 @@ module.exports = function(grunt) {
       },
       chrome_agent: {
         options: {
-          atBegin: true
+          atBegin: true,
+          livereload: true
         },
         files: ['chrome_agent/**/*.html',
                 'chrome_agent/**/*.json',

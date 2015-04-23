@@ -17,7 +17,6 @@ import SkeletonFileSystem from 'axiom/fs/stream/skeleton_file_system';
 import Transport from 'axiom/fs/stream/transport';
 import Channel from 'axiom/fs/stream/channel';
 import ExtensionStreams from 'axiom/fs/stream/extension_streams';
-import chromeCommand from 'chrome_command';
 
 /**
  * Host filesystem with chrome handling executable for use with axiom.
@@ -38,52 +37,9 @@ export var ChromeAgent = function() {
   var skeleton = new SkeletonFileSystem('extfs', jsfs, channel);
   streams.listenAsExtension().then(function() {
     return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
-      jsdir.install({'chrome': chromeCommand});
+      // TODO (ericarnold): implement:
+      // jsdir.install({'chrome': chromeCommand});
     }.bind(this));
   }.bind(this))
   streams.resume();
-
-  /**
-   * This is sent by our companion content script injected into a browser tab.
-   */
-  chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
-
-      // Indicate that the response is sent asynchronously.
-      return true;
-    }
-  );
-
-  /**
-   * This is sent by a client to request some service from us.
-   */
-  chrome.runtime.onMessageExternal.addListener(
-    function(request, sender, sendResponse) {
-      // TODO(ussuri): Verify the sender.
-      handleRequest_(request, sendResponse);
-      // Indicates that the response is sent asynchronously.
-      return true;
-    }
-  );
 }
-
-/**
- * @param {!Object<string, *>} request
- * @param {function(*): void} sendResponse
- * @return {void}
- */
-ChromeAgent.prototype.handleRequest_ = function(request, sendResponse) {
-  console.log(request);
-  var promise;
-  promise = Promise.resolve("guid");
-  var Streams
-
-  promise.then(function(result) {
-
-    sendResponse({success: true, result: result});
-  }).catch(function(error) {
-    sendResponse({success: false, error: error.message ? error.message : error});
-  });
-};
-
-
