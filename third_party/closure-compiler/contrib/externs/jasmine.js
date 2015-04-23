@@ -461,7 +461,7 @@ function xdescribe(description, handler) {}
 
 /**
  * @param {string} description
- * @param {function(this:jasmine.Spec)} handler
+ * @param {function(this:jasmine.Spec, function(): void)} handler
  */
 function xit(description, handler) {}
 
