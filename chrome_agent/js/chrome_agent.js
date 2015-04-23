@@ -34,7 +34,7 @@ export var ChromeAgent = function() {
       'PostMessageTransport',
       streams.readableStream,
       streams.writableStream);
-  var channel = new Channel('PostMessageChannel', transport);
+  var channel = new Channel('PostMessageChannel', 'ext', transport);
   var skeleton = new SkeletonFileSystem('extfs', jsfs, channel);
   streams.listenAsExtension().then(function() {
     return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
