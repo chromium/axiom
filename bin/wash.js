@@ -67,22 +67,26 @@ WebSocketFs.prototype.run = function() {
 };
 
 WebSocketFs.prototype.openFileSystem = function(webSocket) {
-  var fileSystem = null;
-  this.cx_.fileSystemManager.getFileSystems().forEach(function(fs) {
-    if (fs.rootPath.root === this.fileSystemName_) {
-      fileSystem = fs;
-    }
-  }.bind(this));
-  if (!fileSystem)
+  var fileSystems = this.cx_.fileSystemManager.getFileSystems().filter(
+    function(fs) {
+      return fs.name === this.fileSystemName_;
+    }.bind(this));
+  if (fileSystems.length !== 1)
     throw new AxiomError.NotFound('file system', this.fileSystemName_);
+  var fileSystem = fileSystems[0];
 
   var streams = new NodeWebSocketStreams(webSocket);
   var transport = new Transport(
       'NodeWebSocketTransport',
       streams.readableStream,
       streams.writableStream);
-  var channel = new Channel('NodeWebSocketChannel', transport);
+  var channel = new Channel('socketfs', 'socketfs', transport);
   var skeleton = new SkeletonFileSystem('nodefs', fileSystem, channel);
+  skeleton.onClose.addListener(function(reason, value) {
+    this.println('WebSocket file system closed');
+    this.println('  reason: ' + reason);
+    this.println('  value: ' + value);
+  }.bind(this));
   streams.resume();
 };
 
