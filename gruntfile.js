@@ -522,7 +522,7 @@ module.exports = function(grunt) {
   grunt.registerTask('publish_npm', ['dist',
                                      'shell:publish_axiom',
                                      'shell:publish_wash']);
-  grunt.registerTask('chrome_agent', ['dist', 'samples',
+  grunt.registerTask('chrome_agent', ['check', 'dist', 'samples',
                                      'copy:chrome_agent',
                                      'es6_transpile:chrome_agent']);
 };

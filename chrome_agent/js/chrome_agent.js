@@ -22,7 +22,6 @@ import ExtensionStreams from 'axiom/fs/stream/extension_streams';
  * Host filesystem with chrome handling executable for use with axiom.
  *
  * @constructor
- * @implements {StreamsSource}
  */
 export var ChromeAgent = function() {
   var jsfs = new JsFileSystem();
