@@ -365,7 +365,9 @@ module.exports = function(grunt) {
           atBegin: true,
           livereload: true
         },
-        files: ['chrome_agent/**/*.html',
+        files: ['/gruntfile.js',
+                'externs/**/*.js',
+                'chrome_agent/**/*.html',
                 'chrome_agent/**/*.json',
                 'chrome_agent/**/*.png',
                 'chrome_agent/js/extension/**/*.js',
