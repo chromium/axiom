@@ -49,6 +49,26 @@ function processQueue() {
   }
 };
 
+// Sends a refresh request every 10 seconds to the page, if there is no pending
+// fetch request. Modifies the state to 1 (pending). Thus, even if the connection
+// is broken in between, the fetch requests are queued until the page responds
+// with a new connection. Note that any response from the page is a new connection.
+function messagePoll() {
+  setTimeout(function() {
+   if (!state  && messagePort) {
+     state = 1;
+     var message = {
+       subject: genMessageId(),
+       name: 'refresh'
+     };
+     messagePort.postMessage(message);
+   }
+   messagePoll();
+  }, 10000);
+};
+
+messagePoll();
+
 // Currently it is not possible to initiate post message request from service
 // worker. As a result we send a dummy request from the axiom_web_shell and
 // maintain an open connection. Whenever a fetch event is received by the

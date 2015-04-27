@@ -55,6 +55,11 @@ ServiceWorker.prototype.register = function() {
  */
 ServiceWorker.prototype.processMessage = function(message) {
 
+  // An empty message refreshes the connection.
+  if (message.name == 'refresh') {
+    return this.sendMessage(null);
+  }
+
   var path = this.getFileSystemPath(message);
 
   return new Promise(function(resolve, reject) {
