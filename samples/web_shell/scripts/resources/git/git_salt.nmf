@@ -1,0 +1,12 @@
+{
+  "program": {
+    "portable": {
+      "pnacl-translate": {
+        "url": "bin/git_salt.pexe"
+      },
+      "pnacl-debug": {
+        "url": "bin/git_salt_unstripped.bc"
+      }
+    }
+  }
+}
