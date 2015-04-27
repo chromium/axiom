@@ -55,6 +55,10 @@ module.exports = function(grunt) {
 
     mainsrc += '</head>\n';
     mainsrc += '<body>\n';
+
+    // Div where addons embedding code live.
+    mainsrc += '<div id="addons"></div>';
+
     mainsrc += '</body>\n';
     mainsrc += '</html>\n';
 
