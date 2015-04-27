@@ -92,6 +92,9 @@ var launchHterm = function(fsm) {
     new Path('jsfs:exe/wash'), stdioSource.stdio, {})
     .then(function (/** ExecuteContext */cx) {
       var tv = new TerminalView();
+      // TODO (ericarnold): We should find a better way to pass the overlay to
+      // interested commands.
+      stdioSource.stdio['overlay'] = tv.overlay;
 
       tv.println(welcomeMessage);
 
