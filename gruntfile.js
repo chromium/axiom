@@ -189,7 +189,7 @@ module.exports = function(grunt) {
         {
           expand: true,
           cwd: 'samples/web_shell/scripts/',
-          src: ['**/*.js',
+          src: ['**/*.*',
                 '**/*.html'],
           dest: 'tmp/samples/web_shell/scripts'
         },
