@@ -15,6 +15,9 @@
 var PROXY_SERVER_URL = 'pepper_https://cors-anywhere.herokuapp.com/';
 var GIT_NMF_FILE_PATH = 'scripts/resources/git';
 
+// The subject field sent with each message to identify it.
+var messageId = 1;
+
 document.currentScript.ready(function(cx) {
   var GIT_CMD_USAGE_STRING = 'usage: git [options]';
 
@@ -26,48 +29,21 @@ document.currentScript.ready(function(cx) {
 
     /** @type {Array<string>} */
     var list = cx.getArg('_', []);
-    if (list.length != 2 || cx.getArg('help')) {
+    if (list.length != 3 || cx.getArg('help')) {
       cx.stdout.write(GIT_CMD_USAGE_STRING + '\n');
       return cx.closeOk();
     }
 
-    /** @type {string} */
-    var pathSpec = list.shift();
-    /** @type {string} */
-    var pwd = cx.getPwd();
+    createMessage(cx).then(function(message) {
+      /** @type {GitSalt} */
+      var git = new GitSalt();
 
-    /** @type {GitSalt} */
-    var git = new GitSalt();
-
-    git.loadPlugin('git_salt', GIT_NMF_FILE_PATH).then(function() {
-
-      // TODO(grv): Parse the args and call the appropriate API.
-     // Remove Debug code.
-      /*var path = new axiom.fs.path.Path('html5:/git-project23');
-      cx.fileSystemManager.mkdir(path).then(function(dir) {
-        var arg = {
-          'filesystem': dir.filesystem,
-          'fullPath': dir.fullPath,
-          'url': PROXY_SERVER_URL + 'https://github.com/Chromium/axiom.git'
-        };
-
-        var message = {
-          'subject': '34',
-          'name': 'clone',
-          'arg': arg
-        };
-
-        var cb = function(cb) {
-          cx.closeOk();
-          console.log('clone successful');
-        };
-
-        git.postMessage(message, cb);*/
-        console.log('module loaded succesfully');
+      git.loadPlugin('git_salt', GIT_NMF_FILE_PATH).then(function() {
+        var cb = createMessageCallback(cx, message);
+        git.postMessage(message, cb);
+      }).catch(function(e) {
+        cx.closeError(e);
       });
-
-    }).catch(function(e) {
-      cx.closeError(e);
     });
   };
 
@@ -85,6 +61,47 @@ document.currentScript.ready(function(cx) {
   };
   installGit(cx);
 });
+
+function genMessageId() {
+ messageId++;
+ return messageId.toString();
+}
+
+function createMessage(cx) {
+  var message = {};
+  var args = {};
+  var list = cx.getArg('_', []);
+  var command = list.shift();
+  var path;
+
+  // TODO(grv): Make the check case insensitive.
+  if (command == 'clone' && list.length == 2) {
+    message['name'] = 'clone';
+    args['url'] = PROXY_SERVER_URL + list.shift();
+
+    // TODO(grv): resolve path using pwd instead of taking as argument.
+    path = new axiom.fs.path.Path(list.shift());
+  } else {
+    throw new axiom.core.error.AxiomError.Invalid(
+        'Invalid arguments to git.', []);
+  }
+
+  return cx.fileSystemManager.mkdir(path).then(function(dir) {
+    args['filesystem'] = dir.filesystem;
+    args['fullPath'] = dir.fullPath;
+    message['subject'] = genMessageId();
+    message.arg = args;
+    return message;
+  });
+}
+
+function createMessageCallback(cx, message) {
+  var cb = function(result) {
+    console.log(message['name'] + ' command successful!');
+    cx.closeOk();
+  };
+  return cb;
+}
 
 /**
  *@constructor
