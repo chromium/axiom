@@ -39,12 +39,12 @@ export var ChromeAgent = function() {
       streams.writableStream);
   var channel = new Channel('PostMessageChannel', 'ext', transport);
   var skeleton = new SkeletonFileSystem('extfs', jsfs, channel);
-  return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
+  jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
     // TODO (ericarnold): implement:
     // jsdir.install({'chrome': chromeCommand});
+    streams.listenAsExtension();
+    streams.resume();
   }.bind(this));
-  streams.listenAsExtension();
-  streams.resume();
 
   /** @const @type {!AxiomEvent} */
   this.onConnected = streams.onConnected;
