@@ -13,7 +13,10 @@
 // limitations under the License.
 
 __axiomExport__(this);
+
+// Create a chromeAgent and start it listening for a connection.
 var chromeAgent = new chrome_agent.ChromeAgent();
+chromeAgent.listen();
 
 // TODO(ericarnold / ussuri): The chrome-command logic should be moved out of the
 // background page.

@@ -24,6 +24,15 @@ import ExtensionStreams from 'axiom/fs/stream/extension_streams';
  * @constructor
  */
 export var ChromeAgent = function() {
+}
+
+/**
+ * Listens for an ExtensionStream connection and then attaches
+ * a SkeletonFileSystem to it.
+ * 
+ * @return {Promise}
+ */
+ChromeAgent.prototype.listen = function() {
   var jsfs = new JsFileSystem();
   var fsm = jsfs.fileSystemManager;
 
@@ -34,11 +43,12 @@ export var ChromeAgent = function() {
       streams.writableStream);
   var channel = new Channel('PostMessageChannel', 'ext', transport);
   var skeleton = new SkeletonFileSystem('extfs', jsfs, channel);
-  streams.listenAsExtension().then(function() {
+  var connectedPromise = streams.listenAsExtension().then(function() {
     return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
       // TODO (ericarnold): implement:
       // jsdir.install({'chrome': chromeCommand});
     }.bind(this));
   }.bind(this))
   streams.resume();
+  return connectedPromise;
 }
