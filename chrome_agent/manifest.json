@@ -11,7 +11,12 @@
 
   "background": {
     "persistent": true,
-    "page": "background.html"
+    "scripts": [
+      "js/lib/axiom_base.amd.concat.js",
+      "js/lib/wash.amd.concat.js",
+      "js/chrome_agent.js",
+      "js/extension/background.js"
+    ]
   },
 
   "content_scripts": [
