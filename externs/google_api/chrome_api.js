@@ -9229,36 +9229,6 @@ chrome.inlineInstallPrivate.install = function(id, opt_callback) {};
 /**
  * @constructor
  */
-chrome.runtime.Port = function() {
-  this.name = "";
-  this.disconnect = function() {};
-  /**
-   * @type {*}
-   */
-  this.onDisconnect = {};
-  /**
-   * @type {*}
-   */
-  this.onMessage = {};
-  /**
-   * @return {void}
-   * @param {*} message
-   * @param {*} targetOrigin
-   * @param {Array<*>=} transfer
-   */ 
-  this.postMessage = function(message, targetOrigin, transfer) {};
-  this.MessageSender = function() {
-    this.tab = new chrome.tabs.Tab();
-    this.frameId = 0;
-    this.id = "";
-    this.url = "";
-    this.tlsChannelId = "";
-  }
-};
-
-/**
- * @constructor
- */
 chrome.tabs.Tab = function() {
   this.windowId = 0;
 }
