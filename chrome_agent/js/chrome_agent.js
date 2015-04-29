@@ -18,21 +18,17 @@ import Transport from 'axiom/fs/stream/transport';
 import Channel from 'axiom/fs/stream/channel';
 import ExtensionStreams from 'axiom/fs/stream/extension_streams';
 
+/** @typedef AxiomEvent$$module$axiom$core$event */
+var AxiomEvent;
+
 /**
  * Host filesystem with chrome handling executable for use with axiom.
+ * Listens for an ExtensionStream connection and then attaches
+ * a SkeletonFileSystem to it.
  *
  * @constructor
  */
 export var ChromeAgent = function() {
-}
-
-/**
- * Listens for an ExtensionStream connection and then attaches
- * a SkeletonFileSystem to it.
- * 
- * @return {Promise}
- */
-ChromeAgent.prototype.listen = function() {
   var jsfs = new JsFileSystem();
   var fsm = jsfs.fileSystemManager;
 
@@ -43,12 +39,13 @@ ChromeAgent.prototype.listen = function() {
       streams.writableStream);
   var channel = new Channel('PostMessageChannel', 'ext', transport);
   var skeleton = new SkeletonFileSystem('extfs', jsfs, channel);
-  var connectedPromise = streams.listenAsExtension().then(function() {
-    return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
-      // TODO (ericarnold): implement:
-      // jsdir.install({'chrome': chromeCommand});
-    }.bind(this));
-  }.bind(this))
+  return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
+    // TODO (ericarnold): implement:
+    // jsdir.install({'chrome': chromeCommand});
+  }.bind(this));
+  streams.listenAsExtension();
   streams.resume();
-  return connectedPromise;
+
+  /** @const @type {!AxiomEvent} */
+  this.onConnected = streams.onConnected;
 }
