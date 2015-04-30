@@ -81,6 +81,12 @@ class GitSaltInstance : public pp::Instance {
 
   void OpenFileSystem(int32_t /* result */);
 
+  void MountFileSystem(pp::FileSystem& fileSystem, std::string& fullPath);
+
+  int ParseFileSystem(pp::VarDictionary message,
+                      std::string name,
+                      pp::FileSystem& filesystem);
+
   void NaclIoInit();
 
   /// Encapsulates our simple javascript communication protocol

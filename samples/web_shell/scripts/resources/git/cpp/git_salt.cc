@@ -114,6 +114,17 @@ void GitSaltInstance::HandleMessage(const pp::Var& var_message) {
 
   pp::VarDictionary var_dictionary_args(var_dictionary_message.Get(kArg));
 
+  pp::FileSystem fileSystem;
+
+  ParseFileSystem(var_dictionary_args, kFileSystem, fileSystem);
+
+  std::string fullPath;
+
+  if ((error = parseString(var_dictionary_args, kFullPath, fullPath))) {
+
+  }
+
+  MountFileSystem(fileSystem, fullPath);
 
   if (!cmd.compare(kCmdClone)) {
     if (repo != NULL) {
@@ -239,6 +250,33 @@ void GitSaltInstance::OpenFileSystem(int32_t /* result */) {
     ShowErrorMessage("Failed to open file system", rv);
   }
   NaclIoInit();
+}
+
+int GitSaltInstance::ParseFileSystem(pp::VarDictionary message,
+                                     std::string name,
+                                     pp::FileSystem& fileSystem) {
+  pp::Var var_filesystem = message.Get(name);
+
+  if (!var_filesystem.is_resource()) {
+    //TODO(grv): return error code;
+     return 1;
+  }
+
+  pp::Resource resource_filesystem = var_filesystem.AsResource();
+  fileSystem = pp::FileSystem(resource_filesystem);
+  return 0;
+}
+
+void GitSaltInstance::MountFileSystem(
+    pp::FileSystem& fileSystem, std::string& fullPath) {
+  int32_t r = (int32_t) fileSystem.pp_resource();
+  char fs_resource[100];
+  sprintf(fs_resource, "filesystem_resource=%d", r);
+  mount(fullPath.c_str(),                     /* source */
+      "/chromefs",                            /* target */
+      "html5fs",                              /* filesystemtype */
+      0,                                      /* mountflags */
+      fs_resource);                           /* data */
 }
 
 void GitSaltInstance::NaclIoInit() {
