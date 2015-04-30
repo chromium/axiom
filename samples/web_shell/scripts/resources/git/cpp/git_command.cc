@@ -56,6 +56,7 @@ int GitCommand::parseFileSystem(pp::VarDictionary message, std::string name,
 
 int GitCommand::parseArgs() {
 
+  //TODO(grv): Handle errors.
   if ((error = parseFileSystem(_args, kFileSystem, fileSystem))) {
 
   }
@@ -125,8 +126,8 @@ int GitInit::runCommand() {
 
 void GitClone::ChromefsInit() {
   int32_t r = (int32_t) fileSystem.pp_resource();
-  char fs_resource[100] = "filesystem_resource=";
-  sprintf(&fs_resource[20], "%d", r);
+  char fs_resource[100];
+  sprintf(&fs_resource[20], "filesystem_resource=%d", r);
   mount(fullPath.c_str(),                     /* source */
       "/chromefs",                            /* target */
       "html5fs",                              /* filesystemtype */
@@ -135,6 +136,7 @@ void GitClone::ChromefsInit() {
 }
 
 int GitCommit::parseArgs() {
+  // TODO(grv): Handle errors.
   if ((error = parseString(_args, kUserName, userName))) {
 
   }
@@ -215,7 +217,7 @@ int GitCommit::runCommand() {
   response.Set(kArg, arg);
   response.Set(kName, kResult);
   if (r != 0) {
-    //TODO(grv): handle error.
+    //TODO(grv): Handle errors.
   }
   _gitSalt->PostMessage(response);
   return 0;

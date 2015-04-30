@@ -252,7 +252,7 @@ void GitSaltInstance::NaclIoInit() {
   mount("", "/", "memfs", 0, "");
 
   mount("",                                     /* source */
-      "/grvfs",                                 /* target */
+      "/html5",                                 /* target */
       "html5fs",                                /* filesystemtype */
       0,                                        /* mountflags */
       "type=PERSISTENT,expected_size=1048576"); /* data */
