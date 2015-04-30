@@ -55,7 +55,6 @@ module.exports = function(grunt) {
 
     mainsrc += '</head>\n';
     mainsrc += '<body>\n';
-
     mainsrc += '</body>\n';
     mainsrc += '</html>\n';
 
