@@ -29,12 +29,7 @@ class GitCommand {
   GitSaltInstance* _gitSalt;
   pp::VarDictionary _args;
 
-  int parseFileSystem(pp::VarDictionary message, std::string name,
-      pp::FileSystem& fileSystem);
-
  public:
-  pp::FileSystem fileSystem;
-  std::string fullPath;
   std::string url;
   std::string subject;
   int error;
@@ -60,8 +55,6 @@ class GitClone : public GitCommand {
       : GitCommand(git_salt, subject, args, repo) {}
 
   int runCommand();
-
-  void ChromefsInit();
 };
 
 class GitInit : public GitClone {
