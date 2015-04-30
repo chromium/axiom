@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var PROXY_SERVER_URL = 'pepper_https://cors-anywhere.herokuapp.com/';
+// Run a local proxy server to inject CORS headers.
+// TODO(grv): Host a live server on app engine.
+var PROXY_SERVER_URL = 'pepper_http://localhost:8080/';
 var GIT_NMF_FILE_PATH = 'scripts/resources/git';
 
 // The subject field sent with each message to identify it.
