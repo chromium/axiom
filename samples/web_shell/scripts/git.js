@@ -294,12 +294,18 @@ GitSalt.prototype.handleResponse = function(response) {
 GitSalt.prototype.loadPlugin = function(name, path) {
   this.listenerDiv = document.createElement('div');
 
-  var addons = document.getElementById('addons');
+  var gitSaltDiv = document.getElementById('git-salt-div');
+  if (!gitSaltDiv) {
+    gitSaltDiv = document.createElement('div');
+    gitSaltDiv.id = 'git-salt-div';
+    document.body.appendChild(gitSaltDiv);
+  }
+
   var gitSaltContainer = document.getElementById('git-salt-container');
   if (!gitSaltContainer) {
     gitSaltContainer = document.createElement('div');
     gitSaltContainer.id = 'git-salt-container';
-    addons.appendChild(gitSaltContainer);
+    gitSaltDiv.appendChild(gitSaltContainer);
   }
   gitSaltContainer.appendChild(this.listenerDiv);
 
