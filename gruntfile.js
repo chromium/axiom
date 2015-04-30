@@ -189,7 +189,9 @@ module.exports = function(grunt) {
         {
           expand: true,
           cwd: 'samples/web_shell/scripts/',
-          src: ['**/*.*',
+          src: ['**/*.js',
+                '**/git/bin/*.pexe',
+                '**/git/*.nmf',
                 '**/*.html'],
           dest: 'tmp/samples/web_shell/scripts'
         },
@@ -313,7 +315,7 @@ module.exports = function(grunt) {
         options: {
           atBegin: true
         },
-        files: ['lib/**/*.js', 'samples/**/*.*'],
+        files: ['lib/**/*.js', 'samples/**/*.js', 'samples/**/*.pexe'],
         tasks: ['check', 'samples']
       },
       check_test_harness: {
