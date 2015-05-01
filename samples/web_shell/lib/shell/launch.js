@@ -105,6 +105,42 @@ var launchHterm = function(fsm) {
         '$HISTFILE': 'html5:/.wash_history'
       });
       tv.execute(stdioSource, cx);
+
+
+      var delay = function(ms, command) {return new Promise(function(rs, rj) {setTimeout(
+          function() {rs() }, ms)}).then(function() {tv.stdioSource.stdin.write(command);
+          tv.stdioSource.stdin.write('\r');})};
+
+      // delay(100,
+      //     'mkstream --src ws://localhost:8000 --type extension --src lfbhahfblgmngkkgbgbccedhhnkkhknb jsfs:/bar3.str').then(function () {return delay(100,
+      //     'mount.stream jsfs:/bar3.str')}).then(function () {return delay(100,
+      //     'mount')}).then(function () {return delay(100,
+      //     'streamfs:/exe/chrome')}).then(function () {return delay(100,
+      //     '')});
+
+      // delay(100,
+      //     'mkstream --src ws://localhost:8000 --type extension jsfs:/bar3.str').then(function () {return delay(100,
+      //     'mount.stream jsfs:/bar3.str')}).then(function () {return delay(100,
+      //     'mount')}).then(function () {return delay(100,
+      //     // 'ls streamfs:/')}).then(function () {return delay(100,
+      //     '')});
+
+      // delay(100,
+      //     'mkstream --src ws://localhost:8000 --type websocket jsfs:/bar3.str').then(function () {return delay(100,
+      //     'mount.stream jsfs:/bar3.str')}).then(function () {return delay(100,
+      //     'mount')}).then(function () {return delay(100,
+      //     // 'ls streamfs:/')}).then(function () {return delay(100,
+      //     '')});
+
+      // }.bind(this, tv), 100)
+
+      // setTimeout(function(tv) {
+        // tv.stdioSource.stdin.write('mount.stream jsfs:/bar3.str');
+        // tv.stdioSource.stdin.write('\r');
+      // }.bind(this, tv), 200)
+// mount.stream jsfs:/bar3.str
+      // debugger;
+
       return Promise.resolve(null);
   });
 };

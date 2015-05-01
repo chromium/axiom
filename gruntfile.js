@@ -258,6 +258,17 @@ module.exports = function(grunt) {
           dest: 'tmp/chrome_agent/js/lib/'
         }]
       },
+      fail_message: {
+        files: [{
+          expand: true,
+          cwd: 'build',
+          src: ['fail_message.html'],
+          rename: function(dest, src) {
+            return dest + '/' + src.replace('fail_message.html','index.html');
+          },
+          dest: 'tmp/samples/web_shell'
+        }]        
+      },
     },
 
     make_html_index: {
@@ -335,7 +346,7 @@ module.exports = function(grunt) {
           livereload: true
         },
         files: ['lib/**/*.js', 'samples/**/*.js'],
-        tasks: ['check', 'samples']
+        tasks: ['copy:fail_message', 'check', 'samples']
       },
       check_test_harness: {
         options: {
