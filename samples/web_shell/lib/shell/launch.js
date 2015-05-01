@@ -21,6 +21,7 @@ import StdioSource from 'axiom/fs/stdio_source';
 import Path from 'axiom/fs/path';
 
 import scriptMain from 'shell/exe/script';
+import ServiceWorker from 'shell/service_worker';
 import TerminalView from 'shell/terminal';
 import washExecutables from 'wash/exe_modules';
 
@@ -66,6 +67,17 @@ export var main = function() {
         });
     })
     .then(function() {
+      var serviceWorker = new ServiceWorker(fsm);
+      return serviceWorker.register().then(function() {
+        // This starts an open messaging channel between service worker and
+        // the page. The promise lifetime is the lifetime of the page so don't
+        // return.
+        serviceWorker.sendMessage();
+      }).catch(function(e) {
+        console.log('Unable to connect to service worker: ' + e);
+      });
+    })
+    .then(function() {
       return launchHterm(fsm);
     }).catch(function(e) {
       console.log('Error lauching app:', e);
@@ -80,6 +92,9 @@ var launchHterm = function(fsm) {
     new Path('jsfs:exe/wash'), stdioSource.stdio, {})
     .then(function (/** ExecuteContext */cx) {
       var tv = new TerminalView();
+      // TODO (ericarnold): We should find a better way to pass the overlay to
+      // interested commands.
+      stdioSource.stdio['overlay'] = tv.overlay;
 
       tv.println(welcomeMessage);
 
