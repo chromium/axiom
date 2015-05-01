@@ -9,12 +9,17 @@ global.Promise = require('es6-promise').Promise;
 
 require('source-map-support').install();
 
+var Completer = require('axiom/core/completer').default;
 var AxiomError = require('axiom/core/error').default;
 var Path = require('axiom/fs/path').default;
 var FileSystemManager = require('axiom/fs/base/file_system_manager').default;
 var StdioSource = require('axiom/fs/stdio_source').default;
 var JsFileSystem = require('axiom/fs/js/file_system').default;
 var NodeFileSystem = require('axiom/fs/node/file_system').default;
+var NodeWebSocketStreams = require('axiom/fs/stream/node_web_socket_streams').default;
+var Transport = require('axiom/fs/stream/transport').default;
+var Channel = require('axiom/fs/stream/channel').default;
+var SkeletonFileSystem = require('axiom/fs/stream/skeleton_file_system').default;
 var TTYState = require('axiom/fs/tty_state').default;
 var washExecutables = require('wash/exe_modules').dir;
 
@@ -22,6 +27,119 @@ if ('setRawMode' in process.stdin) {
   // Stdin seems to be missing setRawMode under grunt.
   process.stdin.setRawMode(true);
 }
+
+var WebSocketServer = require('ws').Server;
+
+var WebSocketFs = function(cx, port, fileSystemName) {
+  this.cx_ = cx;
+  this.port_ = port;
+  this.fileSystemName_ = fileSystemName;
+  this.wss_ = new WebSocketServer({ port: port });
+  this.completer_ = new Completer();
+  this.cx_.onClose.addListener(function() {
+    this.println('closing server');
+    this.wss_.close();
+    this.completer_.resolve();
+  }.bind(this));
+};
+
+WebSocketFs.prototype.println = function(msg) {
+  this.cx_.stdout.write(msg + '\n');
+};
+
+WebSocketFs.prototype.run = function() {
+  this.wss_.on('connection', function (ws) {
+    try {
+     this.openFileSystem(ws);
+     this.println('WebSocket file system connection accepted');
+    }
+    catch(error) {
+      this.println('WebSocket file system connection error: ' + error.message);
+      console.log(error);
+      ws.close();
+    }
+  }.bind(this));
+
+  this.println('WebSocket server for file system "' + this.fileSystemName_ +
+      '" running on port ' + this.port_);
+  this.println('Waiting for connections, press Ctrl-C to terminate.');
+  return this.completer_.promise;
+};
+
+WebSocketFs.prototype.openFileSystem = function(webSocket) {
+  var fileSystems = this.cx_.fileSystemManager.getFileSystems().filter(
+    function(fs) {
+      return fs.name === this.fileSystemName_;
+    }.bind(this));
+  if (fileSystems.length !== 1)
+    throw new AxiomError.NotFound('file system', this.fileSystemName_);
+  var fileSystem = fileSystems[0];
+
+  var streams = new NodeWebSocketStreams(webSocket);
+  var transport = new Transport(
+      'NodeWebSocketTransport',
+      streams.readableStream,
+      streams.writableStream);
+  var channel = new Channel('socketfs', 'socketfs', transport);
+  var skeleton = new SkeletonFileSystem('nodefs', fileSystem, channel);
+  skeleton.onClose.addListener(function(reason, value) {
+    this.println('WebSocket file system closed');
+    this.println('  reason: ' + reason);
+    this.println('  value: ' + value);
+  }.bind(this));
+  streams.resume();
+};
+
+/*
+ * A custom executable to expose the local node fs over stream transport.
+ */
+var socketfs = {
+  name: 'socketfs',
+
+  main: function(cx) {
+    cx.ready();
+
+    var port = cx.getArg('port');
+    var fileSystem = cx.getArg('filesystem');
+    if (!port || !fileSystem || cx.getArg('help')) {
+      cx.stdout.write([
+        'usage: socketfs -p|--port <port> -f|--filesystem <file-system-name>',
+        'Create a new stream located at <path>.',
+        '',
+        'Options:',
+        '',
+        '  -h, --help',
+        '      Print this help message and exit.',
+        '  -p, --port <port>',
+        '      The WebSocket port to listen to.',
+        '  -f, --filesystem <file-system-name>',
+        '      The name of the filesystem to expose on WebSocket connections.',
+        '',
+      ].join('\r\n') + '\r\n');
+
+      cx.closeOk();
+      return;
+    }
+
+    var server = new WebSocketFs(cx, port, fileSystem);
+    server.run().then(
+      function() {
+        cx.closeOk();
+      }
+    ).catch(
+      function(error) {
+        cx.closeError(error);
+      }
+    );
+  },
+
+  signature: {
+    'help|h': '?',
+    'port|p': '*',
+    'filesystem|f': '$',
+    '_': '@'
+  }
+};
 
 function onResize(stdioSource) {
   var tty = new TTYState();
@@ -87,6 +205,10 @@ function main() {
   var fsm = jsfs.fileSystemManager;
   return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
     jsdir.install(washExecutables);
+    var cmds = {};
+    socketfs.main.signature = socketfs.signature;
+    cmds[socketfs.name] = socketfs.main;
+    jsdir.install(cmds);
     mountNodefs(fsm);
     return startWash(fsm);
   });
@@ -98,6 +220,7 @@ function mountNodefs(fsm) {
 }
 
 module.exports = { main: main };
+
 
 if (/wash.js$/.test(process.argv[1])) {
   // Keep node from exiting due to lack of events.
