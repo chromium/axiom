@@ -40,11 +40,11 @@ ServiceWorker.prototype.register = function() {
   if ('serviceWorker' in navigator) {
 
     var curloc = document.location.href.split('/');
-    curloc = curloc.splice(0, curloc.length - 1).join('/');
+    curloc = curloc.slice(0, -1).join('/');
     var scope = curloc + SCOPE_URL;
     var swURL = curloc + '/service_worker.js';
-    return navigator.serviceWorker.register(swURL,
-        {scope: scope}).then(function(reg) {
+    return navigator.serviceWorker.register(swURL, {scope: scope}).then(
+        function(reg) {
       // registration worked
       console.log('Registration succeeded. Scope is ' + reg.scope);
     }).catch(function(error) {
