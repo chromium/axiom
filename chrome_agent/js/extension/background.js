@@ -126,6 +126,9 @@ var callApi_ = function(api, args, options) {
       // NOTE: Since the callback of this call will resolve/reject the outer
       // Promise, make sure the following is the last call of this function.
       api.apply(null, args.concat([callback]));
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      }
     } catch (error) {
       if (!timedOut) {
         clearTimeout(timeout);
@@ -182,7 +185,7 @@ var executeScriptInTab_ = function(tabId, code, options) {
 
   return callApi_(chrome.tabs.executeScript, [tabId, details], options)
     .then(function(result) {
-      return details.allFrames ? result: result[0];
+      return details.allFrames ? result : result[0];
     });
 };
 

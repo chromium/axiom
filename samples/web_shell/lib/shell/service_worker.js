@@ -16,6 +16,8 @@ import FileSystemManager from 'axiom/fs/base/file_system_manager';
 import Path from 'axiom/fs/path';
 import AxiomError from 'axiom/core/error';
 
+const SCOPE_URL = "/";
+
 /**
  * @constructor
  *
@@ -36,8 +38,13 @@ export default ServiceWorker;
  */
 ServiceWorker.prototype.register = function() {
   if ('serviceWorker' in navigator) {
-    return navigator.serviceWorker.register('/service_worker.js',
-        {scope: '/'}).then(function(reg) {
+
+    var curloc = document.location.href.split('/');
+    curloc = curloc.slice(0, -1).join('/');
+    var scope = curloc + SCOPE_URL;
+    var swURL = curloc + '/service_worker.js';
+    return navigator.serviceWorker.register(swURL, {scope: scope}).then(
+        function(reg) {
       // registration worked
       console.log('Registration succeeded. Scope is ' + reg.scope);
     }).catch(function(error) {

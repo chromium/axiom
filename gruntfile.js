@@ -206,6 +206,10 @@ module.exports = function(grunt) {
           dest: 'tmp/samples/web_shell/assets'
         },
         {
+          src: 'samples/web_shell/service_worker.js',
+          dest: 'tmp/samples/web_shell/service_worker.js'
+        },
+        {
           src: 'third_party/idb.filesystem.js/idb.filesystem.js',
           dest: 'tmp/samples/web_shell/polyfill/idb.filesystem.js/idb.filesystem.js'
         }]
