@@ -12,6 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+__axiomExport__(this);
+
+// Create a chromeAgent and start it listening for a connection.
+var chromeAgent = new chrome_agent.ChromeAgent();
+
+// TODO(ericarnold / ussuri): The chrome-command logic should be moved out of the
+// background page.
+
 /**
  * Route a request to an appropriate worker function, wait for it to return
  * a result, then asynchronously send it in a response.

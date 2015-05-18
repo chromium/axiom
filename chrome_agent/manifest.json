@@ -12,16 +12,20 @@
   "background": {
     "persistent": true,
     "scripts": [
-      "scripts/agent_background.js"
+      "js/lib/axiom_base.amd.concat.js",
+      "js/lib/wash.amd.concat.js",
+      "js/chrome_agent.js",
+      "js/extension/background.js"
     ]
   },
 
   "content_scripts": [
     {
       "js": [
-        "scripts/agent_content_script.js"
+        "js/extension/agent_content_script.js"
       ],
       "matches": [
+        "*://axiom-sample.localhost/*",
         "http://localhost:8080/**/web_shell/index.html",
         "http://localhost:8282/**/web_shell/index.html",
         "http://127.0.0.1:8080/**/web_shell/index.html",
@@ -45,6 +49,7 @@
 
   "externally_connectable": {
     "matches": [
+      "*://axiom-sample.localhost/*",
       "http://localhost:8080/*",
       "http://localhost:8282/*",
       "http://127.0.0.1:8080/*",
