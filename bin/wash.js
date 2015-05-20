@@ -42,8 +42,10 @@ WebSocketFs.prototype.println = function(msg) {
 WebSocketFs.prototype.run = function() {
   return this.createServer_().then(function(wss) {
     return new Promise(function(resolve, reject) {
-      this.cx_.onClose.listenOnce(function() {
-        this.println('Shutting down web socket server');
+      this.cx_.onClose.listenOnce(function(reason, value) {
+        console.log('Shutting down WebSocket server');
+        console.log('  reason:', reason);
+        console.log('  value:', value);
         wss.close();
         resolve();
       }.bind(this));
@@ -80,8 +82,10 @@ WebSocketFs.prototype.createServer_ = function() {
   return Promise.resolve().then(function() {
     var cfg = this.options_;
     if (cfg.ssl) {
-      var p1 = this.cx_.fileSystemManager.readFile(new Path(cfg.key));
-      var p2 = this.cx_.fileSystemManager.readFile(new Path(cfg.cert));
+      var keyPath = Path.abs(this.cx_.getPwd(), cfg.key || 'key.pem');
+      var certPath = Path.abs(this.cx_.getPwd(), cfg.cert || 'cert.pem');
+      var p1 = this.cx_.fileSystemManager.readFile(keyPath);
+      var p2 = this.cx_.fileSystemManager.readFile(certPath);
       return Promise.all([p1, p2]).then(function(values) {
         return {
           key: values[0].data,
@@ -151,8 +155,7 @@ var socketfs = function(cx) {
   var ssl = cx.getArg('ssl', false);
   var key = cx.getArg('key');
   var cert = cx.getArg('cert');
-  var ssl_valid = (!ssl) || (ssl && key && cert);
-  if (!port || !fileSystem || !ssl_valid || cx.getArg('help')) {
+  if (!port || !fileSystem || cx.getArg('help')) {
     cx.stdout.write([
       'usage: socketfs <options>',
       'Run a WebSocket server to expose a local file system as a stream.',
