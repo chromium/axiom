@@ -166,7 +166,7 @@ var socketfs = function(cx) {
       '  -f, --filesystem <file-system-name>',
       '      The name of the filesystem to expose on WebSocket connections.',
       '  -s --ssl',
-      '       Enable https.',
+      '       Enable wss.',
       '  -c --cert <path>',
       '      Path to ssl cert file (default: cert.pem).',
       '  -k --key <path>',
