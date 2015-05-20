@@ -30,17 +30,9 @@ if ('setRawMode' in process.stdin) {
 
 var WebSocketServer = require('ws').Server;
 
-var WebSocketFs = function(cx, port, fileSystemName) {
+var WebSocketFs = function(cx, options) {
   this.cx_ = cx;
-  this.port_ = port;
-  this.fileSystemName_ = fileSystemName;
-  this.wss_ = new WebSocketServer({ port: port });
-  this.completer_ = new Completer();
-  this.cx_.onClose.addListener(function() {
-    this.println('closing server');
-    this.wss_.close();
-    this.completer_.resolve();
-  }.bind(this));
+  this.options_ = options;
 };
 
 WebSocketFs.prototype.println = function(msg) {
@@ -48,31 +40,89 @@ WebSocketFs.prototype.println = function(msg) {
 };
 
 WebSocketFs.prototype.run = function() {
-  this.wss_.on('connection', function (ws) {
-    try {
-     this.openFileSystem(ws);
-     this.println('WebSocket file system connection accepted');
-    }
-    catch(error) {
-      this.println('WebSocket file system connection error: ' + error.message);
-      console.log(error);
-      ws.close();
-    }
-  }.bind(this));
+  return this.createServer_().then(function(wss) {
+    return new Promise(function(resolve, reject) {
+      this.cx_.onClose.listenOnce(function() {
+        this.println('Shutting down web socket server');
+        wss.close();
+        resolve();
+      }.bind(this));
 
-  this.println('WebSocket server for file system "' + this.fileSystemName_ +
-      '" running on port ' + this.port_);
-  this.println('Waiting for connections, press Ctrl-C to terminate.');
-  return this.completer_.promise;
+      wss.on('connection', function (ws) {
+        try {
+         this.openFileSystem_(ws);
+         this.println('WebSocket file system connection accepted');
+        }
+        catch(error) {
+          this.println('WebSocket file system connection error: '
+              + error.message);
+          console.log(error);
+          ws.close();
+        }
+      }.bind(this));
+
+      wss.on('error', function (error) {
+        this.println('WebSocket server error', error);
+      }.bind(this));
+
+      var msg = 'WebSocket server for file system "' +
+          this.options_.fileSystem + '" running on port ' + this.options_.port;
+      if (this.options_.ssl) {
+        msg += ' using SSL connections';
+      }
+      this.println(msg);
+      this.println('Waiting for connections, press Ctrl-C to terminate.');
+    }.bind(this));
+  }.bind(this));
 };
 
-WebSocketFs.prototype.openFileSystem = function(webSocket) {
+WebSocketFs.prototype.createServer_ = function() {
+  return Promise.resolve().then(function() {
+    var cfg = this.options_;
+    if (cfg.ssl) {
+      var p1 = this.cx_.fileSystemManager.readFile(new Path(cfg.key));
+      var p2 = this.cx_.fileSystemManager.readFile(new Path(cfg.cert));
+      return Promise.all([p1, p2]).then(function(values) {
+        return {
+          key: values[0].data,
+          cert: values[1].data
+        };
+      }.bind(this));
+    }
+    return null;
+  }.bind(this)).then(function(result) {
+    var httpServ = result ? require('https') : require('http');
+
+    // dummy request processing
+    var processRequest = function( req, res ) {
+        res.writeHead(200);
+        res.end("All glory to WebSockets!\n");
+    };
+
+    // Create the http(s) server.
+    var server = null;
+    if (result) {
+      server = httpServ.createServer({
+        key: result.key,
+        cert: result.cert
+      }, processRequest).listen(this.options_.port);
+    } else {
+      server = httpServ.createServer(processRequest).listen(this.options_.port);
+    }
+
+    // Passing the reference to web server so WS knows port/SSL capabilities.
+    var wss = new WebSocketServer({ server: server });
+    return Promise.resolve(wss);
+  }.bind(this));
+};
+
+WebSocketFs.prototype.openFileSystem_ = function(webSocket) {
   var fileSystems = this.cx_.fileSystemManager.getFileSystems().filter(
     function(fs) {
-      return fs.name === this.fileSystemName_;
+      return fs.name === this.options_.fileSystem;
     }.bind(this));
   if (fileSystems.length !== 1)
-    throw new AxiomError.NotFound('file system', this.fileSystemName_);
+    throw new AxiomError.NotFound('file system', this.options_.fileSystem);
   var fileSystem = fileSystems[0];
 
   var streams = new NodeWebSocketStreams(webSocket);
@@ -93,52 +143,69 @@ WebSocketFs.prototype.openFileSystem = function(webSocket) {
 /*
  * A custom executable to expose the local node fs over stream transport.
  */
-var socketfs = {
-  name: 'socketfs',
+var socketfs = function(cx) {
+  cx.ready();
 
-  main: function(cx) {
-    cx.ready();
+  var port = cx.getArg('port');
+  var fileSystem = cx.getArg('filesystem');
+  var ssl = cx.getArg('ssl', false);
+  var key = cx.getArg('key');
+  var cert = cx.getArg('cert');
+  var ssl_valid = (!ssl) || (ssl && key && cert);
+  if (!port || !fileSystem || !ssl_valid || cx.getArg('help')) {
+    cx.stdout.write([
+      'usage: socketfs <options>',
+      'Run a WebSocket server to expose a local file system as a stream.',
+      '',
+      'Options:',
+      '',
+      '  -h, --help',
+      '      Print this help message and exit.',
+      '  -p, --port <port>',
+      '      The WebSocket port to listen to.',
+      '  -f, --filesystem <file-system-name>',
+      '      The name of the filesystem to expose on WebSocket connections.',
+      '  -s --ssl',
+      '       Enable https.',
+      '  -c --cert <path>',
+      '      Path to ssl cert file (default: cert.pem).',
+      '  -k --key <path>',
+      '      Path to ssl key file (default: key.pem).',
+      '',
+    ].join('\r\n') + '\r\n');
 
-    var port = cx.getArg('port');
-    var fileSystem = cx.getArg('filesystem');
-    if (!port || !fileSystem || cx.getArg('help')) {
-      cx.stdout.write([
-        'usage: socketfs -p|--port <port> -f|--filesystem <file-system-name>',
-        'Create a new stream located at <path>.',
-        '',
-        'Options:',
-        '',
-        '  -h, --help',
-        '      Print this help message and exit.',
-        '  -p, --port <port>',
-        '      The WebSocket port to listen to.',
-        '  -f, --filesystem <file-system-name>',
-        '      The name of the filesystem to expose on WebSocket connections.',
-        '',
-      ].join('\r\n') + '\r\n');
+    cx.closeOk();
+    return;
+  }
 
+  var options = {
+    port: port,
+    fileSystem: fileSystem,
+    ssl: ssl,
+    key: key,
+    cert: cert
+  };
+
+  var server = new WebSocketFs(cx, options);
+  server.run().then(
+    function() {
       cx.closeOk();
-      return;
     }
+  ).catch(
+    function(error) {
+      cx.closeError(error);
+    }
+  );
+};
 
-    var server = new WebSocketFs(cx, port, fileSystem);
-    server.run().then(
-      function() {
-        cx.closeOk();
-      }
-    ).catch(
-      function(error) {
-        cx.closeError(error);
-      }
-    );
-  },
-
-  signature: {
+socketfs.signature = {
     'help|h': '?',
     'port|p': '*',
     'filesystem|f': '$',
+    'ssl|s': '?',
+    'cert|c': '$',
+    'key|k': '$',
     '_': '@'
-  }
 };
 
 function onResize(stdioSource) {
@@ -205,9 +272,9 @@ function main() {
   var fsm = jsfs.fileSystemManager;
   return jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
     jsdir.install(washExecutables);
-    var cmds = {};
-    socketfs.main.signature = socketfs.signature;
-    cmds[socketfs.name] = socketfs.main;
+    var cmds = {
+      'socketfs': socketfs
+    };
     jsdir.install(cmds);
     mountNodefs(fsm);
     return startWash(fsm);
