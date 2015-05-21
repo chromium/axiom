@@ -30,7 +30,6 @@ var AxiomEvent;
  */
 export var ChromeAgent = function() {
   var jsfs = new JsFileSystem();
-  var fsm = jsfs.fileSystemManager;
 
   var streams = new ExtensionStreams();
   var transport = new Transport(
@@ -42,10 +41,10 @@ export var ChromeAgent = function() {
   jsfs.rootDirectory.mkdir('exe').then(function(jsdir) {
     // TODO (ericarnold): implement:
     // jsdir.install({'chrome': chromeCommand});
-    streams.listenAsExtension();
+    streams.listen();
     streams.resume();
   }.bind(this));
 
   /** @const @type {!AxiomEvent} */
   this.onConnected = streams.onConnected;
-}
+};
