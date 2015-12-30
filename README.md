@@ -1,7 +1,7 @@
 
 # TODO
 
-The axiom name is taken by a [Yoeman-like workflow tool](https://www.npmjs.com/package/axiom).  We'll need a new name, stat.
+The axiom name is taken by a [Yeoman-like workflow tool](https://www.npmjs.com/package/axiom).  We'll need a new name, stat.
 
 
 # Axiom: Universal File System, Streams, and Processes API for JS
