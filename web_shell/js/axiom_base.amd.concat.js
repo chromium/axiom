@@ -486,7 +486,7 @@ define("axiom/core/error", ["exports"], function(__exports__) {
  AxiomError.subclass = function(ctor, opt_name) {
    var match = ctor.toString().match(/^function [^\(]*\(([^\)]*)\)/);
    if (!match)
-     throw new Error('Error parsing AxiomError constructor: ' + ctor.toString());
+     match = ['', ctor.toString()];
 
    var argNames = [];
 
